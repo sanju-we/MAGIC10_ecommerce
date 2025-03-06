@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reset Password - MAGIC10</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+  <style>
+    /* Global Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-image: url(images/newPassword.jpg);
+      background-size: cover;
+      /* Ensures the image covers the entire area */
+      background-position: center center;
+      /* Centers the image */
+      background-repeat: no-repeat;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      color: #C4A277;
+    }
+
+    .container {
+      background-color: #2A2A2A;
+      padding: 2rem;
+      max-width: 400px;
+      width: 100%;
+      border-radius: 0.5rem;
+      box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.5);
+      border: 2px solid #4FD1C5;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: #C4A277;
+    }
+
+    p {
+      margin-bottom: 1rem;
+      color: red;
+    }
+
+    #sub {
+      margin-bottom: 1rem;
+      color: #c4a277;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #C4A277;
+      font-size: 0.9rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      border: 1px solid #8B6F48;
+      border-radius: 0.375rem;
+      font-size: 1rem;
+      background-color: #1E1E1E;
+      color: #C4A277;
+    }
+
+    input:focus {
+      border-color: #4FD1C5;
+      outline: none;
+    }
+
+    .submit-button {
+      background-color: #005A6E;
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 0.375rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .submit-button:hover {
+      background-color: #007A90;
+    }
+
+    /* Optional error styling */
+    .error-message {
+      color: #FF6B6B;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Reset Your Password</h1>
+    <p id="sub">Please enter your new password below.</p>
+    <form action="/userProfile/newEmail" method="post" id="newPassForm">
+      <div class="form-group">
+        <label for="newEmail">New Email</label>
+        <input type="email" id="newEmail" name="newEmail" placeholder="Enter new Email" required>
+        <p id="error"></p>
+      </div>
+      <div class="form-group">
+        <label for="confirmPassword">Confirm New Email</label>
+        <input type="email" id="confirmEmail" name="confirmEmail" placeholder="Confirm new Email" required>
+        <p id="error1"></p>
+      </div>
+      <button type="submit" class="submit-button">Reset Email</button>
+    </form>
+  </div>
+
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const emailInput = document.getElementById('newEmail');
+      const confirmEmailInput = document.getElementById('confirmEmail');
+      const errorEmail = document.getElementById('error');
+      const errorConfirmEmail = document.getElementById('error1');
+      const form = document.getElementById('newPassForm');
+  
+      function validateEmail(email) {
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return emailPattern.test(email);
+      }
+  
+      function checkValidation() {
+        const emailVal = emailInput.value.trim();
+        const confirmEmailVal = confirmEmailInput.value.trim();
+  
+        // Email format validation
+        if (!validateEmail(emailVal)) {
+          errorEmail.style.display = "block";
+          errorEmail.innerText = "Enter a valid email address";
+          emailInput.classList.add('error');
+        } else {
+          errorEmail.style.display = "none";
+          emailInput.classList.remove('error');
+        }
+  
+        // Confirm email validation
+        if (confirmEmailVal !== "" && emailVal !== confirmEmailVal) {
+          errorConfirmEmail.style.display = "block";
+          errorConfirmEmail.innerText = "Emails do not match";
+          confirmEmailInput.classList.add('error');
+        } else {
+          errorConfirmEmail.style.display = "none";
+          confirmEmailInput.classList.remove('error');
+        }
+      }
+  
+      // Live validation on input
+      emailInput.addEventListener('input', checkValidation);
+      confirmEmailInput.addEventListener('input', checkValidation);
+  
+      form.addEventListener('submit', function (e) {
+        checkValidation();
+  
+        if (errorEmail.style.display === "block" || errorConfirmEmail.style.display === "block") {
+          e.preventDefault(); // Prevent submission if errors exist
+        }
+      });
+    });
+  </script>
+  
+</body>
+
+</html>

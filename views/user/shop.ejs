@@ -1,0 +1,368 @@
+<%- include('../partials/user/header') %>
+
+<style>
+    :root {
+        --dark-bg: #121212;
+        --accent-gold: #c4a277;
+        --secondary-bg: #1a1a1a;
+        --text-primary: #e0e0e0;
+        --text-secondary: #888;
+        --border-light: rgba(196, 162, 119, 0.1);
+        --hover-gold: #d4b487;
+    }
+
+    body {
+        background-color: var(--dark-bg);
+        color: var(--text-primary);
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Header Styling */
+    header {
+        background: var(--secondary-bg);
+        border-bottom: 1px solid var(--border-light);
+        padding: 1rem 2rem;
+    }
+
+    nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .logo {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--accent-gold);
+        text-decoration: none;
+    }
+
+    .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .nav-links a {
+        color: var(--text-primary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+    .nav-links a:hover {
+        color: var(--accent-gold);
+    }
+
+    .header-icons {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .header-icons .icon-link {
+        color: var(--text-primary);
+        font-size: 1.2rem;
+        transition: color 0.3s ease;
+    }
+
+    .header-icons .icon-link:hover {
+        color: var(--accent-gold);
+    }
+
+    /* Shop Container */
+    .shop-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .shop-title {
+        font-family: 'Bodoni Moda', serif;
+        font-size: 2.5rem;
+        color: var(--accent-gold);
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    /* Search and Filter Section */
+    .search-filter-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        background: var(--secondary-bg);
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid var(--border-light);
+    }
+
+    #searchInput,
+    #filterCategory {
+        padding: 0.8rem 1rem;
+        font-size: 1rem;
+        border-radius: 8px;
+        border: 1px solid var(--border-light);
+        background-color: var(--dark-bg);
+        color: var(--text-primary);
+        transition: all 0.3s ease;
+    }
+
+    #searchInput {
+        flex-grow: 1;
+        max-width: 400px;
+    }
+
+    #searchInput::placeholder {
+        color: var(--text-secondary);
+    }
+
+    #searchInput:focus,
+    #filterCategory:focus {
+        border-color: var(--accent-gold);
+        outline: none;
+        box-shadow: 0 0 5px rgba(196, 162, 119, 0.3);
+    }
+
+    #filterCategory {
+        min-width: 200px;
+        background: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23c4a277" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3Cpolyline points="6 9 12 15 18 9"%3E%3C/polyline%3E%3C/svg%3E') no-repeat right 0.75rem center/12px;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+    }
+
+    /* Loading Indicator */
+    .loading {
+        display: none;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin-left: 1rem;
+    }
+
+    .loading.active {
+        display: inline-block;
+    }
+
+    /* Products Grid */
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+
+    .product-card {
+        background-color: var(--secondary-bg);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        border: 1px solid var(--border-light);
+        transition: all 0.3s ease;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--accent-gold);
+        box-shadow: 0 5px 15px rgba(196, 162, 119, 0.1);
+    }
+
+    .product-card img {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 2px solid var(--accent-gold);
+        margin-bottom: 1rem;
+    }
+
+    .product-title {
+        margin: 0.5rem 0;
+        font-size: 1.3rem;
+        color: var(--text-primary);
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+    }
+
+    .product-price {
+        color: var(--accent-gold);
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+        font-weight: 500;
+    }
+
+    .view-details {
+        display: inline-block;
+        background-color: var(--accent-gold);
+        color: var(--dark-bg);
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        text-transform: uppercase;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .view-details:hover {
+        background-color: var(--hover-gold);
+        transform: translateY(-2px);
+        box-shadow: 0 3px 8px rgba(196, 162, 119, 0.3);
+    }
+
+    /* Messages */
+    .message {
+        text-align: center;
+        color: var(--text-secondary);
+        font-size: 1.2rem;
+        margin-top: 1rem;
+        padding: 1rem;
+        background: var(--secondary-bg);
+        border-radius: 8px;
+        border: 1px solid var(--border-light);
+    }
+
+    /* No Products Message */
+    .no-products {
+        text-align: center;
+        color: var(--text-secondary);
+        font-size: 1.2rem;
+        margin-top: 2rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .shop-container {
+            padding: 1rem;
+        }
+
+        .search-filter-container {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        #searchInput,
+        #filterCategory {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .products-grid {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .product-card {
+            padding: 1rem;
+        }
+
+        .product-card img {
+            height: 200px;
+        }
+    }
+</style>
+<header>
+    <nav>
+        <a href="/" class="logo">MAGIC10</a>
+        <div class="nav-links">
+            <a href="/">HOME</a>
+            <a href="/shop">SHOP</a>
+            <a href="/about">ABOUT</a>
+            <a href="/contact">CONTACT</a>
+
+            <!-- Wishlist and Cart Buttons -->
+            <div class="header-icons">
+                <a href="/wishlist" class="icon-link">
+                    <i class="fas fa-heart"></i>
+                </a>
+                <a href="/cart" class="icon-link">
+                    <i class="fas fa-shopping-bag"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+</header>
+<div class="shop-container">
+    <h1 class="shop-title">Shop Our Collection</h1>
+
+    <!-- Search and Filter Section -->
+    <div class="search-filter-container">
+        <input type="text" id="searchInput" placeholder="Search products (press Enter to search)..." onkeypress="handleKeyPress(event)">
+        <span class="loading" id="loadingIndicator">Loading...</span>
+        <select id="filterCategory" onchange="filterProducts()">
+            <option value="all">All Categories</option>
+            <% if (categories && categories.length > 0) { %>
+                <% categories.forEach(category => { %>
+                    <option value="<%= category._id %>">
+                        <%= category.name %>
+                    </option>
+                <% }); %>
+            <% } else { %>
+                <option value="" disabled>No categories available</option>
+            <% } %>
+        </select>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="products-grid" id="productsContainer">
+        <% if (product && product.length) { %>
+            <% product.forEach(product => { %>
+                <div class="product-card" data-name="<%= product.productName.toLowerCase() %>" data-category="<%= product.category %>">
+                    <% if (product.image && product.image.length > 0) { %>
+                        <img src="<%= product.image[0] %>" alt="<%= product.productName %>">
+                    <% } else { %>
+                        <img src="/images/default-product.jpg" alt="No Image Available">
+                    <% } %>
+                    <h3 class="product-title"><%= product.productName %></h3>
+                    <p class="product-price">₹<%= product.salePrice.toFixed(2) %></p>
+                    <a href="/product/<%= product._id %>" class="view-details">View Details</a>
+                </div>
+            <% }); %>
+        <% } else { %>
+            <p class="no-products">No products available</p>
+        <% } %>
+    </div>
+</div>
+
+<script>
+    // Debounce function to delay the search
+    function debounce(func, delay) {
+        let timeoutId;
+        return function (...args) {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+
+    // Handle keypress for Enter key
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            filterProducts();
+        }
+    }
+
+    // Main filter function
+    function filterProducts() {
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        loadingIndicator.classList.add('active');
+
+        let searchInput = document.getElementById("searchInput").value;
+        let filterCategory = document.getElementById("filterCategory").value;
+
+        let queryParams = new URLSearchParams();
+        if (searchInput) queryParams.append("search", searchInput);
+        if (filterCategory && filterCategory !== "all") queryParams.append("category", filterCategory);
+
+        window.location.href = `/shop?${queryParams.toString()}`;
+    }
+
+    // Debounce the search input (optional, if you want to keep oninput search)
+    const debouncedFilterProducts = debounce(filterProducts, 300);
+</script>
+
+<%- include('../partials/user/footer') %>

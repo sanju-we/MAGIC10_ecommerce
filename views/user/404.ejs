@@ -1,0 +1,137 @@
+<%- include('../partials/user/header') %>
+<header>
+    <nav>
+      <a href="/" class="logo">MAGIC10</a>
+      <div class="nav-links">
+        <a href="/">HOME</a>
+        <a href="/shop">SHOP</a>
+        <a href="/about">ABOUT</a>
+        <a href="/contatc">CONTACT</a>
+        <% if (locals.user) { %>
+          <div class="custom-dropdown">
+            <a href="#" class="sign-in-link">
+              <%= locals.user.username %>
+            </a>
+            <div class="dropdown-content">
+              <a href="/userProfile">Profile</a>
+              <a href="/logout">Logout</a>
+            </div>
+          </div>
+          <% } else { %>
+            <a href="/signup">SIGNUP</a>
+            <a href="/login">LOGIN</a>
+            <% } %>
+
+      </div>
+    </nav>
+  </header>
+<style>
+    :root {
+        --dark-bg: #121212;
+        --accent-gold: #c4a277;
+        --secondary-bg: #1a1a1a;
+        --text-primary: #c4a277;
+        --text-secondary: #888;
+    }
+
+    .error-container {
+        background-color: var(--dark-bg);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .error-header {
+        font-family: 'Bodoni Moda', serif;
+        color: var(--accent-gold);
+        font-size: 2.5rem;
+        margin-bottom: 2rem;
+        letter-spacing: 2px;
+    }
+
+    .error-illustration {
+        width: 250px;
+        height: 250px;
+        background-color: var(--secondary-bg);
+        border-radius: 50%;
+        padding: 1.5rem;
+        margin: 2rem 0;
+        border: 2px solid var(--accent-gold);
+    }
+
+    .error-illustration img {
+        width: 100%;
+        height: auto;
+        filter: sepia(1) hue-rotate(-10deg);
+    }
+
+    .error-code {
+        font-family: 'Bodoni Moda', serif;
+        color: var(--accent-gold);
+        font-size: 6rem;
+        margin: 1rem 0;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .error-message {
+        color: var(--text-secondary);
+        font-size: 1.2rem;
+        line-height: 1.6;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .error-message a {
+        color: var(--accent-gold);
+        text-decoration: none;
+        border-bottom: 1px solid var(--accent-gold);
+        transition: all 0.3s ease;
+    }
+
+    .error-message a:hover {
+        color: #d4b487;
+        border-bottom-color: transparent;
+    }
+
+    @media (max-width: 768px) {
+        .error-header {
+            font-size: 2rem;
+        }
+        
+        .error-illustration {
+            width: 200px;
+            height: 200px;
+        }
+        
+        .error-code {
+            font-size: 4rem;
+        }
+        
+        .error-message {
+            font-size: 1rem;
+            padding: 0 1rem;
+        }
+    }
+</style>
+
+<div class="error-container">
+    <h1 class="error-header">MAGIC10</h1>
+    
+    <div class="error-illustration">
+        <img src="images/hero-image.jpg" alt="Football illustration" style="border-radius: 200px; height: 200px; width: 200px;">
+    </div>
+
+    <div class="error-code">404</div>
+    
+    <p class="error-message">
+        Oops! The page you're looking for has been tackled out of bounds. 
+        <p><%= error %></p>
+        <a href="/">Return to Home</a> and get back in the game.
+    </p>
+</div>
+
+<%- include('../partials/user/footer') %>

@@ -1,0 +1,293 @@
+<%- include('../partials/user/header') %>
+
+    <header>
+        <nav>
+            <a href="/" class="logo">MAGIC10</a>
+            <div class="nav-links">
+                <a href="/">HOME</a>
+                <a href="/shop">SHOP</a>
+                <a href="/about">ABOUT</a>
+                <a href="/contact">CONTACT</a>
+                <% if (locals.user) { %>
+                    <div class="custom-dropdown">
+                        <a href="#" class="sign-in-link">
+                            <%= locals.user.username %>
+                        </a>
+                        <div class="dropdown-content">
+                            <a href="/userProfile">Profile</a>
+                            <a href="/logout">Logout</a>
+                        </div>
+                    </div>
+                    <% } else { %>
+                        <a href="/signup">SIGNUP</a>
+                        <a href="/login">LOGIN</a>
+                        <% } %>
+            </div>
+        </nav>
+    </header>
+
+    <style>
+        .add-address-container {
+            max-width: 800px;
+            margin: 3rem auto;
+            padding: 2rem;
+            background: var(--secondary-bg);
+            border-radius: 12px;
+            border: 1px solid rgba(196, 162, 119, 0.1);
+        }
+
+        .address-form .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .address-type-group {
+            display: flex;
+            gap: 2rem;
+            margin: 1rem 0;
+        }
+
+        .address-type-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        input[type="radio"] {
+            accent-color: var(--accent-gold);
+        }
+
+        .default-address {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .save-address-btn {
+            width: 100%;
+            margin-top: 1.5rem;
+        }
+
+        .error-msg {
+            color: red;
+            font-size: 0.9rem;
+            margin-top: 0.2rem;
+        }
+    </style>
+
+    <div class="add-address-container">
+        <h2 class="text-center mb-4">Edit Address</h2>
+
+        <form class="address-form" action="/userProfile/editAddress/<%=addressData._id%>" method="post" id="addAddressForm">
+            <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-control" name="fullName" id="fullName" value=<%=addressData.fullName%> required>
+                <p class="error-msg" id="fullNameError"></p>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                <input type="tel" class="form-control" name="phone" value="<%=addressData.phone%>" id="phone" required>
+                <p class="error-msg" id="phoneError"></p>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Street Address</label>
+                <textarea class="form-control" name="street" id="street" rows="3" required><%= addressData.street %></textarea>
+                <p class="error-msg" id="streetError"></p>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">City</label>
+                    <input type="text" class="form-control" name="city" value="<%=addressData.city%>" id="city" required>
+                    <p class="error-msg" id="cityError"></p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Land Mark</label>
+                    <input type="text" class="form-control" name="LandMark" value="<%=addressData.LandMark%>" id="landmark" required>
+                    <p class="error-msg" id="landmarkError"></p>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">PIN Code</label>
+                    <input type="text" class="form-control" name="PINcode" value="<%=addressData.PINcode%>" id="pinCode" required>
+                    <p class="error-msg" id="pinCodeError"></p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">State</label>
+                    <select class="form-control" name="State" value="<%=addressData.State%>" id="state" required>
+                        <option value="">Select State</option>
+                        <option value="Kerala">Kerala</option>
+                        <option value="Tamil-Nadu">Tamil Nadu</option>
+                        <option value="Karnataka">Karnataka</option>
+                    </select>
+                    <p class="error-msg" id="stateError"></p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Address Type</label>
+                <div class="address-type-group">
+                    <label><input type="radio" name="addressType" value="home"> Home</label>
+                    <label><input type="radio" name="addressType" value="office"> Office</label>
+                    <label><input type="radio" name="addressType" value="other"> Other</label>
+                </div>
+                <p class="error-msg" id="addressTypeError"></p>
+            </div>
+
+            <div class="default-address">
+                <input type="radio" id="defaultAddress" name="defaultAddress">
+                <label for="defaultAddress" class="form-label">Set as default address</label>
+            </div>
+
+            <input type="submit" class="primary-btn" value="Submit">
+        </form>
+    </div>
+
+    <script>
+        function validateFullName() {
+            const fullName = document.getElementById('fullName');
+            const errorElement = document.getElementById('fullNameError');
+            if (!/^[A-Za-z\s]+$/.test(fullName.value)) {
+                errorElement.innerText = 'Only letters allowed';
+                return false;
+            }
+            errorElement.innerText = '';
+            return true;
+        }
+
+        function validatePhone() {
+            const phone = document.getElementById('phone');
+            const errorElement = document.getElementById('phoneError');
+            phone.value = phone.value.replace(/\D/g, '');
+            if (!/^\d{10}$/.test(phone.value)) {
+                errorElement.innerText = 'Must be 10 digits';
+                return false;
+            }
+            errorElement.innerText = '';
+            return true;
+        }
+
+        function validateStreet() {
+            const street = document.getElementById('street');
+            const errorElement = document.getElementById('streetError');
+            if (street.value.trim() === '') {
+                errorElement.innerText = 'Required';
+                return false;
+            }
+            errorElement.innerText = '';
+            return true;
+        }
+
+        function validateCity() {
+            const city = document.getElementById('city');
+            const errorElement = document.getElementById('cityError');
+            if (!/^[A-Za-z\s]+$/.test(city.value)) {
+                errorElement.innerText = 'Only letters allowed';
+                return false;
+            }
+            errorElement.innerText = '';
+            return true;
+        }
+
+        function validateLandmark() {
+            const landmark = document.getElementById('landmark');
+            const errorElement = document.getElementById('landmarkError');
+            if (landmark.value.trim() === '') {
+                errorElement.innerText = 'Required';
+                return false;
+            }
+            errorElement.innerText = '';
+            return true;
+        }
+
+        function validatePinCode() {
+            const pinCode = document.getElementById('pinCode');
+            const errorElement = document.getElementById('pinCodeError');
+            // Remove non-digit characters
+            pinCode.value = pinCode.value.replace(/\D/g, '');
+            if (!/^\d{6}$/.test(pinCode.value)) {
+                errorElement.innerText = 'Must be 6 digits';
+                return false;
+            }
+            errorElement.innerText = '';
+            return true;
+        }
+
+        function validateState() {
+            const state = document.getElementById('state');
+            const errorElement = document.getElementById('stateError');
+            if (state.value === '') {
+                errorElement.innerText = 'Required';
+                return false;
+            }
+            errorElement.innerText = '';
+            return true;
+        }
+
+        function validateAddressType() {
+            const addressType = document.querySelector('input[name="addressType"]:checked');
+            const errorElement = document.getElementById('addressTypeError');
+            if (!addressType) {
+                errorElement.innerText = 'Required';
+                return false;
+            }
+            errorElement.innerText = '';
+            return true;
+        }
+
+        // Add event listeners for live validation
+        document.getElementById('fullName').addEventListener('input', validateFullName);
+        document.getElementById('phone').addEventListener('input', validatePhone);
+        document.getElementById('street').addEventListener('input', validateStreet);
+        document.getElementById('city').addEventListener('input', validateCity);
+        document.getElementById('landmark').addEventListener('input', validateLandmark);
+        document.getElementById('pinCode').addEventListener('input', validatePinCode);
+        document.getElementById('state').addEventListener('change', validateState);
+
+        // For radio buttons
+        document.querySelectorAll('input[name="addressType"]').forEach(radio => {
+            radio.addEventListener('change', validateAddressType);
+        });
+
+        // Existing submit handler
+        document.getElementById('addAddressForm').addEventListener('submit', function (e) {
+            e.preventDefault(); // Prevent default submission
+
+            // Run all validations
+            const validations = [
+                validateFullName(),
+                validatePhone(),
+                validateStreet(),
+                validateCity(),
+                validateLandmark(),
+                validatePinCode(),
+                validateState(),
+                validateAddressType()
+            ];
+
+            // If any validation fails, do not submit the form
+            if (validations.includes(false)) {
+                console.log('Validation failed, form not submitted.');
+                return;
+            }
+
+            console.log('Validation passed, submitting form.');
+            this.submit(); 
+        });
+
+    </script>
+
+    <%- include('../partials/user/footer') %>

@@ -1,0 +1,81 @@
+<%- include('../partials/user/header') %>
+
+  <body>
+    <div class="container">
+      <header>
+        <nav>
+            <a href="/" class="logo">MAGIC10</a>
+            <div class="nav-links">
+                <a href="/">HOME</a>
+                <a href="/shop">SHOP</a>
+                <a href="/about">ABOUT</a>
+                <a href="/contact">CONTACT</a>
+                
+                <!-- Wishlist and Cart Buttons -->
+                <div class="header-icons">
+                    <a href="/wishlist" class="icon-link">
+                        <i class="fas fa-heart"></i>
+                    </a>
+                    <a href="/cart" class="icon-link">
+                        <i class="fas fa-shopping-bag"></i>
+                    </a>
+                </div>
+    
+                <% if (locals.user) { %>
+                    <div class="custom-dropdown">
+                        <a href="#" class="sign-in-link">
+                            <%= locals.user.username %>
+                        </a>
+                        <div class="dropdown-content">
+                            <a href="/userProfile">Profile</a>
+                            <a href="/logout">Logout</a>
+                        </div>
+                    </div>
+                <% } else { %>
+                    <a href="/signup">SIGNUP</a>
+                    <a href="/login">LOGIN</a>
+                <% } %>
+            </div>
+        </nav>
+    </header>
+
+      <section class="hero">
+        <div class="hero-content">
+          <h1>ELITE FOOTBALL GEAR</h1>
+          <p>Get the best football products inspired by legends. Feel the magic on the field with premium-quality gear.
+          </p>
+          <a href="/shop" class="button">Shop Now</a>
+        </div>
+        <div class="hero-image">
+          <img src="images/hero-image.jpg" alt="Football Gear" style="border-radius: 200px;">
+        </div>
+      </section>
+
+      <section class="bestsellers">
+        <h2>Top Picks for Champions</h2>
+        <div class="products-grid">
+          <% if (products && products.length) { %>
+            <% products.forEach(function(product) { %>
+              <div class="product">
+                <% if (product.image && product.image.length> 0) { %>
+                  <img src="<%= product.image[0] %>" alt="Product Image">
+                  <% } else { %>
+                    <img src="/path/to/default-image.jpg" alt="No Image Available">
+                    <% } %>
+                      <h3>
+                        <%= product.productName %>
+                      </h3>
+                      <p>₹<%= product.salePrice %>
+                      </p>
+                      <a href="/product/<%= product._id%>" class="button">View Details</a>
+              </div>
+              <% }); %>
+                <% } else { %>
+                  <p>No products available</p>
+                  <% } %>
+        </div>
+      </section><br><br>
+
+    </div>
+
+    <%- include('../partials/user/footer') %>

@@ -1,0 +1,243 @@
+<%- include('../partials/user/header') %>
+<header>
+  <nav>
+    <a href="/" class="logo">MAGIC10</a>
+    <div class="nav-links">
+      <a href="/">HOME</a>
+      <a href="/shop">SHOP</a>
+      <a href="/about">ABOUT</a>
+      <a href="/contatc">CONTACT</a>
+      <% if (locals.user) { %>
+        <div class="custom-dropdown">
+          <a href="#" class="sign-in-link">
+            <%= locals.userData.username %>
+          </a>
+          <div class="dropdown-content">
+            <a href="/userProfile">Profile</a>
+            <a href="/logout">Logout</a>
+          </div>
+        </div>
+        <% } %>
+    </div>
+  </nav>
+</header>
+<style>
+    :root {
+        --dark-bg: #121212;
+        --accent-gold: #c4a277;
+        --secondary-bg: #1a1a1a;
+        --text-primary: #c4a277;
+        --text-secondary: #888;
+    }
+
+    .edit-profile-container {
+        max-width: 800px;
+        margin: 3rem auto;
+        padding: 2rem;
+        background: var(--secondary-bg);
+        border-radius: 12px;
+        border: 1px solid rgba(196, 162, 119, 0.1);
+    }
+
+    .profile-picture-section {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .profile-picture {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--accent-gold);
+        margin-bottom: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        color: var(--accent-gold);
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        background: var(--dark-bg);
+        border: 1px solid rgba(196, 162, 119, 0.2);
+        color: var(--text-primary);
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+    }
+
+    .form-control:focus {
+        border-color: var(--accent-gold);
+        box-shadow: 0 0 0 0.25rem rgba(196, 162, 119, 0.25);
+    }
+
+    .otp-section {
+        display: none;
+        margin-top: 1rem;
+    }
+
+    .btn-gold {
+        background: var(--accent-gold);
+        color: var(--dark-bg);
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-gold:hover {
+        background: #d4b487;
+        transform: translateY(-2px);
+    }
+
+    .danger-zone {
+        border-top: 2px solid #dc3545;
+        padding-top: 2rem;
+        margin-top: 3rem;
+    }
+</style>
+
+<div class="edit-profile-container">
+    <h2 class="text-center mb-4">Edit Profile</h2>
+    
+    <!-- Profile Picture Section -->
+    <div class="profile-picture-section">
+        <img src="<%= userData.image ? userData.image : 'images/Messi signup.jpg' %>" class="profile-picture" alt="Profile">
+        <form id="profilePicForm" enctype="multipart/form-data">
+            <input type="file" id="profileImage" accept="image/*" hidden>
+            <button type="button" onclick="document.getElementById('profileImage').click()" class="btn-gold">
+                <i class="fas fa-camera"></i> Change Photo
+            </button>
+        </form>
+    </div>
+
+    
+
+    <!-- Personal Information Form -->
+    <form id="editProfileForm" action="/userProfile/edit/<%=userData._id%>" method="post">
+        <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" class="form-control" name="username" value="<%= userData.username %>" required>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Phone Number</label>
+            <input type="tel" class="form-control" name="phone" value="<%= userData.phone %>">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Gender</label>
+            <div class="radio-group">
+                <label>
+                    <input type="radio" name="gender" value="Male" <%= userData.gender === 'Male' ? 'checked' : '' %>> Male
+                </label><br>
+                <label>
+                    <input type="radio" name="gender" value="Female" <%= userData.gender === 'Female' ? 'checked' : '' %>> Female
+                </label><br>
+                <label>
+                    <input type="radio" name="gender" value="Other" <%= userData.gender === 'Other' ? 'checked' : '' %>> Other
+                </label>
+            </div>
+        </div>
+
+        <!-- Email Update with OTP Verification -->
+        <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <div class="input-group">
+                <input type="email" class="form-control" value="<%= userData.email %>" name="email" id="emailInput" required>
+                <a href="/userProfile/change-email/<%=userData._id%>"><button class="btn-gold" type="button">Change Email</button></a>
+            </div>
+            <div class="otp-section" id="otpSection">
+                <input type="text" class="form-control mt-2" placeholder="Enter OTP">
+                <button class="btn-gold mt-2" type="button" onclick="verifyOTP()">Submit OTP</button>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn-gold px-5">Save Changes</button><br>
+            <%if(userData.password){%>
+                <a href="/userProfile/Reset-password/<%=userData._id%>">Change Password</a>
+            <%}%>
+        </div>
+    </form>
+
+    <!-- Danger Zone -->
+    <!-- <div class="danger-zone">
+        <h4 class="text-danger mb-3"><i class="fas fa-exclamation-triangle"></i> Danger Zone</h4>
+        <button class="btn btn-outline-danger" onclick="confirmDelete()">
+            <i class="fas fa-trash me-2"></i>Delete Account
+        </button>
+    </div> -->
+</div>
+
+<script>
+    function sendOTP() {
+        const email = document.getElementById('emailInput').value;
+        // Add API call to send OTP
+        document.getElementById('otpSection').style.display = 'block';
+        Swal.fire('OTP Sent!', 'Check your email for verification code', 'success');
+    }
+
+    function verifyOTP() {
+        // Add OTP verification logic
+        Swal.fire('Success!', 'Email verified successfully', 'success');
+        document.getElementById('otpSection').style.display = 'none';
+    }
+
+    function confirmDelete() {
+        Swal.fire({
+            title: 'Delete Account?',
+            text: "This action cannot be undone!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Add account deletion logic
+                Swal.fire('Deleted!', 'Your account has been deleted', 'success');
+            }
+        });
+    }
+
+    // Image Preview Handler
+    // document.getElementById('profileImage').addEventListener('change', function(e) {
+    //     const reader = new FileReader();
+    //     reader.onload = function() {
+    //         document.querySelector('.profile-picture').src = reader.result;
+    //     }
+    //     reader.readAsDataURL(e.target.files[0]);
+    // });
+
+    document.getElementById('profileImage').addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('profileImage', file);
+
+        fetch(`/upload-profile-pic/<%= userData._id %>`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.querySelector('.profile-picture').src = data.imagePath;
+                Swal.fire('Success!', 'Profile picture updated successfully.', 'success');
+            } else {
+                Swal.fire('Error!', 'Failed to upload image.', 'error');
+            }
+        })
+        .catch(error => Swal.fire('Error!', 'Something went wrong.', 'error'));
+    });
+</script>
+
+<%- include('../partials/user/footer') %>

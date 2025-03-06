@@ -1,0 +1,174 @@
+<%- include('../partials/user/header') %>
+<header>
+    <link rel="stylesheet" href="/css/orderHistory.css">
+    <nav>
+        <a href="/" class="logo">MAGIC10</a>
+        <div class="nav-links">
+            <a href="/">HOME</a>
+            <a href="/shop">SHOP</a>
+            <a href="/about">ABOUT</a>
+            <a href="/contact">CONTACT</a>
+            
+            <!-- Wishlist and Cart Buttons -->
+            <div class="header-icons">
+                <a href="/wishlist" class="icon-link">
+                    <i class="fas fa-heart"></i>
+                </a>
+                <a href="/cart" class="icon-link">
+                    <i class="fas fa-shopping-bag"></i>
+                </a>
+            </div>
+                <div class="custom-dropdown">
+                    <a href="#" class="sign-in-link">
+                        <%= user.username %>
+                    </a>
+                    <div class="dropdown-content">
+                        <a href="/userProfile">Profile</a>
+                        <a href="/logout">Logout</a>
+                    </div>
+                </div>
+        </div>
+    </nav>
+</header>
+    <div class="container">
+        <h2>My Order History</h2>
+        
+        <% if (orders.length === 0) { %>
+            <p>No orders placed yet.</p>
+        <% } else { %>
+            <% orders.forEach(order => { %>
+                <div class="order-card">
+                    <h3>Order ID: <%= order.orderId %></h3>
+                    <p><strong>Date:</strong> <%= new Date(order.createdOn).toLocaleDateString() %></p>
+                    <p><strong>Status:</strong> <%= order.status %></p>
+                    <p><strong>Total Price:</strong> ₹<%= order.finalAmount %></p>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Total</th>
+                                <th>Details</th>
+                                <% if (order.status !== 'Cancelled' ) { %>
+                                <th>Action</th>
+                                <% } %>
+                            </tr>
+                        </thead>
+                        <tbody>
+                                <tr>
+                                    <td><%= order.product.productName %></td>
+                                    <td><%= order.quantity %></td>
+                                    <td>₹<%= order.product.salePrice %></td>
+                                    <td>₹<%= order.finalAmount.toFixed(2) %></td>
+                                    <td><a href="/orders/<%= order._id %>" class="btn btn-primary btn-sm"> View Details</a></td>
+                                    <% if (order.status !== 'Cancelled' && order.status !== 'Delivered') { %>
+                                        <td><a onclick="cancelOrder('<%= order._id %>')" class="btn btn-danger btn-sm">Cancel</a></td>
+                                    <% }else if(order.status === 'Delivered'){ %>
+                                        <td><a onclick="returnOrder('<%= order._id %>')" class="btn btn-danger btn-sm">Return</a></td>
+                                    <% } %>
+                                </tr>
+                        </tbody>
+                    </table>
+                </div>
+            <% }) %>
+        <% } %>
+    </div>
+    <script>
+    async function cancelOrder(orderId) {
+        const { value: reason } = await Swal.fire({
+            title: 'Cancel Order',
+            input: 'textarea',
+            inputLabel: 'Please provide a reason for cancellation',
+            inputPlaceholder: 'Type your reason here...',
+            showCancelButton: true,
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'You need to provide a reason!';
+                }
+            }
+        })
+
+        if (reason) {
+            try {
+                const response = await fetch('/orders/cancel', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ orderId, reason }),
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: 'Order cancelled successfully',
+                        timer: 1500
+                    });
+                    location.reload();
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'Failed to cancel order'
+                });
+            }
+        }
+    }
+    async function returnOrder(orderId) {
+        const { value: reason } = await Swal.fire({
+            title: 'Return Order',
+            input: 'textarea',
+            inputLabel: 'Please provide a reason for cancellation',
+            inputPlaceholder: 'Type your reason here...',
+            showCancelButton: true,
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'You need to provide a reason!';
+                }
+            }
+        })
+
+        if (reason) {
+            try {
+                const response = await fetch('/orders/retun', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ orderId, reason }),
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: data.message,
+                        timer: 1500
+                    });
+                    location.reload();
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'Failed to cancel order'
+                });
+            }
+        }
+    }
+    </script>
+<%- include('../partials/user/footer') %>

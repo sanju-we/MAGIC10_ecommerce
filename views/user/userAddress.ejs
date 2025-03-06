@@ -1,0 +1,169 @@
+<%- include('../partials/user/header') %>
+<header>
+    <nav>
+      <a href="/" class="logo">MAGIC10</a>
+      <div class="nav-links">
+        <a href="/">HOME</a>
+        <a href="/shop">SHOP</a>
+        <a href="/about">ABOUT</a>
+        <a href="/contact">CONTACT</a>
+
+        <!-- Wishlist and Cart Buttons -->
+        <div class="header-icons">
+          <a href="/wishlist" class="icon-link">
+            <i class="fas fa-heart"></i>
+          </a>
+          <a href="/cart" class="icon-link">
+            <i class="fas fa-shopping-bag"></i>
+          </a>
+        </div>
+        <div class="custom-dropdown">
+          <a href="#" class="sign-in-link">
+            <%= userData.username %>
+          </a>
+          <div class="dropdown-content">
+            <a href="/userProfile">Profile</a>
+            <a href="/logout">Logout</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+<section class="address-container">
+    <h2 class="text-center">Your Addresses</h2>
+
+    <% if (addresses) { %>
+        <div class="address-list">
+            <% addresses.address.forEach(address => { %>
+                <div class="address-card">
+                    <h3><%= address.fullName %></h3>
+                    <p><strong>Phone:</strong> <%= address.phone %></p>
+                    <p><strong>LandMark:</strong> <%= address.LandMark%></p>
+                    <p><strong>City:</strong> <%= address.city %>, <%= address.State %> - <%= address.PINcode %></p>
+                    <p><strong>addressType:</strong> <%= address.addressType %></p>
+                    
+                    <div class="address-actions">
+                        <a href="/userProfile/editAddress/<%=address._id%>" class="btn-gold">Edit</a>
+                        <button class="btn-danger" onclick="deleteAddress('<%= address._id %>')">Delete</button>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+        <a href="/userProfile/addAddress" class="btn-gold">Add New Address</a>
+    <% } else { %>
+        <p class="no-address">You haven't added any addresses yet.</p>
+        <a href="/userProfile/addAddress" class="btn-gold">Add New Address</a>
+    <% } %>
+</section>
+
+<script>
+    function deleteAddress(addressId) {
+    Swal.fire({
+        title: "Delete Address?",
+        text: "Are you sure you want to remove this address?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#dc3545",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/userProfile/deleteAddress/${addressId}`, { 
+                method: "DELETE"
+            }).then(response => response.json())
+            .then(data => {
+                if (data.message === "Address deleted successfully") {
+                    Swal.fire("Deleted!", "Your address has been deleted.", "success")
+                    .then(() => location.reload());
+                } else {
+                    Swal.fire("Error!", "Failed to delete address.", "error");
+                }
+            }).catch(() => {
+                Swal.fire("Error!", "Server error occurred.", "error");
+            });
+        }
+    });
+}
+
+</script>
+
+<style>
+    :root {
+        --dark-bg: #121212;
+        --accent-gold: #c4a277;
+        --secondary-bg: #1a1a1a;
+        --text-primary: #c4a277;
+        --text-secondary: #888;
+    }
+
+    .address-container {
+        max-width: 800px;
+        margin: 3rem auto;
+        padding: 2rem;
+        background: var(--secondary-bg);
+        border-radius: 12px;
+        border: 1px solid rgba(196, 162, 119, 0.1);
+        text-align: center;
+    }
+
+    .address-list {
+        margin-top: 1rem;
+    }
+
+    .address-card {
+        background: var(--dark-bg);
+        border: 1px solid var(--accent-gold);
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        text-align: left;
+    }
+
+    .address-card h3 {
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .address-card p {
+        color: var(--text-secondary);
+        margin: 0.2rem 0;
+    }
+
+    .address-actions {
+        margin-top: 1rem;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .btn-gold {
+        background: var(--accent-gold);
+        color: var(--dark-bg);
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+
+    .btn-gold:hover {
+        background: #d4b487;
+    }
+
+    .btn-danger {
+        background: #dc3545;
+        color: #fff;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-danger:hover {
+        background: #b02a37;
+    }
+
+    .no-address {
+        color: var(--text-secondary);
+        margin: 2rem 0;
+    }
+</style>
+
+<%- include('../partials/user/footer') %>

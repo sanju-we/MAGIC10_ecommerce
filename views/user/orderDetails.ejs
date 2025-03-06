@@ -1,0 +1,259 @@
+<%- include('../partials/user/header') %>
+
+<style>
+  .order-details-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    background: #fff;
+    color: #333;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  .section {
+    margin-bottom: 1.5rem;
+  }
+  .section h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .order-summary p,
+  .item-details p,
+  .order-address p {
+    margin: 0.5rem 0;
+    font-size: 1rem;
+  }
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .item img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+  .btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: #3498db;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-top: 1rem;
+    margin-right: 1rem;
+    cursor: pointer;
+    border: none;
+    font-size: 1rem;
+  }
+  .btn:hover {
+    background: #2980b9;
+  }
+</style>
+
+<div class="order-details-container" id="orderDetails">
+  <!-- Item Details Section -->
+  <div class="section order-item">
+    <h2>Item Details</h2>
+    <div class="item">
+      <img src="<%= Array.isArray(order.product.image) ? order.product.image[0] : order.product.image %>" alt="<%= order.product.productName %>">
+      <div class="item-details">
+        <p><strong>Product:</strong> <%= order.product.productName %></p>
+        <p><strong>Quantity:</strong> <%= order.quantity %></p>
+        <p><strong>Price:</strong> ₹<%= order.price.toFixed(2) %></p>
+        <p><strong>Total Price:</strong> ₹<%= order.totalPrice.toFixed(2) %></p>
+        <% if (order.discount > 0) { %>
+          <p><strong>Discount:</strong> ₹<%= order.discount.toFixed(2) %></p>
+        <% } %>
+        <p><strong>Final Price:</strong> ₹<%= order.finalAmount.toFixed(2) %></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shipping Address Section -->
+  <div class="section order-address">
+    <h2>Shipping Address</h2>
+    <% if (order.address) { %>
+      <p><strong>Name:</strong> <%= order.address.fullName %></p>
+      <p><strong>Landmark:</strong> <%= order.address.LandMark %></p>
+      <p><strong>City:</strong> <%= order.address.city %></p>
+      <p><strong>State:</strong> <%= order.address.state %></p>
+      <p><strong>PIN:</strong> <%= order.address.PINcode %></p>
+      <p><strong>Country:</strong> India</p>
+    <% } else { %>
+      <p>No shipping address provided.</p>
+    <% } %>
+  </div>
+
+  <!-- Buttons -->
+  <a href="/orderHistory" class="btn">Back to Order History</a>
+  <button onclick="downloadPDF()" class="btn">Download as PDF</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+<script>
+  // Debugging to confirm script execution
+  console.log("Order details script loaded");
+
+  // Store order data in JavaScript variables to avoid EJS syntax issues
+  const orderData = {
+    productName: <%- JSON.stringify(order.product.productName) %>,
+    quantity: <%= order.quantity %>,
+    price: <%= order.price.toFixed(2) %>,
+    totalPrice: <%= order.totalPrice.toFixed(2) %>,
+    discount: <%= order.discount || 0 %>,
+    finalAmount: <%= order.finalAmount.toFixed(2) %>,
+    imageUrl: <%- JSON.stringify(Array.isArray(order.product.image) ? order.product.image[0] : order.product.image) %>,
+    address: {
+      fullName: <%- order.address ? JSON.stringify(order.address.fullName) : '""' %>,
+      LandMark: <%- order.address ? JSON.stringify(order.address.LandMark) : '""' %>,
+      city: <%- order.address ? JSON.stringify(order.address.city) : '""' %>,
+      state: <%- order.address ? JSON.stringify(order.address.state) : '""' %>,
+      PINcode: <%- order.address ? JSON.stringify(order.address.PINcode) : '""' %>,
+    },
+    orderId: <%- JSON.stringify(order.orderId) %>
+  };
+
+  console.log("Order data:", orderData);
+
+  // Define downloadPDF in the global scope
+  window.downloadPDF = async function () {
+    console.log("downloadPDF function called");
+
+    // Ensure jsPDF is loaded
+    if (!window.jspdf) {
+      console.error("jsPDF is not loaded");
+      alert("Failed to generate PDF: jsPDF library not loaded.");
+      return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
+    });
+
+    // Add a header with branding
+    doc.setFontSize(20);
+    doc.setTextColor(52, 152, 219); /
+    doc.setFont("helvetica", "bold");
+    doc.text("MAGIC10 - Order Details", 20, 20);
+
+    // Add a horizontal line under the header
+    doc.setLineWidth(0.5);
+    doc.setDrawColor(52, 152, 219);
+    doc.line(20, 25, 190, 25); // Line from (20,25) to (190,25)
+
+    // Fetch the product image
+    const imgUrl = orderData.imageUrl;
+    console.log("Image URL:", imgUrl);
+
+    let imgLoaded = false;
+    let img = null; // Declare img in outer scope
+    if (imgUrl) {
+      img = new Image();
+      img.crossOrigin = "Anonymous";
+      img.src = imgUrl;
+
+      imgLoaded = await new Promise((resolve) => {
+        img.onload = () => {
+          console.log("Image loaded successfully");
+          resolve(true);
+        };
+        img.onerror = () => {
+          console.error("Failed to load image:", imgUrl);
+          resolve(false);
+        };
+      });
+    }
+
+    // Add the product image if loaded
+    if (imgLoaded && img) {
+      try {
+        doc.addImage(img, "PNG", 20, 30, 40, 40); // 40mm x 40mm
+      } catch (error) {
+        console.error("Error adding image to PDF:", error);
+      }
+    }
+
+    // Item Details Section - Use a table
+    doc.setFontSize(14);
+    doc.setTextColor(0, 0, 0); // Black
+    doc.setFont("helvetica", "bold");
+    doc.text("Item Details", imgLoaded ? 70 : 20, 40);
+
+    // Create a table for item details using jspdf-autotable
+    doc.autoTable({
+      startY: imgLoaded ? 45 : 45,
+      head: [['Description', 'Value']],
+      body: [
+        ['Product', orderData.productName],
+        ['Quantity', orderData.quantity.toString()],
+        ['Price', `₹${orderData.price}`],
+        ['Total Price', `₹${orderData.totalPrice}`],
+        ...(orderData.discount > 0 ? [['Discount', `₹${orderData.discount}`]] : []),
+        ['Final Price', `₹${orderData.finalAmount}`],
+      ],
+      styles: {
+        fontSize: 10,
+        cellPadding: 2,
+        overflow: 'linebreak',
+      },
+      headStyles: {
+        fillColor: [52, 152, 219], // Blue header
+        textColor: 255, // White text
+        fontStyle: 'bold',
+      },
+      columnStyles: {
+        0: { cellWidth: 40 }, // Reduced width to fit page
+        1: { cellWidth: 40 },
+      },
+      margin: { left: imgLoaded ? 70 : 20, right: 20 }, // Ensure right margin
+    });
+
+    // Shipping Address Section
+    const finalY = doc.lastAutoTable.finalY || 45; // Start after the table
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("Shipping Address", 20, finalY + 15);
+
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    if (orderData.address.fullName) {
+      doc.text(`Name: ${orderData.address.fullName}`, 20, finalY + 25);
+      doc.text(`Landmark: ${orderData.address.LandMark}`, 20, finalY + 35);
+      doc.text(`City: ${orderData.address.city}`, 20, finalY + 45);
+      doc.text(`State: ${orderData.address.state}`, 20, finalY + 55);
+      doc.text(`PIN: ${orderData.address.PINcode}`, 20, finalY + 65);
+      doc.text(`Country: India`, 20, finalY + 75);
+    } else {
+      doc.text("No shipping address provided.", 20, finalY + 25);
+    }
+
+    // Add a footer
+    doc.setFontSize(10);
+    doc.setTextColor(150); // Gray
+    doc.setFont("helvetica", "italic");
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 270);
+    doc.text("Thank you for shopping with MAGIC10!", 190, 270, { align: "right" });
+
+    // Add a border around the content
+    doc.setDrawColor(52, 152, 219); // Blue border
+    doc.setLineWidth(0.3);
+    doc.rect(15, 15, 180, 260, "S"); // Stroke (border only)
+
+    // Save the PDF
+    doc.save(`Order_${orderData.orderId}.pdf`);
+  };
+
+  // Debugging to confirm function definition
+  console.log("downloadPDF defined:", typeof window.downloadPDF);
+</script>
+
+<%- include('../partials/user/footer') %>

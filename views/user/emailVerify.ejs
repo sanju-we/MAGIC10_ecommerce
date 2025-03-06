@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OTP Verification</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      /* background-color: #121212; Dark background */
+      background-image: url('images/verify.jpg');
+      background-size: cover;
+      /* Ensures the image covers the entire area */
+      background-position: center center;
+      /* Centers the image */
+      background-repeat: no-repeat;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      color: #C4A277;
+      /* Normal text color */
+    }
+
+    .container {
+      text-align: center;
+      padding: 2rem;
+      max-width: 400px;
+      width: 100%;
+      background-color: #2A2A2A;
+      /* Slightly lighter background for the form */
+      border-radius: 0.5rem;
+      /* Rounded corners */
+      box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.5);
+      /* Subtle shadow for highlighting */
+      border: 2px solid #4FD1C5;
+      /* Soft teal border */
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: #C4A277;
+      /* Golden shade */
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      border: 1px solid #8B6F48;
+      /* Soft brown border */
+      border-radius: 0.375rem;
+      font-size: 1rem;
+      background-color: #1E1E1E;
+      /* Darker input background */
+      color: #C4A277;
+      /* Text color */
+    }
+
+    input:focus {
+      border-color: #4FD1C5;
+      /* Highlight border color on focus */
+      outline: none;
+    }
+
+    input::placeholder {
+      color: #A58B65;
+      /* Subtle placeholder text */
+    }
+
+    .submit-button {
+      background-color: #005A6E;
+      /* Deep teal */
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 0.375rem;
+      font-size: 1rem;
+      cursor: pointer;
+      width: auto;
+      min-width: 120px;
+      transition: background 0.3s ease;
+    }
+
+    .submit-button:hover {
+      background-color: #007A90;
+      /* Slightly lighter teal on hover */
+    }
+
+    .timer {
+      margin: 1rem 0;
+      color: #A58B65;
+      /* Softer gold shade */
+    }
+
+    .resend-container {
+      margin-top: 1rem;
+    }
+
+    .wrong-email {
+      color: #A58B65;
+      /* Softer contrast */
+      display: inline;
+    }
+
+    .resend-link {
+      color: #4FD1C5;
+      /* Turquoise accent */
+      text-decoration: none;
+      margin-left: 0.5rem;
+      cursor: pointer;
+    }
+
+    .resend-button {
+      background-color: #4FD1C5;
+      /* Turquoise accent */
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 0.375rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      width: auto;
+      min-width: 120px;
+      margin-top: 1rem;
+    }
+
+    .resend-button:hover {
+      background-color: #33B5A6;
+      /* Lighter turquoise on hover */
+    }
+
+    .resend-button:focus {
+      outline: none;
+      /* Remove the default focus outline */
+      box-shadow: 0 0 0 2px rgba(79, 209, 197, 0.5);
+      /* Custom focus outline */
+    }
+
+
+    .resend-link:hover {
+      color: #33B5A6;
+      /* Lighter turquoise on hover */
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Enter your ragistered email:</h1>
+
+    <form id="emailForm" method="post" action="/forgetPass">
+      <input id="email" type="email" name="email" placeholder="Enter your email" required>
+      <div id="error"></div>
+      <button type="submit" class="submit-button">Submit</button>
+    </form>
+
+    <div class="resend-container">
+      Already have an account? <a href="/login"><span class="wrong-email">Login</span></a><br>
+    </div>
+  </div>
+
+  <script>
+    const emailId = document.getElementById('email');
+    const error = document.getElementById('error');
+    const signform = document.getElementById('emailForm');
+
+    function emailValidateCheckin() {
+      const emailval = emailId.value.trim();
+      const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+      if (!emailPattern.test(emailval)) {
+        error.style.display = "block";
+        error.innerHTML = "Invalid Format, Enter the email currectly";
+        emailId.classList.add('error');
+      } else {
+        error.style.display = "none";
+        emailId.classList.remove('error');
+      }
+    }
+
+    emailId.addEventListener('input', emailValidateCheckin);
+
+    signform.addEventListener('submit', function (e) {
+      emailValidateCheckin();
+      if (error.style.display === "block"){
+        e.preventDefault()
+      }
+    })
+  </script>
+
+
+</body>
+
+</html>
