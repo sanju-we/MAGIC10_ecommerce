@@ -1,572 +1,487 @@
+// Updated product-add.ejs with fixed variant handling
+
 <%- include("../../views/partials/admin/header") %>
 
-<head>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.css">
-    <style>
-        /* General Styling */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+    <head>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.css">
+        <style>
+            /* General Styling */
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            }
 
-        :root {
-            --primary-color: #3498db;
-            --secondary-color: #2c3e50;
-            --success-color: #2ecc71;
-            --danger-color: #e74c3c;
-            --info-color: #3498db;
-            --light-gray: #ecf0f1;
-        }
+            :root {
+                --primary-color: #3498db;
+                --secondary-color: #2c3e50;
+                --success-color: #2ecc71;
+                --danger-color: #e74c3c;
+                --info-color: #3498db;
+                --light-gray: #ecf0f1;
+            }
 
-        .error-message {
-            color: red;
-            font-size: 0.875rem;
-        }
+            .error-message {
+                color: red;
+                font-size: 0.875rem;
+            }
 
-        /* Main Section Styling */
-        .content-main {
-            padding: 3rem 2rem;
-        }
+            /* Main Section Styling */
+            .content-main {
+                padding: 3rem 2rem;
+            }
 
-        .content-header {
-            margin-bottom: 2rem;
-        }
+            .content-header {
+                margin-bottom: 2rem;
+            }
 
-        .content-title {
-            font-size: 2rem;
-            font-weight: bold;
-        }
+            .content-title {
+                font-size: 2rem;
+                font-weight: bold;
+            }
 
-        /* Form Styling */
-        .form-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-        }
+            /* Form Styling */
+            .form-container {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+            }
 
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
+            .form-group {
+                margin-bottom: 1.5rem;
+            }
 
-        .form-group label {
-            font-weight: 600;
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
-        }
+            .form-group label {
+                font-weight: 600;
+                font-size: 1.1rem;
+                margin-bottom: 0.5rem;
+            }
 
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 0.75rem;
-            font-size: 1rem;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-        }
+            .form-group input,
+            .form-group select,
+            .form-group textarea {
+                width: 100%;
+                padding: 0.75rem;
+                font-size: 1rem;
+                border-radius: 8px;
+                border: 1px solid #ddd;
+            }
 
-        .form-group input[type="number"] {
-            -moz-appearance: textfield;
-        }
+            .form-group input[type="number"] {
+                -moz-appearance: textfield;
+            }
 
-        .form-group select {
-            cursor: pointer;
-        }
+            .form-group select {
+                cursor: pointer;
+            }
 
-        .form-actions {
-            display: flex;
-            justify-content: flex-start;
-            margin-top: 1.5rem;
-            gap: 1rem;
-        }
+            .form-actions {
+                display: flex;
+                justify-content: flex-start;
+                margin-top: 1.5rem;
+                gap: 1rem;
+            }
 
-        .form-actions button {
-            background-color: #007bff;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            font-size: 1.125rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+            .form-actions button {
+                background-color: #007bff;
+                color: white;
+                padding: 0.75rem 1.5rem;
+                font-size: 1.125rem;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
 
-        .form-actions button:hover {
-            background-color: #0056b3;
-        }
+            .form-actions button:hover {
+                background-color: #0056b3;
+            }
 
-        /* Variants Section */
-        .variants-section {
-            margin-bottom: 2rem;
-        }
+            /* Variants Section */
+            .variants-section {
+                margin-bottom: 2rem;
+            }
 
-        .variant-entry {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            padding: 1rem;
-            background: #f5f7fa;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-        }
+            .variant-entry {
+                display: flex;
+                gap: 1rem;
+                margin-bottom: 1rem;
+                padding: 1rem;
+                background: #f5f7fa;
+                border-radius: 8px;
+                border: 1px solid #ddd;
+            }
 
-        .variant-entry input {
-            flex: 1;
-            padding: 0.5rem;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-        }
+            .variant-entry input {
+                flex: 1;
+                padding: 0.5rem;
+                border-radius: 4px;
+                border: 1px solid #ddd;
+            }
 
-        .variant-entry button {
-            background-color: #e74c3c;
-            color: white;
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+            .variant-entry button {
+                background-color: #e74c3c;
+                color: white;
+                padding: 0.5rem 1rem;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
 
-        .variant-entry button:hover {
-            background-color: #c0392b;
-        }
+            .variant-entry button:hover {
+                background-color: #c0392b;
+            }
 
-        .add-variant-btn {
-            background-color: #2ecc71;
-            color: white;
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+            .add-variant-btn {
+                background-color: #2ecc71;
+                color: white;
+                padding: 0.5rem 1rem;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
 
-        .add-variant-btn:hover {
-            background-color: #27ae60;
-        }
+            .add-variant-btn:hover {
+                background-color: #27ae60;
+            }
 
-        /* Image Preview Styling */
-        .image-upload-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
+            /* Image Preview Styling */
+            .image-upload-container {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
 
-        .image-preview {
-            max-width: 100%;
-            max-height: 200px;
-            border: 1px solid #ddd;
-            margin-top: 10px;
-            border-radius: 8px;
-        }
+            .image-preview {
+                max-width: 100%;
+                max-height: 200px;
+                border: 1px solid #ddd;
+                margin-top: 10px;
+                border-radius: 8px;
+            }
 
-        .thumbnail {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+            .thumbnail {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
 
-        .thumbnail img {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-    </style>
-</head>
+            .thumbnail img {
+                width: 50px;
+                height: 50px;
+                object-fit: cover;
+                border-radius: 50%;
+                margin-right: 10px;
+            }
+        </style>
+    </head>
 
-<section class="content-main">
-    <div class="content-header">
-        <h2 class="content-title">Add New Product</h2>
-    </div>
-    <form id="productForm" method="POST" action="/admin/addProducts" enctype="multipart/form-data">
-        <div class="form-container">
-            <div class="form-group">
-                <label for="product_name">Product Name</label>
-                <input type="text" name="productName" id="product_name" placeholder="Enter product name">
-                <div id="productName-error" class="error-message"></div>
+    <section class="content-main">
+        <div class="content-header">
+            <h2 class="content-title">Add New Product</h2>
+        </div>
+        <form id="productForm" method="POST" action="/admin/addProducts" enctype="multipart/form-data">
+            <div class="form-container">
+                <!-- Product Details -->
+                <div class="form-group">
+                    <label for="product_name">Product Name</label>
+                    <input type="text" name="productName" id="product_name" placeholder="Enter product name">
+                    <div id="productName-error" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="descriptionid">Short Description</label>
+                    <textarea id="descriptionid" name="description" rows="4"
+                        placeholder="Enter product short description"></textarea>
+                    <div id="description-error" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="fulldescriptionid">Full Description</label>
+                    <textarea id="fulldescriptionid" name="fullDescription" rows="4"
+                        placeholder="Enter product full description"></textarea>
+                    <div id="fullDescription-error" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="brand">Brand</label>
+                    <input type="text" name="brand" id="brand" placeholder="Enter brand">
+                    <div id="brand-error" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="regularPrice">Regular Price</label>
+                    <input type="number" name="regularPrice" id="regularPrice" step="0.01"
+                        placeholder="Enter regular price">
+                    <div id="regularPrice-error" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="salePrice">Sale Price</label>
+                    <input type="number" name="salePrice" id="salePrice" step="0.01" placeholder="Enter sale price">
+                    <div id="salePrice-error" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="stock">Stock (Base)</label>
+                    <input type="number" name="stock" id="stock" placeholder="Enter base stock">
+                    <div id="stock-error" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="category">Category</label>
+                    <select name="category" id="category">
+                        <% for (let i=0; i < cat.length; i++) { %>
+                            <option value="<%= cat[i].name %>">
+                                <%= cat[i].name %>
+                            </option>
+                            <% } %>
+                    </select>
+                    <div id="category-error" class="error-message"></div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="descriptionid">Short Description</label>
-                <textarea id="descriptionid" name="description" rows="4" placeholder="Enter product short description"></textarea>
-                <div id="description-error" class="error-message"></div>
+            <!-- Variants Section -->
+            <div class="variants-section">
+                <h3>Add Variants</h3>
+                <div id="variants-container"></div>
+                <button type="button" class="add-variant-btn" onclick="addVariant()">Add Variant</button>
+                <input type="hidden" name="variants" id="variants-input">
             </div>
 
-            <div class="form-group">
-                <label for="fulldescriptionid">Full Description</label>
-                <textarea id="fulldescriptionid" name="fullDescription" rows="4" placeholder="Enter product full description"></textarea>
-                <div id="fullDescription-error" class="error-message"></div>
-            </div>
-
-            <div class="form-group">
-                <label for="brand">Brand</label>
-                <input type="text" name="brand" id="brand" placeholder="Enter brand">
-                <div id="brand-error" class="error-message"></div>
-            </div>
-
-            <div class="form-group">
-                <label for="regularPrice">Regular Price</label>
-                <input type="number" name="regularPrice" id="regularPrice" step="0.01" placeholder="Enter regular price">
-                <div id="regularPrice-error" class="error-message"></div>
-            </div>
-
-            <div class="form-group">
-                <label for="salePrice">Sale Price</label>
-                <input type="number" name="salePrice" id="salePrice" step="0.01" placeholder="Enter sale price">
-                <div id="salePrice-error" class="error-message"></div>
-            </div>
-
-            <div class="form-group">
-                <label for="stock">Stock (Base)</label>
-                <input type="number" name="stock" id="stock" placeholder="Enter base stock">
-                <div id="stock-error" class="error-message"></div>
-            </div>
-
-            <div class="form-group">
-                <label for="category">Category</label>
-                <select name="category" id="category">
-                    <% for (let i = 0; i < cat.length; i++) { %>
-                        <option value="<%= cat[i].name %>">
-                            <%= cat[i].name %>
-                        </option>
+            <!-- Image Upload Section -->
+            <div class="image-upload-container">
+                <% for (let i=1; i <=4; i++) { %>
+                    <div class="image-upload-group">
+                        <label for="image<%= i %>">Image <%= i %></label>
+                        <input type="file" name="image<%= i %>" id="image<%= i %>" class="form-control" accept="image/*"
+                            onchange="previewImage(event, <%= i %>)">
+                        <img id="preview<%= i %>" src="#" alt="Image preview" class="image-preview"
+                            style="display: none;">
+                        <div id="image<%= i %>-error" class="error-message"></div>
+                        <button>SAVE</button>
+                    </div>
                     <% } %>
-                </select>
-                <div id="category-error" class="error-message"></div>
             </div>
-        </div>
 
-        <!-- Variants Section -->
-        <div class="variants-section">
-            <h3>Add Variants</h3>
-            <div id="variants-container"></div>
-            <button type="button" class="add-variant-btn" onclick="addVariant()">Add Variant</button>
-            <!-- Hidden input to store variants as JSON -->
-            <input type="hidden" name="variants" id="variants-input">
-        </div>
-
-        <!-- Images Section -->
-        <% for (let i = 1; i <= 4; i++) { %>
-            <div class="form-group">
-                <label for="image<%= i %>">Image <%= i %></label>
-                <input type="file" name="image<%= i %>" id="image<%= i %>" class="form-control" accept="image/*"
-                    onchange="previewImage(event, <%= i %>)">
-                <img id="preview<%= i %>" src="#" alt="Image preview" class="image-preview" style="display: none;">
-                <button type="button" class="btn btn-primary mt-2" onclick="saveImage(<%= i %>)">Save Image <%= i %></button>
-                <div id="image<%= i %>-error" class="error-message"></div>
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="submit">Publish Product</button>
             </div>
-        <% } %>
+        </form>
+    </section>
 
-        <div class="form-actions">
-            <button type="submit">Publish Product</button>
-        </div>
-    </form>
-</section>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
+    <script>
+        let croppers = {};
+        let variantCounter = 0;
+        let variants = []; // Array to store all variants
 
-<script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
-<script>
-    let croppers = {};
-    let variantCounter = 0;
-
-    // Function to add a new variant entry
-    function addVariant() {
-        variantCounter++;
-        const variantsContainer = document.getElementById('variants-container');
-        const variantEntry = document.createElement('div');
-        variantEntry.className = 'variant-entry';
-        variantEntry.id = `variant-${variantCounter}`;
-        variantEntry.innerHTML = `
-            <input type="text" placeholder="Size (e.g., S, M, L, 6, 7)" class="variant-size" data-id="${variantCounter}">
-            <input type="text" placeholder="Color (e.g., Red, Blue)" class="variant-color" data-id="${variantCounter}">
-            <input type="number" step="0.01" placeholder="Price" class="variant-price" data-id="${variantCounter}">
-            <input type="number" placeholder="Stock" class="variant-stock" data-id="${variantCounter}">
-            <button type="button" onclick="removeVariant(${variantCounter})">Remove</button>
-        `;
-        variantsContainer.appendChild(variantEntry);
-    }
-
-    // Function to remove a variant entry
-    function removeVariant(id) {
-        const variantEntry = document.getElementById(`variant-${id}`);
-        if (variantEntry) {
-            variantEntry.remove();
+        // Function to add a new variant entry
+        function addVariant() {
+            variantCounter++;
+            const variantsContainer = document.getElementById('variants-container');
+            const variantEntry = document.createElement('div');
+            variantEntry.className = 'variant-entry';
+            variantEntry.id = `variant-${variantCounter}`;
+            
+            variantEntry.innerHTML = `
+                <input type="text" placeholder="Size" class="variant-size" required>
+                <input type="text" placeholder="Color" class="variant-color" required>
+                <input type="number" placeholder="Price" class="variant-price" min="0" step="0.01" required>
+                <input type="number" placeholder="Stock" class="variant-stock" min="0" required>
+                <button type="button" onclick="removeVariant(${variantCounter})">Remove</button>
+            `;
+            
+            variantsContainer.appendChild(variantEntry);
         }
-    }
 
-    // Function to collect and validate variants
-    function collectVariants() {
-        const variantEntries = document.querySelectorAll('.variant-entry');
-        const variants = [];
-        let isValid = true;
-
-        variantEntries.forEach(entry => {
-            const sizeInput = entry.querySelector('.variant-size');
-            const colorInput = entry.querySelector('.variant-color');
-            const priceInput = entry.querySelector('.variant-price');
-            const stockInput = entry.querySelector('.variant-stock');
-
-            const size = sizeInput.value.trim();
-            const color = colorInput.value.trim();
-            const price = parseFloat(priceInput.value);
-            const stock = parseInt(stockInput.value);
-
-            if (!size || !color || isNaN(price) || isNaN(stock)) {
-                isValid = false;
-                if (!size) sizeInput.style.borderColor = 'red';
-                if (!color) colorInput.style.borderColor = 'red';
-                if (isNaN(price)) priceInput.style.borderColor = 'red';
-                if (isNaN(stock)) stockInput.style.borderColor = 'red';
-                return;
+        // Function to remove a variant entry
+        function removeVariant(id) {
+            const variantEntry = document.getElementById(`variant-${id}`);
+            if (variantEntry) {
+                variantEntry.remove();
+                updateVariantsInput(); // Update the hidden input after removal
             }
+        }
 
-            // Validate size format (alphabetical or numerical string)
-            if (!/^[a-zA-Z0-9]+$/.test(size)) {
-                isValid = false;
-                sizeInput.style.borderColor = 'red';
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Size must be a string (e.g., S, M, L, or 6, 7, 8).',
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                });
-                return;
-            }
+        // Function to collect variants and update the hidden input
+        function updateVariantsInput() {
+            const variantEntries = document.querySelectorAll('.variant-entry');
+            const variants = [];
+            
+            variantEntries.forEach(entry => {
+                const size = entry.querySelector('.variant-size').value.trim();
+                const color = entry.querySelector('.variant-color').value.trim();
+                const price = parseFloat(entry.querySelector('.variant-price').value);
+                const stock = parseInt(entry.querySelector('.variant-stock').value);
+                
+                if (size && color && !isNaN(price) && !isNaN(stock)) {
+                    variants.push({
+                        size: size,
+                        color: color,
+                        price: price,
+                        stock: stock
+                    });
+                }
+            });
+            
+            // Update the hidden input with JSON string of variants
+            document.getElementById('variants-input').value = JSON.stringify(variants);
+            return variants;
+        }
 
-            if (price <= 0 || stock < 0) {
-                isValid = false;
-                if (price <= 0) priceInput.style.borderColor = 'red';
-                if (stock < 0) stockInput.style.borderColor = 'red';
-                return;
-            }
-
-            variants.push({ size, color, price, stock });
-        });
-
-        return { isValid, variants };
-    }
-
-    // Function to preview images (unchanged)
-    function previewImage(event, index) {
-        const input = event.target;
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const preview = document.getElementById(`preview${index}`);
-                preview.src = e.target.result;
-                preview.style.display = 'block';
-
-                setTimeout(() => {
-                    if (croppers[index]) {
-                        croppers[index].destroy();
+        // Function to preview images
+        function previewImage(event, index) {
+            const input = event.target;
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const preview = document.getElementById(`preview${index}`);
+                    if (!preview) {
+                        console.error(`Preview element for index ${index} not found.`);
+                        return;
                     }
 
-                    croppers[index] = new Cropper(preview, {
-                        aspectRatio: 1,
-                        viewMode: 1,
-                        autoCropArea: 0.8,
-                        movable: true,
-                        zoomable: true,
-                        scalable: true,
-                        rotatable: true,
-                    });
-                }, 100);
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
 
-    // Function to save images (unchanged)
-    function saveImage(index) {
-        if (croppers[index] && croppers[index].getCroppedCanvas()) {
-            croppers[index].getCroppedCanvas().toBlob((blob) => {
-                const formData = new FormData();
-                formData.append('image', blob, `product-${Date.now()}-${index}.webp`);
+                    preview.onload = function () {
+                        try {
+                            if (croppers[index]) {
+                                croppers[index].destroy();
+                            }
 
-                fetch('/admin/saveImage', {
-                    method: 'POST',
-                    body: formData
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        Swal.fire({
-                            title: data.success ? 'Success!' : 'Error!',
-                            text: data.message || `Image ${index} ${data.success ? 'saved' : 'failed'}`,
-                            icon: data.success ? 'success' : 'error',
-                            confirmButtonText: 'OK'
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
+                            croppers[index] = new Cropper(preview, {
+                                aspectRatio: 1,
+                                viewMode: 1,
+                                autoCropArea: 0.8,
+                                movable: true,
+                                zoomable: true,
+                                scalable: true,
+                                rotatable: true,
+                                ready: function () {
+                                    console.log(`Cropper initialized for image ${index}`);
+                                }
+                            });
+                        } catch (error) {
+                            console.error(`Error initializing Cropper for image ${index}:`, error);
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Failed to initialize image cropper.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    };
+
+                    preview.onerror = function () {
+                        console.error(`Error loading image for preview${index}`);
                         Swal.fire({
                             title: 'Error!',
-                            text: 'An unexpected error occurred',
+                            text: 'Failed to load the image for cropping.',
                             icon: 'error',
                             confirmButtonText: 'OK'
                         });
-                    });
-            }, 'image/webp');
-        }
-    }
-
-    // Form validation
-    document.addEventListener("DOMContentLoaded", function () {
-        const form = document.getElementById("productForm");
-
-        function showError(input, message) {
-            const errorDiv = input.closest(".form-group").querySelector(".error-message");
-            if (errorDiv) {
-                errorDiv.textContent = message;
-                errorDiv.style.color = "red";
+                    };
+                };
+                reader.readAsDataURL(input.files[0]);
             }
         }
 
-        function clearError(input) {
-            const errorDiv = input.closest(".form-group").querySelector(".error-message");
-            if (errorDiv) {
-                errorDiv.textContent = "";
-            }
-        }
+        // Form validation and submission
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("productForm");
+            
+            // Form Submission
+            form.addEventListener("submit", function (event) {
+                event.preventDefault();
+                let isValid = true;
 
-        function isValidText(value) {
-            return /^[a-zA-Z\s]+$/.test(value);
-        }
-
-        function isValidNumber(value) {
-            return !isNaN(value) && value >= 0;
-        }
-
-        function validateInput(input) {
-            const name = input.name;
-            const value = input.value.trim();
-
-            if (name === "productName") {
-                if (!value) {
-                    showError(input, "Product name is required.");
-                    return false;
-                }
-                if (!/^[a-zA-Z0-9\s]+$/.test(value)) {
-                    showError(input, "Only letters and numbers are allowed.");
-                    return false;
-                }
-            }
-
-            if (name === "description" || name === "fullDescription") {
-                if (!value) {
-                    showError(input, "This field is required.");
-                    return false;
-                }
-            }
-
-            if (name === "brand") {
-                if (!value) {
-                    showError(input, "Brand is required.");
-                    return false;
-                }
-                if (!isValidText(value)) {
-                    showError(input, "Only letters are allowed.");
-                    return false;
-                }
-            }
-
-            if (name === "regularPrice") {
-                if (!isValidNumber(value) || value <= 0) {
-                    showError(input, "Regular price must be a positive number.");
-                    return false;
-                }
-            }
-
-            if (name === "salePrice") {
-                if (!isValidNumber(value) || value <= 0) {
-                    showError(input, "Sale price must be a positive number.");
-                    return false;
-                }
-
+                // Basic validation for required fields
+                const productName = document.getElementById("product_name").value.trim();
+                const description = document.getElementById("descriptionid").value.trim();
+                const fullDescription = document.getElementById("fulldescriptionid").value.trim();
+                const brand = document.getElementById("brand").value.trim();
                 const regularPrice = parseFloat(document.getElementById("regularPrice").value);
-                if (parseFloat(value) >= regularPrice) {
-                    showError(input, "Sale price must be less than the regular price.");
-                    return false;
-                }
-            }
+                const salePrice = parseFloat(document.getElementById("salePrice").value);
+                const stock = parseInt(document.getElementById("stock").value);
+                const category = document.getElementById("category").value;
 
-            if (name === "stock") {
-                if (!isValidNumber(value) || value < 0) {
-                    showError(input, "Stock cannot be negative.");
-                    return false;
-                }
-            }
+                // Clear previous error messages
+                document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
 
-            if (name === "category") {
-                if (!value) {
-                    showError(input, "Category is required.");
-                    return false;
-                }
-            }
-
-            clearError(input);
-            return true;
-        }
-
-        function validateImages() {
-            let allImagesValid = true;
-
-            for (let i = 1; i <= 4; i++) {
-                const imageInput = document.getElementById(`image${i}`);
-                if (!imageInput.files.length) {
-                    showError(imageInput, `Image ${i} is required.`);
-                    allImagesValid = false;
-                } else {
-                    clearError(imageInput);
-                }
-            }
-
-            return allImagesValid;
-        }
-
-        // Apply validation when typing or changing selection
-        document.querySelectorAll("input, textarea, select").forEach((input) => {
-            input.addEventListener("input", () => validateInput(input));
-            input.addEventListener("change", () => validateInput(input));
-        });
-
-        // Image validation on change
-        for (let i = 1; i <= 4; i++) {
-            document.getElementById(`image${i}`).addEventListener("change", validateImages);
-        }
-
-        // Validate before form submission
-        form.addEventListener("submit", function (event) {
-            let isValid = true;
-
-            // Validate basic fields
-            document.querySelectorAll("input, textarea, select").forEach((input) => {
-                if (!validateInput(input)) {
+                // Validate product name
+                if (!productName) {
+                    document.getElementById("productName-error").textContent = "Product name is required";
                     isValid = false;
+                }
+
+                // Validate description
+                if (!description) {
+                    document.getElementById("description-error").textContent = "Description is required";
+                    isValid = false;
+                }
+
+                // Validate full description
+                if (!fullDescription) {
+                    document.getElementById("fullDescription-error").textContent = "Full description is required";
+                    isValid = false;
+                }
+
+                // Validate brand
+                if (!brand) {
+                    document.getElementById("brand-error").textContent = "Brand is required";
+                    isValid = false;
+                }
+
+                // Validate regular price
+                if (isNaN(regularPrice) || regularPrice <= 0) {
+                    document.getElementById("regularPrice-error").textContent = "Regular price must be a positive number";
+                    isValid = false;
+                }
+
+                // Validate sale price
+                if (isNaN(salePrice) || salePrice <= 0) {
+                    document.getElementById("salePrice-error").textContent = "Sale price must be a positive number";
+                    isValid = false;
+                }
+
+                // Validate stock
+                if (isNaN(stock) || stock < 0) {
+                    document.getElementById("stock-error").textContent = "Stock must be a non-negative number";
+                    isValid = false;
+                }
+
+                // Validate category
+                if (!category) {
+                    document.getElementById("category-error").textContent = "Please select a category";
+                    isValid = false;
+                }
+
+                // Collect and validate variants
+                const variants = updateVariantsInput();
+                if (variants.length === 0) {
+                    Swal.fire({
+                        title: 'Warning!',
+                        text: 'Please add at least one variant.',
+                        icon: 'warning',
+                        confirmButtonText: 'OK'
+                    });
+                    isValid = false;
+                }
+
+                // If validation passes, submit the form
+                if (isValid) {
+                    console.log("Form is valid, submitting...");
+                    console.log("Variants:", variants);
+                    form.submit();
                 }
             });
 
-            // Validate images
-            if (!validateImages()) {
-                isValid = false;
-            }
-
-            // Collect and validate variants
-            const { isValid: variantsValid, variants } = collectVariants();
-            if (!variantsValid) {
-                isValid = false;
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Please fill in all variant fields correctly.',
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                });
-            } else {
-                // Set the variants as JSON string in the hidden input
-                document.getElementById('variants-input').value = JSON.stringify(variants);
-            }
-
-            if (!isValid) {
-                event.preventDefault();
-            }
+            // Add initial variant
+            addVariant();
         });
-    });
-</script>
+    </script>
 
-<%- include("../../views/partials/admin/footer") %>
+    <%- include("../../views/partials/admin/footer") %>

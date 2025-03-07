@@ -151,6 +151,53 @@ const deleteAddress = async (req, res) => {
   }
 }
 
+const loadAddAddressCheckout = async (req, res) => {
+  try {
+    const userId = req.session.user
+    const addressData = await Address.findOne({ userId: userId })
+    res.render('addAddress', { user: userId, addressData })
+  } catch (error) {
+    res.redirect('/pageNotFound')
+  }
+}
+
+const AddAddressCheckout = async (req, res) => {
+  try {
+    const userId = req.session.user;
+console.log('working')
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized: No user session" });
+    }
+
+    const userData = await User.findById(userId);
+    if (!userData) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const { fullName, phone, street, city, LandMark, PINcode, State, addressType } = req.body;
+    let userAddress = await Address.findOne({ userId });
+
+    if (!userAddress) {
+      userAddress = new Address({
+        userId: userData._id,
+        address: [{ addressType, fullName, phone, street, city, LandMark, PINcode, State }]
+      });
+    } else {
+      userAddress.address.push({ addressType, fullName, phone, street, city, LandMark, PINcode, State });
+    }
+
+    await userAddress.save();
+
+    console.log("Address saved successfully:", userAddress);
+
+    res.redirect('/checkout');
+  } catch (error) {
+    console.error("Error occurred while adding address:", error);
+    res.redirect('/pageNotFound');
+  }
+};
+
+
 
 
 module.exports = {
@@ -159,5 +206,7 @@ module.exports = {
   AddAddress,
   loadEditAddress,
   editAddress,
-  deleteAddress
+  deleteAddress,
+  loadAddAddressCheckout,
+  AddAddressCheckout
 }

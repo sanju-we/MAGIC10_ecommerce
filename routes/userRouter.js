@@ -83,6 +83,8 @@ router.post('/userProfile/addAddress',userAuth,addressController.AddAddress)
 router.get('/userProfile/editAddress/:addressId',userAuth,addressController.loadEditAddress)
 router.post('/userProfile/editAddress/:addressId',addressController.editAddress)
 router.delete("/userProfile/deleteAddress/:addressId",addressController.deleteAddress)
+router.get('/addAddress',userAuth,addressController.loadAddAddressCheckout)
+router.post('/addAddress',userAuth,addressController.AddAddressCheckout)
 
 //wishlist managment
 router.get('/wishlist',userAuth,wishlistController.loadWishlist)

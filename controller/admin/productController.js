@@ -63,11 +63,12 @@ const getAddProducts = async (req, res) => {
 }
 
 // handling adding a new product
+// handling adding a new product
 const postAddProduct = async (req, res) => {
   try {
-    console.log("Request received at /admin/addProducts")
-    console.log("Form Data:", req.body)
-    console.log("Uploaded Files:", req.files)
+    console.log("Request received at /admin/addProducts");
+    console.log("Form Data:", req.body);
+    console.log("Uploaded Files:", req.files);
 
     const {
       productName,
@@ -79,73 +80,104 @@ const postAddProduct = async (req, res) => {
       stock,
       category,
       variants // Expecting variants as JSON string from frontend
-    } = req.body
+    } = req.body;
+    
+    console.log('Variants received:', variants);
 
     // Validate required fields
     if (!productName || !description || !fullDescription || !brand ||
       !regularPrice || !salePrice || !stock || !category) {
-      return res.status(400).json({ success: false, message: "All fields are required." })
+      return res.status(400).json({ success: false, message: "All fields are required." });
     }
 
     // Convert category name to ObjectId
-    const categoryDoc = await Category.findOne({ name: category })
+    const categoryDoc = await Category.findOne({ name: category });
     if (!categoryDoc || !mongoose.Types.ObjectId.isValid(categoryDoc._id)) {
-      return res.status(400).json({ success: false, message: "Invalid category." })
+      return res.status(400).json({ success: false, message: "Invalid category." });
     }
 
     // Handle images
-    let imagePaths = []
+    let imagePaths = [];
     if (req.files) {
-      for (let key in req.files) {
-        for (let file of req.files[key]) {
-          const fileName = `product-${Date.now()}-${file.originalname.replace(/\s+/g, "-")}`
-          const outputDir = path.join(__dirname, "../../public/uploads/products")
+      for (let i = 1; i <= 4; i++) {
+        const fileKey = `image${i}`;
+        if (req.files[fileKey] && req.files[fileKey].length > 0) {
+          const file = req.files[fileKey][0];
+          const fileName = `product-${Date.now()}-${i}-${file.originalname.replace(/\s+/g, "-")}`;
+          const outputDir = path.join(__dirname, "../../public/uploads/products");
 
           if (!fs.existsSync(outputDir)) {
-            fs.mkdirSync(outputDir, { recursive: true })
+            fs.mkdirSync(outputDir, { recursive: true });
           }
 
-          const outputPath = path.join(outputDir, fileName)
-
-          // // Resize and save the image using sharp
-          // await sharp(file.buffer) // Use file.buffer assuming multer memory storage
-          //   .resize(500, 500)
-          //   .toFormat("webp")
-          //   .toFile(outputPath)
-
-          imagePaths.push(`/uploads/products/${fileName}`)
+          const outputPath = path.join(outputDir, fileName);
+          
+          // Process image with sharp if available
+          try {
+            await sharp(file.path)
+              .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
+              .toFormat("webp")
+              .toFile(outputPath + '.webp');
+              
+            imagePaths.push(`/uploads/products/${fileName}.webp`);
+            
+            // Remove the temporary file
+            fs.unlinkSync(file.path);
+          } catch (err) {
+            console.error("Error processing image:", err);
+            // Fallback if sharp fails
+            fs.copyFileSync(file.path, outputPath);
+            imagePaths.push(`/uploads/products/${fileName}`);
+            fs.unlinkSync(file.path);
+          }
         }
       }
     }
 
     // Parse and validate variants
-    let parsedVariants = []
+    let parsedVariants = [];
     if (variants) {
       try {
-        parsedVariants = JSON.parse(variants)
+        parsedVariants = JSON.parse(variants);
+        
         if (!Array.isArray(parsedVariants)) {
-          return res.status(400).json({ success: false, message: "Variants must be an array." })
+          return res.status(400).json({ success: false, message: "Variants must be an array." });
         }
 
         // Validate each variant
         for (const variant of parsedVariants) {
-          if (!variant.size || !variant.color || !variant.price || !variant.stock) {
-            return res.status(400).json({ success: false, message: "Each variant must include size, color, price, and stock." })
+          if (!variant.size || !variant.color || 
+              variant.price === undefined || variant.stock === undefined) {
+            return res.status(400).json({ 
+              success: false, 
+              message: "Each variant must include size, color, price, and stock." 
+            });
           }
-          if (typeof variant.size !== 'string' || typeof variant.color !== 'string' ||
-            typeof variant.price !== 'number' || typeof variant.stock !== 'number') {
-            return res.status(400).json({ success: false, message: "Invalid variant data types." })
+          
+          // Convert price and stock to numbers
+          variant.price = parseFloat(variant.price);
+          variant.stock = parseInt(variant.stock);
+          
+          if (isNaN(variant.price) || variant.price < 0) {
+            return res.status(400).json({ 
+              success: false, 
+              message: "Price must be a positive number." 
+            });
           }
-          if (variant.price <= 0 || variant.stock < 0) {
-            return res.status(400).json({ success: false, message: "Price must be positive and stock cannot be negative." })
-          }
-          // Validate size format (alphabetical or numerical as string)
-          if (!/^[a-zA-Z0-9]+$/.test(variant.size)) {
-            return res.status(400).json({ success: false, message: "Size must be a string (e.g., S, M, L, or 6, 7, 8)." })
+          
+          if (isNaN(variant.stock) || variant.stock < 0) {
+            return res.status(400).json({ 
+              success: false, 
+              message: "Stock cannot be negative." 
+            });
           }
         }
       } catch (err) {
-        return res.status(400).json({ success: false, message: "Invalid variants format." })
+        console.error("Error parsing variants:", err);
+        return res.status(400).json({ 
+          success: false, 
+          message: "Invalid variants format. Please check your input." 
+        });
       }
     }
 
@@ -155,22 +187,43 @@ const postAddProduct = async (req, res) => {
       description,
       fullDescription,
       brand,
-      regularPrice,
-      salePrice,
-      stock,
+      regularPrice: parseFloat(regularPrice),
+      salePrice: parseFloat(salePrice),
+      stock: parseInt(stock),
       category: categoryDoc._id,
       image: imagePaths,
       variants: parsedVariants
-    })
+    });
 
     // Save the product
-    await newProduct.save()
-    console.log("Product saved successfully!")
+    await newProduct.save();
+    console.log("Product saved successfully!");
 
-    res.redirect("/admin/products")
+    // Respond with success
+    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+      return res.status(200).json({ 
+        success: true, 
+        message: "Product added successfully", 
+        productId: newProduct._id 
+      });
+    } else {
+      // For regular form submissions
+      
+      return res.redirect("/admin/products");
+    }
   } catch (error) {
-    console.error("Error adding product:", error)
-    res.status(500).json({ success: false, message: "Internal Server Error" })
+    console.error("Error adding product:", error);
+    
+    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+      return res.status(500).json({ 
+        success: false, 
+        message: "Internal Server Error", 
+        error: error.message 
+      });
+    } else {
+      
+      return res.redirect("/admin/addProducts");
+    }
   }
 }
 
