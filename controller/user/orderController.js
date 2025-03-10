@@ -26,7 +26,8 @@ const addOrder = async (req, res) => {
     const addressData = addresss && addresss.address.length > 0 ? addresss.address[0] : null
     console.log('addressData:', addressData)
     const user = await User.findById(userId)
-    const variants = await Cart.findOne({ userId })
+    const variants = await Cart.findOne({ userId:userId })
+    console.log('variants:', variants.items.map((x) => x.size));
     const cart = await Cart.findOne({ userId }).populate("items.productId")
 
     if (!cart || cart.items.length === 0) {
@@ -83,8 +84,8 @@ const addOrder = async (req, res) => {
       const newOrder = new Order({
         userId: userId,
         product: item.productId._id,
-        size: variants.size,
-        color: variants.color,
+        size: item.size,
+        color: item.color,
         quantity: item.quantity,
         price: item.productId.salePrice,
         totalPrice: item.totalPrice,
