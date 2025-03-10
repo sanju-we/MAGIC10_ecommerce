@@ -358,6 +358,7 @@
         if (searchInput) queryParams.append("search", searchInput);
         if (filterCategory && filterCategory !== "all") queryParams.append("category", filterCategory);
 
+        console.log(queryParams)
         window.location.href = `/shop?${queryParams.toString()}`;
     }
 

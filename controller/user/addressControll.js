@@ -155,7 +155,7 @@ const loadAddAddressCheckout = async (req, res) => {
   try {
     const userId = req.session.user
     const addressData = await Address.findOne({ userId: userId })
-    res.render('addAddress', { user: userId, addressData })
+    res.render('addAddressCheckout', { user: userId, addressData })
   } catch (error) {
     res.redirect('/pageNotFound')
   }

@@ -99,6 +99,7 @@ router.patch('/updateCartQuantity', userAuth, cartController.updateCartQuantity)
 
 // checkout managment
 router.get('/checkout',userAuth,cartController.loadCheckOut)
+router.get('/checkout/coupon',userAuth,cartController.loadCheckOutCoupon)
 
 //order managment
 router.post('/addOrder',userAuth,orderController.addOrder)

@@ -18,6 +18,14 @@ const orderSchema = new Schema({
     ref: "Product",
     required: true,
   },
+  size: {
+    type: String,
+    required: true
+  },
+  color: {
+    type: String,
+    required: true
+  },
   quantity: {
     type: Number,
     required: true,
@@ -71,8 +79,8 @@ const orderSchema = new Schema({
     required: false,
     default: "none",
   },
-  paymentMethod:{
-    typr:String,
+  paymentMethod: {
+    typr: String,
   },
   createdOn: {
     type: Date,

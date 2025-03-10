@@ -180,8 +180,12 @@
               <h3 class="item-title">
                 <%= item.productId.productName %>
               </h3>
-              <p class="item-price">₹<%= item.productId.salePrice %>
-              </p>
+              <span class="item-price">₹<%= item.productId.salePrice %>
+              </span>
+              <span class="item-price">Size:<%= item.size %>
+              </span>
+              <span class="item-price">Color:<%= item.color %>
+              </span>
               <span class="remove-item" data-id="<%= item.productId._id %>">
                 <i class="fas fa-trash"></i> Remove
               </span>

@@ -311,7 +311,7 @@
 
         <!-- Coupon Code Section -->
         <div class="form-section">
-            <h3 class="form-title">Apply Coupon</h3>
+            <h3 class="form-title">Apply Coupon <br></h3><a href="/checkout/coupon" >Show Coupons</a>
             <div class="coupon-section">
                 <input type="text" id="couponCode" name="couponCode" placeholder="Enter Coupon Code">
                 <button type="button" id="applyCoupon">Apply</button>
@@ -349,6 +349,13 @@
                     <span>Shipping:</span>
                     <span>₹<span id="shipping" name="shipping">
                             <%= shipping %>.00
+                        </span></span>
+                </div>
+
+                <div class="summary-item">
+                    <span>Discount:</span>
+                    <span>-₹<span id="discount" name="discount">
+                            0.00
                         </span></span>
                 </div>
 
@@ -400,6 +407,7 @@
         const errorMessage = document.getElementById("errorMessage");
         const discountInfo = document.getElementById("discountInfo");
         const totalElement = document.getElementById("total");
+        const discount = document.getElementById("discount")
         const totalAmountInput = document.getElementById("totalAmountInput");
 
         // Reset both messages before proceeding
@@ -425,11 +433,12 @@
             const data = await response.json();
 
             if (data.success) {
-                discountInfo.innerHTML = `✅ Coupon Applied! Discount: ₹${data.discountAmount} <br> <strong>New Total: ₹${data.newTotal}</strong>`;
+                discountInfo.innerText = `✅ Coupon Applied! ${data.discountAmount}`;
                 discountInfo.style.display = "block";
+                discount.innerText = `${data.discountAmount}`
                 errorMessage.style.display = "none";
 
-                totalElement.textContent = data.newTotal;
+                totalElement.innerHTML = data.newTotal;
                 totalAmountInput.value = data.newTotal;
 
                 document.querySelectorAll(".summary-item").forEach((item) => {
@@ -456,7 +465,8 @@
                 discountInfo.style.display = "none";
             }
         } catch (error) {
-            errorMessage.textContent = "Something went wrong. Please try again later.";
+            console.log(error)
+            errorMessage.innerHTML = `✅ Coupon Applied! Discount: ₹${data.discountAmount} <br> <strong>New Total: ₹${data.newTotal}</strong>`;
             errorMessage.style.display = "block";
             discountInfo.style.display = "none";
         }

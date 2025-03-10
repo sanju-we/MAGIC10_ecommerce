@@ -15,72 +15,76 @@ const razorpayInstance = new Razorpay({
 
 const addOrder = async (req, res) => {
   try {
-    const { address, paymentMethod, totalAmount, couponCode } = req.body;
+    const { address, paymentMethod, totalAmount, couponCode } = req.body
+    console.log('req.body:', req.body)
 
-    const userId = req.session.user;
+    const userId = req.session.user
     const addresss = await Address.findOne(
       { userId: userId, "address._id": address },
       { "address.$": 1 }
-    );
-    const addressData = addresss && addresss.address.length > 0 ? addresss.address[0] : null;
+    )
+    const addressData = addresss && addresss.address.length > 0 ? addresss.address[0] : null
     console.log('addressData:', addressData)
-    const user = await User.findById(userId);
-    const cart = await Cart.findOne({ userId }).populate("items.productId");
+    const user = await User.findById(userId)
+    const variants = await Cart.findOne({ userId })
+    const cart = await Cart.findOne({ userId }).populate("items.productId")
 
     if (!cart || cart.items.length === 0) {
-      return res.status(400).redirect("/pageNotFound");
+      return res.status(400).redirect("/pageNotFound")
     }
 
     // Handle couponCode as a string
-    const singleCouponCode = Array.isArray(couponCode) ? couponCode[0] : couponCode;
+    const singleCouponCode = Array.isArray(couponCode) ? couponCode[0] : couponCode
 
     // Coupon logic
-    let discountAmount = 0;
+    let discountAmount = 0
     let discountDetails = cart.items.map((item) => ({
       productId: item.productId._id,
       quantity: item.quantity,
       originalPrice: item.totalPrice,
       discount: 0,
       discountedPrice: item.totalPrice,
-    }));
+    }))
 
     if (singleCouponCode) {
-      const couponData = await Coupon.findOne({ name: singleCouponCode });
+      const couponData = await Coupon.findOne({ name: singleCouponCode })
       if (couponData && couponData.minPrice <= totalAmount) {
-        discountAmount = couponData.offerPrice;
+        discountAmount = couponData.offerPrice
         const cartTotalValue = cart.items.reduce(
           (sum, item) => sum + item.totalPrice,
           0
-        );
+        )
 
         // Distribute discount proportionally
         discountDetails = cart.items.map((item) => {
-          const itemContribution = item.totalPrice / cartTotalValue;
-          const itemDiscount = discountAmount * itemContribution;
+          const itemContribution = item.totalPrice / cartTotalValue
+          const itemDiscount = discountAmount * itemContribution
           return {
             productId: item.productId._id,
             quantity: item.quantity,
             originalPrice: item.totalPrice,
             discount: itemDiscount,
             discountedPrice: item.totalPrice - itemDiscount,
-          };
-        });
+          }
+        })
       }
     }
 
-    let orders = [];
+    let orders = []
 
     // Create a separate order for each product
     for (const item of cart.items) {
       const discountDetail = discountDetails.find(
         (d) => d.productId.toString() === item.productId._id.toString()
-      );
-      const itemDiscount = discountDetail ? discountDetail.discount : 0;
-      const finalItemAmount = item.totalPrice - itemDiscount;
+      )
+      const itemDiscount = discountDetail ? discountDetail.discount : 0
+      const finalItemAmount = item.totalPrice - itemDiscount
 
       const newOrder = new Order({
         userId: userId,
-        product: item.productId._id, // Single product
+        product: item.productId._id,
+        size: variants.size,
+        color: variants.color,
         quantity: item.quantity,
         price: item.productId.salePrice,
         totalPrice: item.totalPrice,
@@ -101,33 +105,34 @@ const addOrder = async (req, res) => {
         status: "Pending",
         returnReason: "none",
         createdOn: new Date(),
-      });
+      })
 
-      await newOrder.save();
-      orders.push(newOrder);
+      await newOrder.save()
+      orders.push(newOrder)
 
       // Update product stock
-      const product = await Product.findById(item.productId._id);
+      const product = await Product.findById(item.productId._id)
       if (product) {
-        product.stock = Math.max(0, product.stock - item.quantity);
-        await product.save();
+        product.stock = Math.max(0, product.stock - item.quantity)
+        await product.save()
       }
     }
 
     // Clear the cart
-    await Cart.findOneAndDelete({ userId });
+    await Cart.findOneAndDelete({ userId })
 
     // Populate the orders for rendering
     const populatedOrders = await Order.find({
       _id: { $in: orders.map((o) => o._id) },
-    }).populate("product");
+    }).populate("product")
 
-    res.render("orderSuccess", { orders: populatedOrders, user });
+    res.render("orderSuccess", { orders: populatedOrders, user })
+    // res.send('done')
   } catch (error) {
-    console.error("Error occurred while placing orders:", error);
-    return res.redirect("/pageNotFound");
+    console.error("Error occurred while placing orders:", error)
+    return res.redirect("/pageNotFound")
   }
-};
+}
 
 
 
@@ -197,14 +202,14 @@ const cancelOrder = async (req, res) => {
 
 const getOrderDetails = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.orderId).populate("product");
+    const order = await Order.findById(req.params.orderId).populate("product")
     if (!order) {
-      return res.redirect("/pageNotFound");
+      return res.redirect("/pageNotFound")
     }
-    res.render("orderDetails", { order });
+    res.render("orderDetails", { order })
   } catch (error) {
-    console.error("Error fetching order details:", error);
-    res.redirect("/pageNotFound");
+    console.error("Error fetching order details:", error)
+    res.redirect("/pageNotFound")
   }
 }
 
@@ -216,16 +221,6 @@ const returnOrder = async (req, res) => {
     if (!orderData) {
       return res.json({ success: false })
     }
-    // adding stock
-    // const productData = await Product.findById(orderData.product)
-    // const productNew = orderData.quantity + productData.stock
-    // productData.stock = productNew 
-    // await productData.save()
-    // refund to the wallet
-    // const wallet = await Wallet.findOne({userId:userId})
-    // wallet.balance += orderData.finalAmount
-    // await wallet.save()
-    // sending return request
     orderData.status = 'Return Request'
     orderData.returnReason = reason
     await orderData.save()
@@ -280,10 +275,10 @@ const verifyRazorpay = async (req, res) => {
   }
 }
 
-const loadFailure = async(req,res)=>{
+const loadFailure = async (req, res) => {
   try {
-    const { orderId, error } = req.query;
-    res.render('oderFailure', { orderId: orderId || '', error: error || '' });
+    const { orderId, error } = req.query
+    res.render('oderFailure', { orderId: orderId || '', error: error || '' })
   } catch (error) {
     console.error("Error occur while loadFailure:", error)
     return res.status(500).redirect('/pageNotFound')

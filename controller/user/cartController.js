@@ -2,70 +2,71 @@ const User = require('../../models/userSchema')
 const Product = require('../../models/productSchema')
 const Cart = require('../../models/cartSchema')
 const Address = require('../../models/addressSchema')
+const Coupon = require('../../models/couponSchema')
 
 const addToCart = async (req, res) => {
   try {
-      const { productId, size, color } = req.body;
-      const userId = req.session.user;
+    const { productId, size, color } = req.body;
+    const userId = req.session.user;
 
-      if (!userId) {
-          return res.json({ success: false, message: "Please log in to add items to your cart." });
+    if (!userId) {
+      return res.json({ success: false, message: "Please log in to add items to your cart." });
+    }
+
+    if (!size || !color) {
+      return res.json({ success: false, message: "Please select a size and color." });
+    }
+
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.json({ success: false, message: "Product not found." });
+    }
+
+    const variant = product.variants.find(v => v.size === size && v.color === color);
+    if (!variant) {
+      return res.json({ success: false, message: "Selected variant not available." });
+    }
+
+    if (variant.stock <= 0) {
+      return res.json({ success: false, message: "Selected variant is out of stock." });
+    }
+
+    let cart = await Cart.findOne({ userId });
+    if (!cart) {
+      cart = new Cart({ userId, items: [] });
+    }
+
+    const existingItem = cart.items.find(item =>
+      item.productId.toString() === productId &&
+      item.size === size &&
+      item.color === color
+    );
+
+    const shippingCost = 0; // Default shipping cost; adjust based on your logic
+
+    if (existingItem) {
+      existingItem.quantity += 1;
+      if (existingItem.quantity > variant.stock) {
+        return res.json({ success: false, message: "Cannot add more items than available stock." });
       }
+      existingItem.totalPrice = (existingItem.price * existingItem.quantity) + existingItem.shipping;
+    } else {
+      cart.items.push({
+        productId,
+        size,
+        color,
+        quantity: 1,
+        price: variant.price,
+        shipping: shippingCost,
+        totalPrice: (variant.price * 1) + shippingCost
+      });
+    }
 
-      if (!size || !color) {
-          return res.json({ success: false, message: "Please select a size and color." });
-      }
-
-      const product = await Product.findById(productId);
-      if (!product) {
-          return res.json({ success: false, message: "Product not found." });
-      }
-
-      const variant = product.variants.find(v => v.size === size && v.color === color);
-      if (!variant) {
-          return res.json({ success: false, message: "Selected variant not available." });
-      }
-
-      if (variant.stock <= 0) {
-          return res.json({ success: false, message: "Selected variant is out of stock." });
-      }
-
-      let cart = await Cart.findOne({ userId });
-      if (!cart) {
-          cart = new Cart({ userId, items: [] });
-      }
-
-      const existingItem = cart.items.find(item =>
-          item.productId.toString() === productId &&
-          item.size === size &&
-          item.color === color
-      );
-
-      const shippingCost = 0; // Default shipping cost; adjust based on your logic
-
-      if (existingItem) {
-          existingItem.quantity += 1;
-          if (existingItem.quantity > variant.stock) {
-              return res.json({ success: false, message: "Cannot add more items than available stock." });
-          }
-          existingItem.totalPrice = (existingItem.price * existingItem.quantity) + existingItem.shipping;
-      } else {
-          cart.items.push({
-              productId,
-              size,
-              color,
-              quantity: 1,
-              price: variant.price,
-              shipping: shippingCost,
-              totalPrice: (variant.price * 1) + shippingCost
-          });
-      }
-
-      await cart.save();
-      res.json({ success: true, message: "Product added to cart." });
+    await cart.save();
+    res.json({ success: true, message: "Product added to cart." });
   } catch (error) {
-      console.error("Error adding to cart:", error);
-      res.json({ success: false, message: "An error occurred." });
+    console.error("Error adding to cart:", error);
+    res.json({ success: false, message: "An error occurred." });
   }
 };
 
@@ -79,7 +80,7 @@ const loadCart = async (req, res) => {
 
     const user = await User.findById(userId)
     const cart = await Cart.findOne({ userId }).populate('items.productId')
-    
+
     if (!cart || cart.items.length === 0) {
       return res.render('cart', {
         cartItems: [],
@@ -93,9 +94,9 @@ const loadCart = async (req, res) => {
 
     const subtotal = filteredCartItems.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
     let shipping
-    if(subtotal >= 100){
+    if (subtotal >= 100) {
       shipping = 0
-    }else{
+    } else {
       shipping = 100
     }
 
@@ -107,7 +108,7 @@ const loadCart = async (req, res) => {
       shipping,
       total
     })
-    
+
   } catch (error) {
     console.error('Error occurred while loading the cart:', error)
     res.redirect('/pageNotFound')
@@ -176,24 +177,37 @@ const loadCheckOut = async (req, res) => {
     const cartItems = cart.items.filter(item => item.productId && !item.productId.isBlocked && item.productId.stock > 0);
 
     let subTotal = cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
-    let shipping = subTotal >= 1000 ? 0 : 100; 
+    let shipping = subTotal >= 1000 ? 0 : 100;
     let totalAmount = subTotal + shipping;
+    let discount =  subTotal -totalAmount
 
     const addressData = await Address.findOne({ userId });
     const add = addressData ? addressData.address : [];
 
-    res.render('checkOut', { user, cartItems,subTotal, shipping, add, totalAmount });
+    res.render('checkOut', { user, cartItems, subTotal, shipping, add, totalAmount,discount });
   } catch (error) {
     console.error('Error occurred while loading checkout:', error);
     return res.redirect('/pageNotFound');
   }
 };
 
+const loadCheckOutCoupon = async(req,res)=>{
+  try {
+    const userId = req.session.user
+    const user = await User.findById(userId)
+    const Coupons = await Coupon.find({ expireOn: { $gte: new Date() } })
+    console.log('Coupons:',Coupons)
+    res.render('showCoupons',{coupons:Coupons, user})
+  } catch (error) {
+    
+  }
+}
 
 module.exports = {
   addToCart,
   loadCart,
   removeCartItem,
   updateCartQuantity,
-  loadCheckOut
+  loadCheckOut,
+  loadCheckOutCoupon
 }
