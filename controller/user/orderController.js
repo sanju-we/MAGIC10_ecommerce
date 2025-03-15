@@ -162,11 +162,8 @@ const getOrderHistory = async (req, res) => {
 
     let page = parseInt(req.query.page) || 1;
     let limit = 5;
-
     if (page < 1) page = 1;
-
     const skip = (page - 1) * limit;
-
     const totalOrders = await Order.countDocuments({ userId });
 
     const orders = await Order.find({ userId })

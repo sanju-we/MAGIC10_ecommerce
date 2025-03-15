@@ -211,8 +211,11 @@
       if (dateRange === "daily") {
         startDate = new Date(today);
         startDate.setDate(today.getDate() - 1);
+        startDate.setHours(23, 59, 59, 999); // Yesterday 11:59 PM
+
         endDate = new Date(today);
         endDate.setDate(today.getDate() + 1);
+        endDate.setHours(0, 0, 0, 0); // Tomorrow 12:00 AM
       } else if (dateRange === "weekly") {
         startDate = new Date(today);
         startDate.setDate(today.getDate() - 6);

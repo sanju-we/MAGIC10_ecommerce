@@ -382,7 +382,7 @@
     <!-- Wallet Section -->
     <div class="wallet-balance-card">
             <%if(balance){%>
-                <h2>Wallet Balance: ₹<span id="walletBalance"><%= balance %></span></h2>
+                <h2>Wallet Balance: ₹<span id="walletBalance"><%= balance.toFixed(2) %></span></h2>
                 <%}else{%>
                     <h2>Wallet Balance: ₹<span id="walletBalance">0</span></h2>
                     <%}%>
@@ -421,6 +421,24 @@
                     </div>
                 </div>
             <% }) %>
+            <% if (totalPages > 1) { %>
+                <div class="pagination">
+                    <% if (currentPage > 1) { %>
+                        <a href="/userProfile/wallet/<%= user._id %>?page=<%= currentPage - 1 %>&limit=<%= limit %>">Previous</a>
+                    <% } else { %>
+                        <span>Previous</span>
+                    <% } %>
+            
+                    <span>Page <%= currentPage %> of <%= totalPages %></span>
+            
+                    <% if (currentPage < totalPages) { %>
+                        <a href="/userProfile/wallet/<%= user._id %>?page=<%= currentPage + 1 %>&limit=<%= limit %>">Next</a>
+                    <% } else { %>
+                        <span>Next</span>
+                    <% } %>
+                </div>
+            <% } %>
+            
         <% } else { %>
             <div class="empty-state">
                 <p>Kick Off Your Transactions!</p>

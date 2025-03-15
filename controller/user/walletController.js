@@ -8,15 +8,20 @@ const loadwallet = async (req, res) => {
   try {
     const { userId } = req.params
     const user = await User.findById(userId)
+    let page = parseInt(req.query.page) || 1;
+    let limit = 5;
+    if (page < 1) page = 1;
+    const skip = (page - 1) * limit;
     const wallet = await Wallet.findOne({ userId: userId })
     console.log('wallet:', wallet)
     if(!wallet){
       const balance = 0
       return res.render('wallet', { balance, user, key_id: process.env.RAZORPAY_KEY_ID })
     }else{
-      const balance = wallet.balance
-      const transactions = wallet.transactions
-      return res.render('wallet', { balance, user, transactions, key_id: process.env.RAZORPAY_KEY_ID })
+      const balance = wallet.balance;
+      const transactions = wallet.transactions.slice(skip, skip + limit);
+      const totalPages = Math.ceil(wallet.transactions.length / limit);
+      return res.render('wallet', { balance, user, transactions, currentPage: page, totalPages , key_id: process.env.RAZORPAY_KEY_ID, limit })
     }
   } catch (error) {
     console.error('error occur while loadWallet', error)

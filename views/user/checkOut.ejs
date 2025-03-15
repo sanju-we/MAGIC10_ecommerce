@@ -263,9 +263,9 @@
                 <h3 class="form-title">Select Address</h3>
                 <div class="custom-select-wrapper">
                     <select name="address" id="address" class="form-control" required>
-                        <option value="" disabled selected>Choose Delivery Address</option>
+                        <option value="" disabled selected style="color: black;">Choose Delivery Address</option>
                         <% add.forEach(address=> { %>
-                            <option value="<%= address._id %>"
+                            <option value="<%= address._id %>" style="color: black;"
                                 data-full-address="<%= `${address.LandMark}, ${address.city}, ${address.State} - ${address.PINcode}` %>">
                                 📌 <%= address.fullName %> - <%= address.city %>
                             </option>
