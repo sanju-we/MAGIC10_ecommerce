@@ -67,5 +67,7 @@ router.post('/salesReport',orderController.generateSalesReport)
 router.get('/coupon',adminAuth,couponController.loadCoupon)
 router.post('/createCoupon',adminAuth,couponController.createCoupon)
 router.get("/deletecoupon",adminAuth,couponController.deletecoupon)
+router.get('/editCoupon',adminAuth,couponController.editCoupon)
+router.post('/editCoupon',adminAuth,couponController.posteditCoupon)
 
 module.exports = router

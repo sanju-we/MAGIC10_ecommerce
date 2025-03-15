@@ -9,7 +9,7 @@ const showAddAddress = async (req, res) => {
     const addresses = await Address.findOne({ userId: userId })
     console.log('addresses:', addresses);
 
-    res.render('userAddress', { addresses, userData })
+    res.render('userAddress', { addresses, user:userData })
   } catch (error) {
     res.redirect('/pageNotFound')
   }

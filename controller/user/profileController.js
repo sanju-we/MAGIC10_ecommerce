@@ -77,7 +77,6 @@ function genarateOtp() {
 async function sendVerificationEmail(email, otp) {
   try {
 
-    //creating a transporter to send out otp to user mail
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       port: 587,
@@ -89,7 +88,6 @@ async function sendVerificationEmail(email, otp) {
       }
     })
 
-    // creating info for how we want to send an email to a user,how will user seem it
     const info = await transporter.sendMail({
       from: process.env.NODEMAILER_EMAIL,
       to: email,
@@ -299,9 +297,8 @@ const ResetPassword = async(req,res)=>{
 const addProfile =  async (req, res) => {
   try {
       const userId = req.params.id;
-      const imagePath = `/uploads/${req.file.filename}`; // Save the relative path
+      const imagePath = `/uploads/${req.file.filename}`;
 
-      // Update user in database
       await User.findByIdAndUpdate(userId, { image: imagePath });
 
       res.json({ success: true, imagePath });

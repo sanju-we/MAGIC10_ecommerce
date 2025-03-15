@@ -102,7 +102,6 @@ const removeProduct = async (req, res) => {
 
     console.log("User's current wishlist before deletion:", user.whishlist)
 
-    // Convert productId to ObjectId if needed
     const mongoose = require("mongoose")
     const objectIdProductId = new mongoose.Types.ObjectId(productId)
 

@@ -1,587 +1,645 @@
 <%- include('../partials/user/header') %>
 
-<style>
-    /* Enhanced Checkout Styles */
-    .checkout-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        padding: 2rem;
-    }
-
-    .checkout-form {
-        width: 100%;
-        max-width: 800px;
-        margin: 0 auto;
-    }
-
-    .form-title {
-        color: var(--accent-gold);
-        font-size: 1.4rem;
-        letter-spacing: 0.5px;
-        margin-bottom: 1.5rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 2px solid rgba(196, 162, 119, 0.2);
-        position: relative;
-    }
-
-    .form-title::after {
-        content: '';
-        position: absolute;
-        bottom: -2px;
-        left: 0;
-        width: 60px;
-        height: 2px;
-        background: var(--accent-gold);
-    }
-
-    .coupon-section {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 1.5rem;
-    }
-
-    .coupon-section input {
-        flex: 1;
-        padding: 0.75rem;
-        border-radius: 8px;
-        border: 1px solid rgba(196, 162, 119, 0.3);
-        background: var(--dark-bg);
-        color: var(--text-primary);
-    }
-
-    .coupon-section button {
-        background: var(--accent-gold);
-        border: none;
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: 0.3s;
-    }
-
-    .coupon-section button:hover {
-        background: #b89e6b;
-    }
-
-    .discount-info {
-        color: var(--accent-gold);
-        font-size: 1rem;
-        margin-top: 0.5rem;
-    }
-
-    .error-message {
-        color: red;
-        font-size: 0.9rem;
-        margin-top: 0.5rem;
-    }
-
-    .custom-select-wrapper {
-        position: relative;
-        margin-bottom: 1.5rem;
-    }
-
-    .custom-select-wrapper select {
-        background: var(--dark-bg);
-        border: 1px solid rgba(196, 162, 119, 0.3);
-        color: var(--text-primary);
-        padding: 1rem;
-        border-radius: 8px;
-        font-size: 0.95rem;
-        transition: all 0.3s ease;
-    }
-
-    .custom-select-wrapper select:focus {
-        border-color: var(--accent-gold);
-        box-shadow: 0 0 0 3px rgba(196, 162, 119, 0.15);
-    }
-
-    .address-preview {
-        background: var(--dark-bg);
-        padding: 1rem;
-        border-radius: 8px;
-        margin-top: 1rem;
-        border: 1px solid rgba(196, 162, 119, 0.1);
-        display: none;
-    }
-
-    .address-preview.active {
-        display: block;
-        animation: fadeIn 0.3s ease;
-    }
-
-    .payment-card {
-        background: var(--dark-bg);
-        padding: 1.25rem;
-        border-radius: 8px;
-        border: 1px solid rgba(196, 162, 119, 0.2);
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .payment-card.active {
-        border-color: var(--accent-gold);
-        background: rgba(196, 162, 119, 0.05);
-    }
-
-    .payment-card::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: linear-gradient(45deg, transparent, rgba(196, 162, 119, 0.05), transparent);
-        transform: rotate(45deg);
-        transition: all 0.5s ease;
-        opacity: 0;
-    }
-
-    .payment-card:hover::before {
-        opacity: 1;
-    }
-
-    .order-summary {
-        background: var(--dark-bg);
-        border-radius: 12px;
-        padding: 2rem;
-        border: 1px solid rgba(196, 162, 119, 0.1);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-
-    .summary-item {
-        padding: 0.75rem 0;
-        border-bottom: 1px solid rgba(196, 162, 119, 0.1);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .summary-item:last-child {
-        border-bottom: none;
-    }
-
-    .total {
-        font-size: 1.3rem;
-        font-weight: 600;
-        color: var(--accent-gold);
-    }
-
-    .btn-gold {
-        background: var(--accent-gold);
-        color: var(--dark-bg);
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-    }
-
-    .btn-gold:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(196, 162, 119, 0.3);
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(5px);
+    <style>
+        /* Enhanced Checkout Styles */
+        *{
+            color: #fff;
         }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @media (max-width: 768px) {
         .checkout-container {
-            grid-template-columns: 1fr;
-            padding: 1.5rem;
-        }
-
-        .form-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .checkout-container {
-            padding: 1rem;
-            min-height: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
         }
 
         .checkout-form {
-            max-width: 100%;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
         }
-    }
-</style>
-<header>
-    <nav>
-        <a href="/" class="logo">MAGIC10</a>
-        <div class="nav-links">
-            <a href="/">HOME</a>
-            <a href="/shop">SHOP</a>
-            <a href="/about">ABOUT</a>
-            <a href="/contact">CONTACT</a>
 
-            <!-- Wishlist and Cart Buttons -->
-            <div class="header-icons">
-                <a href="/wishlist" class="icon-link">
-                    <i class="fas fa-heart"></i>
-                </a>
-                <a href="/cart" class="icon-link">
-                    <i class="fas fa-shopping-bag"></i>
-                </a>
-            </div>
-            <div class="custom-dropdown">
-                <a href="#" class="sign-in-link">
-                    <%= user.username %>
-                </a>
-                <div class="dropdown-content">
-                    <a href="/userProfile">Profile</a>
-                    <a href="/logout">Logout</a>
+        .form-title {
+            color: var(--accent-gold);
+            font-size: 1.4rem;
+            letter-spacing: 0.5px;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid rgba(196, 162, 119, 0.2);
+            position: relative;
+        }
+
+        .form-title::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: var(--accent-gold);
+        }
+
+        .coupon-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .coupon-section input {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid rgba(196, 162, 119, 0.3);
+            background: var(--dark-bg);
+            color: var(--text-primary);
+        }
+
+        .coupon-section button {
+            background: var(--accent-gold);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .coupon-section button:hover {
+            background: #b89e6b;
+        }
+
+        .discount-info {
+            color: var(--accent-gold);
+            font-size: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .custom-select-wrapper {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .custom-select-wrapper select {
+            background: var(--dark-bg);
+            border: 1px solid rgba(196, 162, 119, 0.3);
+            color: var(--text-primary);
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .custom-select-wrapper select:focus {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 3px rgba(196, 162, 119, 0.15);
+        }
+
+        .address-preview {
+            background: var(--dark-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            border: 1px solid rgba(196, 162, 119, 0.1);
+            display: none;
+        }
+
+        .address-preview.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .payment-card {
+            background: var(--dark-bg);
+            padding: 1.25rem;
+            border-radius: 8px;
+            border: 1px solid rgba(196, 162, 119, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .payment-card.active {
+            border-color: var(--accent-gold);
+            background: rgba(196, 162, 119, 0.05);
+        }
+
+        .payment-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(196, 162, 119, 0.05), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+            opacity: 0;
+        }
+
+        .payment-card:hover::before {
+            opacity: 1;
+        }
+
+        .order-summary {
+            background: var(--dark-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid rgba(196, 162, 119, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .summary-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(196, 162, 119, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .total {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        .btn-gold {
+            background: var(--accent-gold);
+            color: var(--dark-bg);
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(196, 162, 119, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+                padding: 1.5rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .checkout-container {
+                padding: 1rem;
+                min-height: auto;
+            }
+
+            .checkout-form {
+                max-width: 100%;
+            }
+        }
+    </style>
+    <header>
+        <nav>
+            <a href="/" class="logo">MAGIC10</a>
+            <div class="nav-links">
+                <a href="/">HOME</a>
+                <a href="/shop">SHOP</a>
+                <a href="/about">ABOUT</a>
+                <a href="/contact">CONTACT</a>
+
+                <!-- Wishlist and Cart Buttons -->
+                <div class="header-icons">
+                    <a href="/wishlist" class="icon-link">
+                        <i class="fas fa-heart"></i>
+                    </a>
+                    <a href="/cart" class="icon-link">
+                        <i class="fas fa-shopping-bag"></i>
+                    </a>
                 </div>
-            </div>
-        </div>
-    </nav>
-</header>
-<div class="checkout-container">
-    <!-- Checkout Form -->
-    <form class="checkout-form" method="post" action="/addOrder" id="checkoutForm">
-        <!-- Shipping Address Section -->
-        <div class="form-section">
-            <h3 class="form-title">Select Address</h3>
-            <div class="custom-select-wrapper">
-                <select name="address" id="address" class="form-control" required>
-                    <option value="" disabled selected>Choose Delivery Address</option>
-                    <% add.forEach(address => { %>
-                        <option value="<%= address._id %>"
-                            data-full-address="<%= `${address.LandMark}, ${address.city}, ${address.State} - ${address.PINcode}` %>">
-                            📌 <%= address.fullName %> - <%= address.city %>
-                        </option>
-                    <% }) %>
-                </select>
-                <div class="select-arrow"></div>
-            </div>
-            <div class="address-preview" id="addressPreview"></div>
-            <a href="/addAddress">Add Address</a>
-        </div>
-
-        <!-- Payment Section -->
-        <div class="form-section">
-            <h3 class="form-title">Payment Method</h3>
-            <div class="payment-methods">
-                <div class="payment-card" data-method="credit-card">
-                    <label class="payment-method-label">
-                        <input type="radio" name="paymentMethod" value="credit-card" required>
-                        <div class="payment-method-content">
-                            <i class="fas fa-credit-card"></i>
-                            <span>Credit/Debit Card</span>
-                        </div>
-                    </label>
-                </div>
-
-                <div class="payment-card" data-method="cod">
-                    <label class="payment-method-label">
-                        <input type="radio" name="paymentMethod" value="cod">
-                        <div class="payment-method-content">
-                            <i class="fas fa-money-bill-wave"></i>
-                            <span>Cash on Delivery</span>
-                        </div>
-                    </label>
-                </div>
-
-                <div class="payment-card" data-method="razorpay">
-                    <label class="payment-method-label">
-                        <input type="radio" name="paymentMethod" value="razorpay">
-                        <div class="payment-method-content">
-                            <i class="fas fa-wallet"></i>
-                            <span>Razorpay</span>
-                        </div>
-                    </label>
-                </div>
-            </div>
-        </div>
-
-        <!-- Coupon Code Section -->
-        <div class="form-section">
-            <h3 class="form-title">Apply Coupon <br></h3><a href="/checkout/coupon" >Show Coupons</a>
-            <div class="coupon-section">
-                <input type="text" id="couponCode" name="couponCode" placeholder="Enter Coupon Code">
-                <button type="button" id="applyCoupon">Apply</button>
-            </div>
-            <p class="discount-info" id="discountInfo" style="display: none;"></p>
-            <p class="error-message" id="errorMessage" style="display: none;"></p>
-        </div>
-
-        <!-- Order Summary Section -->
-        <div class="form-section">
-            <h3 class="form-title">Order Summary</h3>
-            <div class="order-summary">
-                <% cartItems.forEach(item => { %>
-                    <div class="summary-item">
-                        <span class="product-name">
-                            <%= item.productId.productName %> × <%= item.quantity %>
-                        </span>
-                        <span class="product-price">
-                            ₹<span class="original-price" data-price="<%= item.totalPrice %>">
-                                <%= item.totalPrice.toFixed(2) %>
-                            </span>
-                            <span class="discounted-price" style="display: none;"></span>
-                        </span>
+                <div class="custom-dropdown">
+                    <a href="#" class="sign-in-link">
+                        <%= user.username %>
+                    </a>
+                    <div class="dropdown-content">
+                        <a href="/userProfile">Profile</a>
+                        <a href="/logout">Logout</a>
                     </div>
-                <% }) %>
-
-                <div class="summary-item">
-                    <span>Subtotal:</span>
-                    <span>₹<span id="subtotal" name="subTotal">
-                            <%= subTotal %>.00
-                        </span></span>
-                </div>
-
-                <div class="summary-item">
-                    <span>Shipping:</span>
-                    <span>₹<span id="shipping" name="shipping">
-                            <%= shipping %>.00
-                        </span></span>
-                </div>
-
-                <div class="summary-item">
-                    <span>Discount:</span>
-                    <span>-₹<span id="discount" name="discount">
-                            0.00
-                        </span></span>
-                </div>
-
-                <div class="summary-item">
-                    <span>Total Amount:</span>
-                    <span>₹<span id="total" name="shipping">
-                            <%= totalAmount %>.00
-                        </span></span>
-                    <input type="hidden" id="totalAmountInput" name="totalAmount" value="<%= totalAmount %>">
                 </div>
             </div>
-        </div>
-        <!-- Submit Button -->
-        <button type="submit" class="btn-gold">
-            <i class="fas fa-lock"></i>
-            Confirm Order
-        </button>
-    </form>
-</div>
+        </nav>
+    </header>
+    <div class="checkout-container">
+        <!-- Checkout Form -->
+        <form class="checkout-form" method="post" action="/addOrder" id="checkoutForm">
+            <!-- Shipping Address Section -->
+            <div class="form-section">
+                <h3 class="form-title">Select Address</h3>
+                <div class="custom-select-wrapper">
+                    <select name="address" id="address" class="form-control" required>
+                        <option value="" disabled selected>Choose Delivery Address</option>
+                        <% add.forEach(address=> { %>
+                            <option value="<%= address._id %>"
+                                data-full-address="<%= `${address.LandMark}, ${address.city}, ${address.State} - ${address.PINcode}` %>">
+                                📌 <%= address.fullName %> - <%= address.city %>
+                            </option>
+                            <% }) %>
+                    </select>
+                    <div class="select-arrow"></div>
+                </div>
+                <div class="address-preview" id="addressPreview"></div>
+                <a href="/addAddress">Add Address</a>
+            </div>
 
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script>
-    const addressSelect = document.getElementById('address');
-    const addressPreview = document.getElementById('addressPreview');
+            <!-- Payment Section -->
+            <div class="form-section">
+                <h3 class="form-title">Payment Method</h3>
+                <div class="payment-methods">
+                    <div class="payment-card" data-method="credit-card">
+                        <label class="payment-method-label">
+                            <input type="radio" name="paymentMethod" value="credit-card" required>
+                            <div class="payment-method-content">
+                                <i class="fas fa-credit-card"></i>
+                                <span>Credit/Debit Card</span>
+                            </div>
+                        </label>
+                    </div>
 
-    addressSelect.addEventListener('change', function () {
-        if (this.value) {
-            const selectedOption = this.options[this.selectedIndex];
-            addressPreview.innerHTML = `
+                    <div class="payment-card" data-method="cod">
+                        <label class="payment-method-label">
+                            <input type="radio" name="paymentMethod" value="cod">
+                            <div class="payment-method-content">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <span>Cash on Delivery</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="payment-card" data-method="razorpay">
+                        <label class="payment-method-label">
+                            <input type="radio" name="paymentMethod" value="razorpay">
+                            <div class="payment-method-content">
+                                <i class="fas fa-wallet"></i>
+                                <span>Razorpay</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coupon Code Section -->
+            <div class="form-section">
+                <h3 class="form-title">Apply Coupon <br></h3>
+                <div class="coupon-section">
+                    <input type="text" id="couponCode" name="couponCode" placeholder="Enter Coupon Code">
+                    <button type="button" id="applyCoupon">Apply</button>
+                </div>
+                <p class="discount-info" id="discountInfo" style="display: none;"></p>
+                <p class="error-message" id="errorMessage" style="display: none;"></p>
+            </div>
+
+            <!-- Order Summary Section -->
+            <div class="form-section">
+                <h3 class="form-title">Order Summary</h3>
+                <div class="order-summary">
+                    <% cartItems.forEach(item=> { %>
+                        <div class="summary-item">
+                            <span class="product-name">
+                                <%= item.productId.productName %> × <%= item.quantity %>
+                            </span>
+                            <span class="product-price">
+                                ₹<span class="original-price" data-price="<%= item.totalPrice %>">
+                                    <%= item.totalPrice.toFixed(2) %>
+                                </span>
+                                <span class="discounted-price" style="display: none;"></span>
+                            </span>
+                        </div>
+                        <% }) %>
+
+                            <div class="summary-item">
+                                <span>Subtotal:</span>
+                                <span>₹<span id="subtotal" name="subTotal">
+                                        <%= subTotal %>.00
+                                    </span></span>
+                            </div>
+
+                            <div class="summary-item">
+                                <span>Shipping:</span>
+                                <span>₹<span id="shipping" name="shipping">
+                                        <%= shipping %>.00
+                                    </span></span>
+                            </div>
+
+                            <div class="summary-item">
+                                <span>Discount:</span>
+                                <span>-₹<span id="discount" name="discount">
+                                        0.00
+                                    </span></span>
+                            </div>
+
+                            <div class="summary-item">
+                                <span>Total Amount:</span>
+                                <span>₹<span id="total" name="shipping">
+                                        <%= totalAmount %>.00
+                                    </span></span>
+                                <input type="hidden" id="totalAmountInput" name="totalAmount"
+                                    value="<%= totalAmount %>">
+                            </div>
+                </div>
+            </div>
+            <!-- Submit Button -->
+            <button type="submit" class="btn-gold">
+                <i class="fas fa-lock"></i>
+                Confirm Order
+            </button>
+            <div class="container">
+                <h2 class="text-center mb-4">Available Coupons</h2>
+
+                <% if (coupons.length> 0) { %>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Coupon Code</th>
+                                    <th>Discount</th>
+                                    <th>Min Purchase</th>
+                                    <th>Expiration Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% coupons.forEach(coupon=> { %>
+                                    <tr>
+                                        <td class="coupon-code">
+                                            <%= coupon.name %>
+                                        </td>
+                                        <td>
+                                            <%= coupon.offerPrice %>% Off
+                                        </td>
+                                        <td>$<%= coupon.minPrice.toFixed(2) %>
+                                        </td>
+                                        <td>
+                                            <%= new Date(coupon.expireOn).toLocaleDateString() %>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-primary" onclick="copyCoupon('<%= coupon.name %>')">Copy
+                                                Code</button>
+                                        </td>
+                                    </tr>
+                                    <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                    <% } else { %>
+                        <div class="alert alert-warning text-center">No available coupons at the moment.</div>
+                        <% } %>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        const addressSelect = document.getElementById('address');
+        const addressPreview = document.getElementById('addressPreview');
+
+        addressSelect.addEventListener('change', function () {
+            if (this.value) {
+                const selectedOption = this.options[this.selectedIndex];
+                addressPreview.innerHTML = `
                 <h4>${selectedOption.text.replace('📌 ', '')}</h4>
                 <p>${selectedOption.dataset.fullAddress}</p>
             `;
-            addressPreview.classList.add('active');
-        } else {
-            addressPreview.classList.remove('active');
-        }
-    });
-
-    // Payment Method Interactions
-    document.querySelectorAll('.payment-card').forEach(card => {
-        card.addEventListener('click', function () {
-            document.querySelectorAll('.payment-card').forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
-        });
-    });
-
-    document.getElementById("applyCoupon").addEventListener("click", async () => {
-        const couponCode = document.getElementById("couponCode").value.trim();
-        const errorMessage = document.getElementById("errorMessage");
-        const discountInfo = document.getElementById("discountInfo");
-        const totalElement = document.getElementById("total");
-        const discount = document.getElementById("discount")
-        const totalAmountInput = document.getElementById("totalAmountInput");
-
-        // Reset both messages before proceeding
-        errorMessage.style.display = "none";
-        discountInfo.style.display = "none";
-
-        if (!couponCode) {
-            errorMessage.textContent = "Please enter a coupon code.";
-            errorMessage.style.display = "block";
-            return;
-        }
-
-        try {
-            const response = await fetch("/applyCoupon", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    couponCode,
-                    totalAmount: parseFloat(totalElement.textContent),
-                }),
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                discountInfo.innerText = `✅ Coupon Applied! ${data.discountAmount}`;
-                discountInfo.style.display = "block";
-                discount.innerText = `${data.discountAmount}`
-                errorMessage.style.display = "none";
-
-                totalElement.innerHTML = data.newTotal;
-                totalAmountInput.value = data.newTotal;
-
-                document.querySelectorAll(".summary-item").forEach((item) => {
-                    const productNameEl = item.querySelector(".product-name");
-                    const productPriceEl = item.querySelector(".original-price");
-                    const discountedPriceEl = item.querySelector(".discounted-price");
-
-                    const productName = productNameEl.textContent.split(" × ")[0].trim();
-                    const discountDetail = data.discountDetails.find((detail) =>
-                        productName.includes(detail.productId.toString())
-                    );
-
-                    if (discountDetail) {
-                        productPriceEl.style.textDecoration = "line-through";
-                        productPriceEl.style.color = "#888";
-                        discountedPriceEl.textContent = `₹${discountDetail.discountedPrice.toFixed(2)}`;
-                        discountedPriceEl.style.display = "inline";
-                        discountedPriceEl.style.color = "var(--accent-gold)";
-                    }
-                });
+                addressPreview.classList.add('active');
             } else {
-                errorMessage.textContent = data.message;
+                addressPreview.classList.remove('active');
+            }
+        });
+
+        function copyCoupon(code) {
+            navigator.clipboard.writeText(code).then(() => {
+                Swal.fire({
+                    title: 'Copied successfully',
+                    text: 'Coupon code coppied succusfully',
+                    icon: 'success'
+                })
+            }).catch(err => {
+                console.error("Failed to copy: ", err);
+            });
+        }
+
+        document.querySelectorAll('.payment-card').forEach(card => {
+            card.addEventListener('click', function () {
+                document.querySelectorAll('.payment-card').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        document.getElementById("applyCoupon").addEventListener("click", async () => {
+            const couponCode = document.getElementById("couponCode").value.trim();
+            const errorMessage = document.getElementById("errorMessage");
+            const discountInfo = document.getElementById("discountInfo");
+            const totalElement = document.getElementById("total");
+            const discount = document.getElementById("discount")
+            const totalAmountInput = document.getElementById("totalAmountInput");
+
+            // Reset both messages before proceeding
+            errorMessage.style.display = "none";
+            discountInfo.style.display = "none";
+
+            if (!couponCode) {
+                errorMessage.textContent = "Please enter a coupon code.";
+                errorMessage.style.display = "block";
+                return;
+            }
+
+            try {
+                const response = await fetch("/applyCoupon", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        couponCode,
+                        totalAmount: parseFloat(totalElement.textContent),
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    discountInfo.innerText = `✅ Coupon Applied! ${data.discountAmount}`;
+                    discountInfo.style.display = "block";
+                    discount.innerText = `${data.discountAmount}`
+                    errorMessage.style.display = "none";
+
+                    totalElement.innerHTML = data.newTotal;
+                    totalAmountInput.value = data.newTotal;
+
+                    document.querySelectorAll(".summary-item").forEach((item) => {
+                        const productNameEl = item.querySelector(".product-name");
+                        const productPriceEl = item.querySelector(".original-price");
+                        const discountedPriceEl = item.querySelector(".discounted-price");
+
+                        const productName = productNameEl.textContent.split(" × ")[0].trim();
+                        const discountDetail = data.discountDetails.find((detail) =>
+                            productName.includes(detail.productId.toString())
+                        );
+
+                        if (discountDetail) {
+                            productPriceEl.style.textDecoration = "line-through";
+                            productPriceEl.style.color = "#888";
+                            discountedPriceEl.textContent = `₹${discountDetail.discountedPrice.toFixed(2)}`;
+                            discountedPriceEl.style.display = "inline";
+                            discountedPriceEl.style.color = "var(--accent-gold)";
+                        }
+                    });
+                } else {
+                    errorMessage.textContent = data.message;
+                    errorMessage.style.display = "block";
+                    discountInfo.style.display = "none";
+                }
+            } catch (error) {
+                console.log(error)
+                errorMessage.innerHTML = `✅ Coupon Applied! Discount: ₹${data.discountAmount} <br> <strong>New Total: ₹${data.newTotal}</strong>`;
                 errorMessage.style.display = "block";
                 discountInfo.style.display = "none";
             }
-        } catch (error) {
-            console.log(error)
-            errorMessage.innerHTML = `✅ Coupon Applied! Discount: ₹${data.discountAmount} <br> <strong>New Total: ₹${data.newTotal}</strong>`;
-            errorMessage.style.display = "block";
-            discountInfo.style.display = "none";
-        }
-    });
+        });
 
-    document.getElementById("checkoutForm").addEventListener("submit", async function (e) {
-        e.preventDefault();
-        const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
-        const btn = this.querySelector('button[type="submit"]');
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-        btn.disabled = true;
+        document.getElementById("checkoutForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+            const btn = this.querySelector('button[type="submit"]');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            btn.disabled = true;
 
-        const addressId = document.getElementById("address").value;
-        const totalAmount = parseFloat(document.getElementById("totalAmountInput").value);
-        const couponCode = document.getElementById("couponCode").value.trim();
+            const addressId = document.getElementById("address").value;
+            const totalAmount = parseFloat(document.getElementById("totalAmountInput").value);
+            const couponCode = document.getElementById("couponCode").value.trim();
 
-        // Remove any existing couponCode and address inputs to avoid duplicates
-        const existingCouponInputs = this.querySelectorAll('input[name="couponCode"]');
-        const existingAddressInputs = this.querySelectorAll('input[name="address"]');
-        existingCouponInputs.forEach((input) => input.remove());
-        existingAddressInputs.forEach((input) => input.remove());
+            // Remove any existing couponCode and address inputs to avoid duplicates
+            const existingCouponInputs = this.querySelectorAll('input[name="couponCode"]');
+            const existingAddressInputs = this.querySelectorAll('input[name="address"]');
+            existingCouponInputs.forEach((input) => input.remove());
+            existingAddressInputs.forEach((input) => input.remove());
 
-        if (selectedPaymentMethod === "razorpay") {
-            try {
-                const resOrder = await fetch("/api/razorpay/createRazorpayOrder", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ totalAmount }),
-                });
+            if (selectedPaymentMethod === "razorpay") {
+                try {
+                    const resOrder = await fetch("/api/razorpay/createRazorpayOrder", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ totalAmount }),
+                    });
 
-                const data = await resOrder.json();
+                    const data = await resOrder.json();
 
-                if (data.success) {
-                    const orderData = data.order;
-                    const options = {
-                        key: "rzp_test_KrLYrR8hOSocAl",
-                        amount: orderData.amount,
-                        currency: orderData.currency,
-                        name: "MAGIC10",
-                        description: "Order Payment",
-                        order_id: orderData.id,
-                        handler: function (response) {
-                            const form = document.getElementById("checkoutForm");
+                    if (data.success) {
+                        const orderData = data.order;
+                        const options = {
+                            key: "rzp_test_KrLYrR8hOSocAl",
+                            amount: orderData.amount,
+                            currency: orderData.currency,
+                            name: "MAGIC10",
+                            description: "Order Payment",
+                            order_id: orderData.id,
+                            handler: function (response) {
+                                const form = document.getElementById("checkoutForm");
 
-                            const paymentIdInput = document.createElement("input");
-                            paymentIdInput.type = "hidden";
-                            paymentIdInput.name = "razorpay_payment_id";
-                            paymentIdInput.value = response.razorpay_payment_id;
-                            form.appendChild(paymentIdInput);
+                                const paymentIdInput = document.createElement("input");
+                                paymentIdInput.type = "hidden";
+                                paymentIdInput.name = "razorpay_payment_id";
+                                paymentIdInput.value = response.razorpay_payment_id;
+                                form.appendChild(paymentIdInput);
 
-                            const orderIdInput = document.createElement("input");
-                            orderIdInput.type = "hidden";
-                            orderIdInput.name = "razorpay_order_id";
-                            orderIdInput.value = response.razorpay_order_id;
-                            form.appendChild(orderIdInput);
+                                const orderIdInput = document.createElement("input");
+                                orderIdInput.type = "hidden";
+                                orderIdInput.name = "razorpay_order_id";
+                                orderIdInput.value = response.razorpay_order_id;
+                                form.appendChild(orderIdInput);
 
-                            const signatureInput = document.createElement("input");
-                            signatureInput.type = "hidden";
-                            signatureInput.name = "razorpay_signature";
-                            signatureInput.value = response.razorpay_signature;
-                            form.appendChild(signatureInput);
+                                const signatureInput = document.createElement("input");
+                                signatureInput.type = "hidden";
+                                signatureInput.name = "razorpay_signature";
+                                signatureInput.value = response.razorpay_signature;
+                                form.appendChild(signatureInput);
 
-                            const couponInput = document.createElement("input");
-                            couponInput.type = "hidden";
-                            couponInput.name = "couponCode";
-                            couponInput.value = couponCode;
-                            form.appendChild(couponInput);
+                                const couponInput = document.createElement("input");
+                                couponInput.type = "hidden";
+                                couponInput.name = "couponCode";
+                                couponInput.value = couponCode;
+                                form.appendChild(couponInput);
 
-                            const addressInput = document.createElement("input");
-                            addressInput.type = "hidden";
-                            addressInput.name = "address";
-                            addressInput.value = addressId;
-                            form.appendChild(addressInput);
+                                const addressInput = document.createElement("input");
+                                addressInput.type = "hidden";
+                                addressInput.name = "address";
+                                addressInput.value = addressId;
+                                form.appendChild(addressInput);
 
-                            form.submit();
-                        },
-                        prefill: {
-                            name: "<%= user.username %>",
-                            email: "<%= user.email %>",
-                            contact: "<%= user.phone %>",
-                        },
-                        theme: { color: "#C4A277" },
-                    };
-                    const rzp = new Razorpay(options);
-                    rzp.on('payment.failed', function (response) {
-                        window.location.href = `/orderFailure?orderId=${orderData.id}&error=${response.error.description}`;
-                    })
-                    rzp.open();
-                } else {
-                    Swal.fire("Error!", data.message || "Unable to create order", "error");
+                                form.submit();
+                            },
+                            prefill: {
+                                name: "<%= user.username %>",
+                                email: "<%= user.email %>",
+                                contact: "<%= user.phone %>",
+                            },
+                            theme: { color: "#C4A277" },
+                        };
+                        const rzp = new Razorpay(options);
+                        rzp.on('payment.failed', function (response) {
+                            window.location.href = `/orderFailure?orderId=${orderData.id}&error=${response.error.description}`;
+                        })
+                        rzp.open();
+                    } else {
+                        Swal.fire("Error!", data.message || "Unable to create order", "error");
+                        btn.innerHTML = "Confirm Order";
+                        btn.disabled = false;
+                    }
+                } catch (error) {
+                    console.error("Error creating Razorpay order:", error);
+                    Swal.fire("Error!", "Something went wrong.", "error");
                     btn.innerHTML = "Confirm Order";
                     btn.disabled = false;
                 }
-            } catch (error) {
-                console.error("Error creating Razorpay order:", error);
-                Swal.fire("Error!", "Something went wrong.", "error");
-                btn.innerHTML = "Confirm Order";
-                btn.disabled = false;
+            } else {
+                const couponInput = document.createElement("input");
+                couponInput.type = "hidden";
+                couponInput.name = "couponCode";
+                couponInput.value = couponCode;
+                this.appendChild(couponInput);
+
+                const addressInput = document.createElement("input");
+                addressInput.type = "hidden";
+                addressInput.name = "address";
+                addressInput.value = addressId;
+                this.appendChild(addressInput);
+
+                this.submit();
             }
-        } else {
-            const couponInput = document.createElement("input");
-            couponInput.type = "hidden";
-            couponInput.name = "couponCode";
-            couponInput.value = couponCode;
-            this.appendChild(couponInput);
+        });
+    </script>
 
-            const addressInput = document.createElement("input");
-            addressInput.type = "hidden";
-            addressInput.name = "address";
-            addressInput.value = addressId;
-            this.appendChild(addressInput);
-
-            this.submit();
-        }
-    });
-</script>
-
-<%- include('../partials/user/footer') %>
+    <%- include('../partials/user/footer') %>

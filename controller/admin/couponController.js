@@ -52,8 +52,29 @@ const deletecoupon = async(req,res)=>{
   }
 }
 
+const editCoupon = async(req,res)=>{
+  try {
+    const id = req.query.id
+    const couponData = await Coupon.findById(id)
+    return res.render('coupon-edit',{couponData})
+  } catch (error) {
+    console.error('eoor occur while loadCoupon')
+    return res.redirect('pageerror')
+  }
+}
+
+const posteditCoupon = async(req,res)=>{
+  try {
+    console.log(req.body)
+  } catch (error) {
+    
+  }
+}
+
 module.exports = {
   loadCoupon,
   createCoupon,
-  deletecoupon
+  deletecoupon,
+  editCoupon,
+  posteditCoupon
 }

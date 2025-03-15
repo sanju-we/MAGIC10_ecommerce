@@ -42,7 +42,7 @@ const addToCart = async (req, res) => {
       item.color === color
     );
 
-    const shippingCost = 0; // Default shipping cost; adjust based on your logic
+    const shippingCost = 0;
 
     if (existingItem) {
       existingItem.quantity += 1;
@@ -170,6 +170,8 @@ const loadCheckOut = async (req, res) => {
     const user = await User.findById(userId);
     const cart = await Cart.findOne({ userId }).populate('items.productId');
 
+    const coupons = await Coupon.find({expireOn :{$gt:new Date()}})
+
     if (!cart || cart.items.length === 0) {
       return res.redirect('/shop');
     }
@@ -184,7 +186,7 @@ const loadCheckOut = async (req, res) => {
     const addressData = await Address.findOne({ userId });
     const add = addressData ? addressData.address : [];
 
-    res.render('checkOut', { user, cartItems, subTotal, shipping, add, totalAmount,discount });
+    res.render('checkOut', { user, cartItems, subTotal, shipping, add, totalAmount,discount,coupons });
   } catch (error) {
     console.error('Error occurred while loading checkout:', error);
     return res.redirect('/pageNotFound');

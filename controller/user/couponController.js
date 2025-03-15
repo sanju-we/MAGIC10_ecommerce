@@ -51,7 +51,7 @@ const applyCoupon = async (req, res) => {
       }
     })
 
-    // couponData.usedBy.push(userId)
+    couponData.usedBy.push(userId)
     await couponData.save()
 
     return res.json({

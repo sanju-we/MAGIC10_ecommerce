@@ -1,32 +1,7 @@
 <%- include('../partials/user/header') %>
 
-    <header>
-        <nav>
-            <a href="/" class="logo">MAGIC10</a>
-            <div class="nav-links">
-                <a href="/">HOME</a>
-                <a href="/shop">SHOP</a>
-                <a href="/about">ABOUT</a>
-                <a href="/contact">CONTACT</a>
-                <% if (locals.user) { %>
-                    <div class="custom-dropdown">
-                        <a href="#" class="sign-in-link">
-                            <%= locals.user.username %>
-                        </a>
-                        <div class="dropdown-content">
-                            <a href="/userProfile">Profile</a>
-                            <a href="/logout">Logout</a>
-                        </div>
-                    </div>
-                    <% } else { %>
-                        <a href="/signup">SIGNUP</a>
-                        <a href="/login">LOGIN</a>
-                        <% } %>
-            </div>
-        </nav>
-    </header>
 
-    <style>
+<style>
         .add-address-container {
             max-width: 800px;
             margin: 3rem auto;
@@ -51,7 +26,7 @@
             gap: 2rem;
             margin: 1rem 0;
         }
-
+        
         .address-type-group label {
             display: flex;
             align-items: center;
@@ -62,14 +37,14 @@
         input[type="radio"] {
             accent-color: var(--accent-gold);
         }
-
+        
         .default-address {
             display: flex;
             align-items: center;
             gap: 0.5rem;
             margin: 1rem 0;
         }
-
+        
         .save-address-btn {
             width: 100%;
             margin-top: 1.5rem;
@@ -80,18 +55,43 @@
             font-size: 0.9rem;
             margin-top: 0.2rem;
         }
-    </style>
+        </style>
+<header>
+    <nav>
+        <a href="/" class="logo">MAGIC10</a>
+        <div class="nav-links">
+            <a href="/">HOME</a>
+            <a href="/shop">SHOP</a>
+            <a href="/about">ABOUT</a>
+            <a href="/contact">CONTACT</a>
+            <% if (locals.user) { %>
+                <div class="custom-dropdown">
+                    <a href="#" class="sign-in-link">
+                        <%= locals.user.username %>
+                    </a>
+                    <div class="dropdown-content">
+                        <a href="/userProfile">Profile</a>
+                        <a href="/logout">Logout</a>
+                    </div>
+                </div>
+                <% } else { %>
+                    <a href="/signup">SIGNUP</a>
+                    <a href="/login">LOGIN</a>
+                    <% } %>
+        </div>
+    </nav>
+</header>
 
     <div class="add-address-container">
         <h2 class="text-center mb-4">Add New Address</h2>
-
+        
         <form class="address-form" action="/userProfile/addAddress" method="post" id="addAddressForm">
             <div class="form-group">
                 <label class="form-label">Full Name</label>
                 <input type="text" class="form-control" name="fullName" id="fullName" required>
                 <p class="error-msg" id="fullNameError"></p>
             </div>
-
+            
             <div class="form-group">
                 <label class="form-label">Phone Number</label>
                 <input type="tel" class="form-control" name="phone" id="phone" required>

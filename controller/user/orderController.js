@@ -26,7 +26,7 @@ const addOrder = async (req, res) => {
     const addressData = addresss && addresss.address.length > 0 ? addresss.address[0] : null
     console.log('addressData:', addressData)
     const user = await User.findById(userId)
-    const variants = await Cart.findOne({ userId:userId })
+    const variants = await Cart.findOne({ userId: userId })
     console.log('variants:', variants.items.map((x) => x.size));
     const cart = await Cart.findOne({ userId }).populate("items.productId")
 
@@ -34,10 +34,8 @@ const addOrder = async (req, res) => {
       return res.status(400).redirect("/pageNotFound")
     }
 
-    // Handle couponCode as a string
     const singleCouponCode = Array.isArray(couponCode) ? couponCode[0] : couponCode
 
-    // Coupon logic
     let discountAmount = 0
     let discountDetails = cart.items.map((item) => ({
       productId: item.productId._id,
@@ -56,7 +54,6 @@ const addOrder = async (req, res) => {
           0
         )
 
-        // Distribute discount proportionally
         discountDetails = cart.items.map((item) => {
           const itemContribution = item.totalPrice / cartTotalValue
           const itemDiscount = discountAmount * itemContribution
@@ -73,7 +70,6 @@ const addOrder = async (req, res) => {
 
     let orders = []
 
-    // Create a separate order for each product
     for (const item of cart.items) {
       const discountDetail = discountDetails.find(
         (d) => d.productId.toString() === item.productId._id.toString()
@@ -111,24 +107,24 @@ const addOrder = async (req, res) => {
       await newOrder.save()
       orders.push(newOrder)
 
-      // Update product stock
-      const product = await Product.findById(item.productId._id)
+      const product = await Product.findOne({ _id: item.productId._id });
       if (product) {
-        product.stock = Math.max(0, product.stock - item.quantity)
-        await product.save()
+        const variant = product.variants.find(v => v.size === item.size && v.color === item.color);
+        if (variant) {
+          variant.stock = Math.max(0, variant.stock - item.quantity);
+        }
+        product.stock = Math.max(0, product.stock - item.quantity);
+        await product.save();
       }
     }
 
-    // Clear the cart
     await Cart.findOneAndDelete({ userId })
 
-    // Populate the orders for rendering
     const populatedOrders = await Order.find({
-      _id: { $in: orders.map((o) => o._id) },
+      _id: { $in: orders.map((x) => x._id) },
     }).populate("product")
 
     res.render("orderSuccess", { orders: populatedOrders, user })
-    // res.send('done')
   } catch (error) {
     console.error("Error occurred while placing orders:", error)
     return res.redirect("/pageNotFound")
@@ -157,27 +153,47 @@ const orderSuccess = async (req, res) => {
 
 const getOrderHistory = async (req, res) => {
   try {
-    const userId = req.session.user
+    const userId = req.session.user;
     if (!userId) {
-      return res.redirect('/login')
+      return res.redirect('/login');
     }
 
-    const user = await User.findById(userId)
+    const user = await User.findById(userId);
+
+    let page = parseInt(req.query.page) || 1;
+    let limit = 5;
+
+    if (page < 1) page = 1;
+
+    const skip = (page - 1) * limit;
+
+    const totalOrders = await Order.countDocuments({ userId });
 
     const orders = await Order.find({ userId })
       .sort({ createdOn: -1 })
-      .populate('product')
+      .skip(skip)
+      .limit(limit)
+      .populate('product');
 
-    res.render('orderHistory', { orders, user })
+    const totalPages = Math.ceil(totalOrders / limit);
+
+    res.render('orderHistory', {
+      orders,
+      user,
+      currentPage: page,
+      totalPages,
+      limit
+    });
   } catch (error) {
-    console.error('Error fetching order history:', error)
-    res.status(500).redirect('/pageNotFound')
+    console.error('Error fetching order history:', error);
+    res.status(500).redirect('/pageNotFound');
   }
-}
+};
 
 const cancelOrder = async (req, res) => {
   try {
     const { orderId, reason } = req.body
+    const userId = req.session.user
     const orderData = await Order.findById(orderId)
     if (!orderData) {
       return res.json({ success: false, message: 'Order not found' })
@@ -189,8 +205,26 @@ const cancelOrder = async (req, res) => {
     if (orderData.paymentMethod != 'cod') {
       console.log(orderData.userId)
       const wallet = await Wallet.findOne({ userId: orderData.userId })
-      wallet.balance += orderData.finalAmount
-      await wallet.save()
+      if (!wallet) {
+        wallet = new Wallet({
+          userId,
+          balance: orderData.finalAmount,
+          transactions: [
+            { type: 'credit', amount: orderData.finalAmount, description: `Refund of ${orderId}` },
+          ],
+          date: new Date(),
+        });
+      } else {
+        wallet.balance += orderData.finalAmount;
+        wallet.transactions.push({
+          type: 'credit',
+          amount: orderData.finalAmount,
+          description: `Refund of ${orderId}`,
+          date: new Date(),
+        });
+      }
+
+      await wallet.save();
     }
     orderData.status = 'Cancelled'
     await orderData.save()

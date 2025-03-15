@@ -27,12 +27,6 @@ const getorderdetails = async (req, res) => {
     const orderData = await Order.findById(orderId)
       .populate('product')
       .populate('userId')
-    // const addressId = orderData.address
-    // const addressDoc = await Address.findOne(
-    //   { "address._id": addressId },
-    //   { "address.$": 1 }
-    // )
-    // const address = addressDoc ? addressDoc.address[0] : null
     res.render('admin-viewDetails', { order: orderData })
   } catch (error) {
     console.error('error occur while getorderdetails', error)
@@ -89,11 +83,9 @@ const orderReturn = async (req, res) => {
     const orderData = await Order.findOne({ _id: orderId })
     if (action === 'approve') {
       orderData.status = 'Returned'
-      // product restoring
       const product = await Product.findById(orderData.product)
       product.stock += orderData.quantity
       await product.save()
-      // refund the money
       const wallet = await Wallet.findOne({ userId: orderData.userId })
       wallet.balance += orderData.finalAmount
       wallet.transactions.push({ type: 'credit', amount: orderData.finalAmount, description: `Refund of ${orderId}` })

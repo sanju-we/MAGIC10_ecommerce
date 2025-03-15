@@ -67,7 +67,7 @@ const createRazorpayOrder = async (req, res) => {
 
     console.log('orderAmount:', orderAmount);
     const order = await razorpayInstance.orders.create({
-      amount: Math.round(orderAmount * 100), // Convert to paise
+      amount: Math.round(orderAmount * 100),
       currency: 'INR',
       payment_capture: 1,
     });
@@ -90,7 +90,6 @@ const razorpayPaymentSuccess = async (req, res) => {
     const userId = req.session.user;
     const { amount, razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
 
-    // Verify payment signature
     const generatedSignature = crypto
       .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
       .update(razorpay_order_id + '|' + razorpay_payment_id)
@@ -100,7 +99,6 @@ const razorpayPaymentSuccess = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid payment signature' });
     }
 
-    // Find and update wallet
     let wallet = await Wallet.findOne({ userId });
     const amountToAdd = parseFloat(amount);
 

@@ -19,7 +19,7 @@
         </div>
         <div class="custom-dropdown">
           <a href="#" class="sign-in-link">
-            <%= userData.username %>
+            <%= user.username %>
           </a>
           <div class="dropdown-content">
             <a href="/userProfile">Profile</a>
@@ -27,6 +27,33 @@
           </div>
         </div>
       </div>
+    </nav>
+    <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+        <h3 class="mb-4">MAGIC10</h3>
+        <a href="/userProfile">
+            <i class="fas fa-user"></i>
+            Dashboard
+        </a>
+        <a href="/orderHistory">
+            <i class="fas fa-history"></i>
+            Order History
+        </a>
+        <a href="#"  class="active">
+            <i class="fas fa-map-marker-alt"></i>
+            Address Book
+        </a>
+        <a href="/userProfile/edit/<%=user._id%>">
+            <i class="fas fa-cog"></i>
+            Account Settings
+        </a>
+        <a href="/userProfile/wallet/<%=user._id%>">
+            <i class='fas fa-wallet'></i>
+            Wallet
+        </a>
+        <a href="/logout">
+            <i class="fas fa-sign-out-alt"></i>
+            Logout
+        </a>
     </nav>
   </header>
 <section class="address-container">

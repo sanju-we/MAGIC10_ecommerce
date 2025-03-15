@@ -226,7 +226,8 @@
 
                 <div class="form-group">
                     <label for="category">Category</label>
-                    <select name="category" id="category">
+                    <select name="category" id="category" placeholder="sdfhsd">
+                        <option value="Select Category">Select Category</option>
                         <% for (let i=0; i < cat.length; i++) { %>
                             <option value="<%= cat[i].name %>">
                                 <%= cat[i].name %>

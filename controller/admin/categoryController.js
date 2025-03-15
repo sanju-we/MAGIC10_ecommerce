@@ -32,17 +32,17 @@ const addCategory = async (req, res) => {
   try {
     const existingCategory = await Category.findOne({ name });
     if (existingCategory) {
-      return res.status(400).json({ success: false, error: "Category already exists" }); // Add `success: false`
+      return res.status(400).json({ success: false, error: "Category already exists" }); 
     }
     const newCategory = new Category({
       name,
       description,
     });
     await newCategory.save();
-    return res.json({ success: true, message: "Category added successfully" }); // Add `success: true`
+    return res.json({ success: true, message: "Category added successfully" });
   } catch (error) {
-    console.error(error); // Log the error for debugging
-    return res.status(500).json({ success: false, error: "Internal server error" }); // Add `success: false`
+    console.error(error);
+    return res.status(500).json({ success: false, error: "Internal server error" });
   }
 };
 
@@ -86,10 +86,10 @@ const removeCategoryOffer = async (req, res) => {
       return res.status(404).json({ status: false, message: 'Category not found' });
     }
 
-    // Remove the category offer
+    
     await Category.updateOne({ _id: categoryId }, { $unset: { categoryOffer: 1 } });
 
-    // Reset product offers and sale prices
+    
     const products = await Product.find({ category: category._id });
     for (const product of products) {
       product.productOffer = 0;
@@ -117,8 +117,8 @@ const getListCategory = async(req,res)=>{
 const getUnlistCategory = async (req, res) => {
   try {
       let id = req.query.id;
-      await Category.updateOne({ _id: id }, { $set: { isListed: false } }); // Assuming you want to set isListed to false
-      res.json({ success: true }); // Send a JSON response instead of redirecting
+      await Category.updateOne({ _id: id }, { $set: { isListed: false } });
+      res.json({ success: true });
   } catch (error) {
       console.error(error);
       res.status(500).json({ success: false, message: 'Failed to unlist category' });
@@ -127,26 +127,23 @@ const getUnlistCategory = async (req, res) => {
 
 const editCategory = async (req, res) => {
   try {
-      const { id } = req.params; // Extract the category ID from the URL
-      const { name, description } = req.body; // Extract the updated name and description from the request body
+      const { id } = req.params;
+      const { name, description } = req.body;
 
-      // Validate input
       if (!name || !description) {
           return res.status(400).json({ success: false, message: 'Name and description are required' });
       }
 
-      // Update the category in the database
       const updatedCategory = await Category.findByIdAndUpdate(
           id,
           { $set: { name, description } },
-          { new: true } // Return the updated document
+          { new: true }
       );
 
       if (!updatedCategory) {
           return res.status(404).json({ success: false, message: 'Category not found' });
       }
 
-      // Send a success response
       res.json({ success: true, message: 'Category updated successfully', category: updatedCategory });
   } catch (error) {
       console.error('Error updating category:', error);
@@ -156,29 +153,24 @@ const editCategory = async (req, res) => {
 
 const editCategoryOffer = async (req, res) => {
   try {
-      const { categoryId, percentage } = req.body; // Extract the category ID and percentage from the request body
+      const { categoryId, percentage } = req.body;
 
-      // Validate input
       if (!categoryId || !percentage) {
           return res.status(400).json({ status: false, message: 'Category ID and percentage are required' });
       }
 
-      // Validate percentage range
       if (percentage < 1 || percentage > 99) {
           return res.status(400).json({ status: false, message: 'Percentage must be between 1 and 99' });
       }
 
-      // Find the category and update the offer
       const category = await Category.findById(categoryId);
       if (!category) {
           return res.status(404).json({ status: false, message: 'Category not found' });
       }
 
-      // Update the offer percentage
-      category.offer = percentage; // Assuming `offer` is a field in your schema
+      category.offer = percentage;
       await category.save();
 
-      // Send a success response
       res.json({ status: true, message: 'Offer updated successfully', category });
   } catch (error) {
       console.error('Error updating category offer:', error);
@@ -188,21 +180,18 @@ const editCategoryOffer = async (req, res) => {
 
 const deleteCategory = async (req, res) => {
   try {
-      const { categoryId } = req.params; // Extract the category ID from the URL
+      const { categoryId } = req.params;
 
-      // Validate input
       if (!categoryId) {
           return res.status(400).json({ success: false, message: 'Category ID is required' });
       }
 
-      // Find and delete the category
       const deletedCategory = await Category.findByIdAndDelete(categoryId);
 
       if (!deletedCategory) {
           return res.status(404).json({ success: false, message: 'Category not found' });
       }
 
-      // Send a success response
       res.json({ success: true, message: 'Category deleted successfully' });
   } catch (error) {
       console.error('Error deleting category:', error);

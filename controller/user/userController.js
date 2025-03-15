@@ -52,7 +52,6 @@ const loadSignup = async (req, res) => {
 async function sendVerificationEmail(email, otp) {
   try {
 
-    //creating a transporter to send out otp to user mail
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       port: 587,
@@ -64,7 +63,6 @@ async function sendVerificationEmail(email, otp) {
       }
     })
 
-    // creating info for how we want to send an email to a user,how will user seem it
     const info = await transporter.sendMail({
       from: process.env.NODEMAILER_EMAIL,
       to: email,
@@ -139,7 +137,7 @@ const verifyOtp = async (req, res) => {
 
     const { otp } = req.body
     console.log("Received OTP:", otp)
-    console.log("Session OTP:", req.session.userOtp) // Check stored OTP
+    console.log("Session OTP:", req.session.userOtp)
 
     if (!otp) {
       return res.status(400).json({ success: false, message: "OTP is required!" })
@@ -281,7 +279,7 @@ const verifyEmail = async (req, res) => {
 
     const { otp } = req.body
     console.log("Received OTP:", otp)
-    console.log("Session OTP:", req.session.userEmailOtp) // Check stored OTP
+    console.log("Session OTP:", req.session.userEmailOtp)
 
     if (!otp) {
       return res.status(400).json({ success: false, message: "OTP is required!" })

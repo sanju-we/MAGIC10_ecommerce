@@ -7,7 +7,6 @@ const sharp = require('sharp')
 const multer = require("multer")
 
 
-// Set up storage for uploaded images
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadDir = path.join(__dirname, "../public/uploads/")
@@ -22,7 +21,6 @@ const storage = multer.diskStorage({
   }
 })
 
-// Multer upload middleware
 const upload = multer({
   storage: storage,
   fileFilter: (req, file, cb) => {
@@ -33,7 +31,6 @@ const upload = multer({
   }
 }).single("image")
 
-// Controller function to handle image upload
 const saveImage = (req, res) => {
   upload(req, res, (err) => {
     if (err) {
@@ -51,7 +48,6 @@ const saveImage = (req, res) => {
   })
 }
 
-// render add product page
 const getAddProducts = async (req, res) => {
   try {
     const category = await Category.find({ isListed: true })
@@ -62,8 +58,6 @@ const getAddProducts = async (req, res) => {
   }
 }
 
-// handling adding a new product
-// handling adding a new product
 const postAddProduct = async (req, res) => {
   try {
     console.log("Request received at /admin/addProducts");
@@ -79,24 +73,21 @@ const postAddProduct = async (req, res) => {
       salePrice,
       stock,
       category,
-      variants // Expecting variants as JSON string from frontend
+      variants 
     } = req.body;
     
     console.log('Variants received:', variants);
 
-    // Validate required fields
     if (!productName || !description || !fullDescription || !brand ||
       !regularPrice || !salePrice || !stock || !category) {
       return res.status(400).json({ success: false, message: "All fields are required." });
     }
 
-    // Convert category name to ObjectId
     const categoryDoc = await Category.findOne({ name: category });
     if (!categoryDoc || !mongoose.Types.ObjectId.isValid(categoryDoc._id)) {
       return res.status(400).json({ success: false, message: "Invalid category." });
     }
 
-    // Handle images
     let imagePaths = [];
     if (req.files) {
       for (let i = 1; i <= 4; i++) {
@@ -112,7 +103,6 @@ const postAddProduct = async (req, res) => {
 
           const outputPath = path.join(outputDir, fileName);
           
-          // Process image with sharp if available
           try {
             await sharp(file.path)
               .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
@@ -121,11 +111,9 @@ const postAddProduct = async (req, res) => {
               
             imagePaths.push(`/uploads/products/${fileName}.webp`);
             
-            // Remove the temporary file
             fs.unlinkSync(file.path);
           } catch (err) {
             console.error("Error processing image:", err);
-            // Fallback if sharp fails
             fs.copyFileSync(file.path, outputPath);
             imagePaths.push(`/uploads/products/${fileName}`);
             fs.unlinkSync(file.path);
@@ -134,7 +122,6 @@ const postAddProduct = async (req, res) => {
       }
     }
 
-    // Parse and validate variants
     let parsedVariants = [];
     if (variants) {
       try {
@@ -144,7 +131,6 @@ const postAddProduct = async (req, res) => {
           return res.status(400).json({ success: false, message: "Variants must be an array." });
         }
 
-        // Validate each variant
         for (const variant of parsedVariants) {
           if (!variant.size || !variant.color || 
               variant.price === undefined || variant.stock === undefined) {
@@ -154,7 +140,6 @@ const postAddProduct = async (req, res) => {
             });
           }
           
-          // Convert price and stock to numbers
           variant.price = parseFloat(variant.price);
           variant.stock = parseInt(variant.stock);
           
@@ -181,7 +166,6 @@ const postAddProduct = async (req, res) => {
       }
     }
 
-    // Create new product
     const newProduct = new Product({
       productName,
       description,
@@ -195,20 +179,16 @@ const postAddProduct = async (req, res) => {
       variants: parsedVariants
     });
 
-    // Save the product
     await newProduct.save();
     console.log("Product saved successfully!");
 
-    // Respond with success
     if (req.xhr || req.headers.accept.indexOf('json') > -1) {
       return res.status(200).json({ 
         success: true, 
         message: "Product added successfully", 
         productId: newProduct._id 
       });
-    } else {
-      // For regular form submissions
-      
+    } else {      
       return res.redirect("/admin/products");
     }
   } catch (error) {
@@ -265,7 +245,7 @@ const blockProduct = async (req, res) => {
     const { id } = req.body
     console.log("Product ID:", id)
 
-    const isProduct = await Product.findOne({ _id: id }) // Use findOne instead of find
+    const isProduct = await Product.findOne({ _id: id })
     console.log("Found Product:", isProduct)
 
     if (!isProduct) {
@@ -291,7 +271,7 @@ const unblockProduct = async (req, res) => {
     const id = req.body.id
     console.log("Product ID:", id)
 
-    const isProduct = await Product.findOne({ _id: id }) // Use findOne instead of find
+    const isProduct = await Product.findOne({ _id: id }) 
     console.log("Found Product:", isProduct)
 
     if (!isProduct) {
@@ -316,7 +296,7 @@ const editProduct = async (req, res) => {
   try {
     const id = req.query.id
     const product = await Product.findById(id).populate("category")
-    const categories = await Category.find() // Assuming you have categories
+    const categories = await Category.find() 
 
     if (!product) {
       return res.status(404).send("Product not found")
@@ -329,7 +309,6 @@ const editProduct = async (req, res) => {
   }
 }
 
-// In productController.js - update deleteSingleImage
 const deleteSingleImage = async (req, res) => {
   try {
     const { imageNameToServer, productIdToServer, imageIndex } = req.body
@@ -339,15 +318,12 @@ const deleteSingleImage = async (req, res) => {
       return res.status(404).json({ success: false, message: "Product not found" })
     }
 
-    // Remove image from array using splice
     product.image.splice(imageIndex, 1)
 
-    // Add empty slot if needed to maintain 4 positions
     while (product.image.length < 4) {
       product.image.push("")
     }
 
-    // Delete file from storage
     if (imageNameToServer) {
       const imagePath = path.join(__dirname, "../../public", imageNameToServer)
       if (fs.existsSync(imagePath)) {
@@ -367,10 +343,9 @@ const postEditProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id)
     if (!product) {
-      return res.redirect('/admin/products') // Redirect if product not found
+      return res.redirect('/admin/products')
     }
 
-    // Update basic product fields
     product.productName = req.body.productName
     product.description = req.body.description
     product.fullDescription = req.body.fullDescription
@@ -380,7 +355,6 @@ const postEditProduct = async (req, res) => {
     product.brand = req.body.brand
     product.category = req.body.category
 
-    // Parse and validate variants
     let parsedVariants = []
     if (req.body.variants) {
       try {
@@ -389,7 +363,6 @@ const postEditProduct = async (req, res) => {
           return res.status(400).json({ success: false, message: "Variants must be an array." })
         }
 
-        // Validate each variant
         for (const variant of parsedVariants) {
           if (!variant.size || !variant.color || !variant.price || !variant.stock) {
             return res.status(400).json({ success: false, message: "Each variant must include size, color, price, and stock." })
@@ -411,17 +384,14 @@ const postEditProduct = async (req, res) => {
     }
     product.variants = parsedVariants
 
-    // Handle image updates
     for (let i = 1; i <= 4; i++) {
       const file = req.files[`image${i}`]?.[0]
       if (file) {
-        // Remove old image if exists
         if (product.image[i - 1]) {
           const oldPath = path.join(__dirname, '../../public', product.image[i - 1])
           if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath)
         }
 
-        // Process and save new image
         const outputDir = path.join(__dirname, '../../public/uploads/products')
         const fileName = `product-${Date.now()}-${i}.webp`
 
@@ -436,16 +406,13 @@ const postEditProduct = async (req, res) => {
     }
 
     await product.save()
-    res.redirect('/admin/products') // Redirect on success
+    res.redirect('/admin/products')
 
   } catch (error) {
     console.error(error)
-    res.redirect('/admin/products') // Redirect on error
+    res.redirect('/admin/products')
   }
 }
-
-
-/////////////////////////////////////////////////////
 
 const addProductOffer = async (req, res) => {
   try {
@@ -491,7 +458,7 @@ const getEditProduct = async (req, res) => {
   try {
     const id = req.query.id
     const product = await Product.findOne({ _id: id }).populate("category")
-    const categories = await Category.find({ isListed: true }) // Fetch only listed categories
+    const categories = await Category.find({ isListed: true })
 
     if (!product) {
       return res.status(404).send("Product not found")

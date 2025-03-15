@@ -40,34 +40,28 @@ const productDetails = async (req, res) => {
 
 const shopPage = async (req, res) => {
   try {
-    // Fetch all listed categories
     const categories = await Category.find({ isListed: true });
     console.log('Fetched categories:', categories.map(cat => ({ id: cat._id, name: cat.name })));
     const categoryFilter = req.query.category
     
-    // Base query for products
     let query = {
       isBlocked: false,
       stock: { $gt: 0 },
     };
     
-    // If there are categories, filter products by those categories
     if (categories && categories.length > 0) {
       query.category = { $in: categories.map(category => category._id) };
     } else {
       console.warn('No listed categories found. No category filter applied.');
     }
     
-    // Apply search filter if provided
     if (req.query.search) {
-      query.productName = { $regex: req.query.search, $options: "i" }; // Case-insensitive search
+      query.productName = { $regex: req.query.search, $options: "i" }; 
       console.log('Search filter applied:', req.query.search);
     }
     
-    // Apply category filter if provided
     if (categoryFilter && categoryFilter !== "all") {
       try {
-        // Validate the category ID and ensure it exists in the categories list
         const categoryId =new mongoose.Types.ObjectId(categoryFilter);
         if (!categories.some(cat => cat._id.equals(categoryId))) {
           console.log('categoryId:',categoryId)
@@ -82,16 +76,13 @@ const shopPage = async (req, res) => {
       }
     }
 
-    // Fetch products with the applied filters
     let productData = await Product.find(query).sort({ createdAt: -1 });
     console.log('Fetched products:', productData.map(p => ({ id: p._id, name: p.productName, category: p.category })));
 
-    // If no products are found, log a warning
     if (!productData || productData.length === 0) {
       console.warn('No products found with the given filters:', query);
     }
 
-    // Pass both products and categories to the template
     res.render('shop', { product: productData, categories });
   } catch (error) {
     console.error('Error in shopPage:', error);

@@ -345,6 +345,33 @@
             </div>
         </div>
     </nav>
+    <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+        <h3 class="mb-4">MAGIC10</h3>
+        <a href="/userProfile">
+            <i class="fas fa-user"></i>
+            Dashboard
+        </a>
+        <a href="/orderHistory">
+            <i class="fas fa-history"></i>
+            Order History
+        </a>
+        <a href="/userProfile/address/<%=user._id%>">
+            <i class="fas fa-map-marker-alt"></i>
+            Address Book
+        </a>
+        <a href="/userProfile/edit/<%=user._id%>">
+            <i class="fas fa-cog"></i>
+            Account Settings
+        </a>
+        <a href="#" class="active">
+            <i class='fas fa-wallet'></i>
+            Wallet
+        </a>
+        <a href="/logout">
+            <i class="fas fa-sign-out-alt"></i>
+            Logout
+        </a>
+    </nav>
 </header>
 <div class="wallet-container">
     <div class="wallet-header">
@@ -354,7 +381,11 @@
 
     <!-- Wallet Section -->
     <div class="wallet-balance-card">
-            <h2>Wallet Balance: ₹<span id="walletBalance"><%= balance %></span></h2>
+            <%if(balance){%>
+                <h2>Wallet Balance: ₹<span id="walletBalance"><%= balance %></span></h2>
+                <%}else{%>
+                    <h2>Wallet Balance: ₹<span id="walletBalance">0</span></h2>
+                    <%}%>
         <div class="wallet-actions">
             <input type="number" id="amount" placeholder="Enter Amount">
             <button class="btn-wallet" onclick="addMoney()">⚽ Add Money</button>
