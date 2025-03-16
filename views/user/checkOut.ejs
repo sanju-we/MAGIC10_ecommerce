@@ -2,9 +2,10 @@
 
     <style>
         /* Enhanced Checkout Styles */
-        *{
+        * {
             color: #fff;
         }
+
         .checkout-container {
             display: flex;
             justify-content: center;
@@ -224,6 +225,53 @@
                 max-width: 100%;
             }
         }
+
+        /* Modal Styling */
+        .modal-content {
+            background-color: #121212;
+            color:#121212;
+        }
+
+        .modal-header,
+        .modal-footer {
+            border-color: var(--border-light);
+        }
+
+        .btn-close {
+            filter: invert(1);
+            /* Makes the close button visible on dark background */
+        }
+
+        /* Coupon Table Styling */
+        #couponTable {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #couponTable th {
+            background-color: var(--dark-bg);
+            color: var(--accent-gold);
+        }
+
+        #couponTable td {
+            color: var(--text-primary);
+        }
+
+        #couponTable th,
+        #couponTable td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        #couponTable .btn-primary {
+            background-color: var(--accent-gold);
+            border: none;
+            color: var(--dark-bg);
+        }
+
+        #couponTable .btn-primary:hover {
+            background-color: #b89e6b;
+        }
     </style>
     <header>
         <nav>
@@ -281,7 +329,7 @@
             <div class="form-section">
                 <h3 class="form-title">Payment Method</h3>
                 <div class="payment-methods">
-                    <div class="payment-card" data-method="credit-card">
+                    <!-- <div class="payment-card" data-method="credit-card">
                         <label class="payment-method-label">
                             <input type="radio" name="paymentMethod" value="credit-card" required>
                             <div class="payment-method-content">
@@ -289,7 +337,7 @@
                                 <span>Credit/Debit Card</span>
                             </div>
                         </label>
-                    </div>
+                    </div> -->
 
                     <div class="payment-card" data-method="cod">
                         <label class="payment-method-label">
@@ -320,12 +368,15 @@
                     <input type="text" id="couponCode" name="couponCode" placeholder="Enter Coupon Code">
                     <button type="button" id="applyCoupon">Apply</button>
                 </div>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#couponModal">
+                    View Available Coupons
+                </button>
                 <p class="discount-info" id="discountInfo" style="display: none;"></p>
                 <p class="error-message" id="errorMessage" style="display: none;"></p>
             </div>
 
             <!-- Order Summary Section -->
-            <div class="form-section">
+            <div class="form-section"><br>
                 <h3 class="form-title">Order Summary</h3>
                 <div class="order-summary">
                     <% cartItems.forEach(item=> { %>
@@ -378,49 +429,61 @@
                 <i class="fas fa-lock"></i>
                 Confirm Order
             </button>
-            <div class="container">
-                <h2 class="text-center mb-4">Available Coupons</h2>
-
-                <% if (coupons.length> 0) { %>
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Coupon Code</th>
-                                    <th>Discount</th>
-                                    <th>Min Purchase</th>
-                                    <th>Expiration Date</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% coupons.forEach(coupon=> { %>
-                                    <tr>
-                                        <td class="coupon-code">
-                                            <%= coupon.name %>
-                                        </td>
-                                        <td>
-                                            <%= coupon.offerPrice %>% Off
-                                        </td>
-                                        <td>$<%= coupon.minPrice.toFixed(2) %>
-                                        </td>
-                                        <td>
-                                            <%= new Date(coupon.expireOn).toLocaleDateString() %>
-                                        </td>
-                                        <td>
-                                            <button class="btn btn-primary" onclick="copyCoupon('<%= coupon.name %>')">Copy
-                                                Code</button>
-                                        </td>
-                                    </tr>
-                                    <% }) %>
-                            </tbody>
-                        </table>
-                    </div>
-                    <% } else { %>
-                        <div class="alert alert-warning text-center">No available coupons at the moment.</div>
-                        <% } %>
-            </div>
         </form>
+        <!-- Coupon Modal -->
+        <div class="modal fade" id="couponModal" tabindex="-1" aria-labelledby="couponModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="couponModalLabel">Available Coupons</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <% if (coupons.length> 0) { %>
+                            <table id="couponTable" class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Coupon Code</th>
+                                        <th>Discount</th>
+                                        <th>Min Purchase</th>
+                                        <th>Expiration Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% coupons.forEach(coupon=> { %>
+                                        <tr>
+                                            <td class="coupon-code">
+                                                <%= coupon.name %>
+                                            </td>
+                                            <td>
+                                                <%= coupon.offerPrice %>% Off
+                                            </td>
+                                            <td>$<%= coupon.minPrice.toFixed(2) %>
+                                            </td>
+                                            <td>
+                                                <%= new Date(coupon.expireOn).toLocaleDateString() %>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-primary"
+                                                    onclick="copyCoupon('<%= coupon.name %>')">Copy Code</button>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                                </tbody>
+                            </table>
+                            <% } else { %>
+                                <div class="alert alert-warning text-center">No available coupons at the moment.</div>
+                                <% } %>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="prevPage" class="btn btn-secondary">Previous</button>
+                        <span id="pageInfo"></span>
+                        <button id="nextPage" class="btn btn-secondary">Next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -459,6 +522,54 @@
                 this.classList.add('active');
             });
         });
+
+        // Coupon Pagination
+        const couponsPerPage = 5;
+        let currentPage = 1;
+        const couponRows = document.querySelectorAll('#couponTable tbody tr');
+        const totalPages = Math.ceil(couponRows.length / couponsPerPage);
+
+        function displayCoupons() {
+            const start = (currentPage - 1) * couponsPerPage;
+            const end = start + couponsPerPage;
+            couponRows.forEach((row, index) => {
+                row.style.display = (index >= start && index < end) ? '' : 'none';
+            });
+            updatePaginationControls();
+        }
+
+        function updatePaginationControls() {
+            const prevButton = document.getElementById('prevPage');
+            const nextButton = document.getElementById('nextPage');
+            const pageInfo = document.getElementById('pageInfo');
+
+            prevButton.disabled = currentPage === 1;
+            nextButton.disabled = currentPage === totalPages;
+            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+        }
+
+        document.getElementById('prevPage').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                displayCoupons();
+            }
+        });
+
+        document.getElementById('nextPage').addEventListener('click', () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                displayCoupons();
+            }
+        });
+
+        document.getElementById('couponModal').addEventListener('show.bs.modal', () => {
+            currentPage = 1;
+            displayCoupons();
+        });
+
+        if (couponRows.length > 0) {
+            displayCoupons();
+        }
 
         document.getElementById("applyCoupon").addEventListener("click", async () => {
             const couponCode = document.getElementById("couponCode").value.trim();
