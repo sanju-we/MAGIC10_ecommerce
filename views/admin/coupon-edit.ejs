@@ -68,9 +68,7 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md-3">
-            <form method="post" action="/admin/editCoupon?id=<%=couponData._id%>">
-
-              <body onload="setDefaultStartDate()"></body>
+            <form method="post" action="/admin/editCoupon/<%=couponData._id%>">
               <div class="mb-4">
                 <label for="coupon-name" class="form-label">Coupon Name</label>
                 <input type="text" id="coupon-name" name="couponName" value="<%=couponData.name%>" placeholder="Type here" class="form-control" />
@@ -123,7 +121,8 @@
 
 
   <script>
-    function validateForm() {
+    console.log(`<%=couponData.expireOn%>`)
+    // document.getElementById('startingDate').value = '<%=couponData.expireOn%>'
       document.querySelectorAll(".error-message").forEach((element) => (element.innerHTML = ""));
       const sDate = document.getElementsByName("startDate")[0].value;
       const eDate = document.getElementsByName("endDate")[0].value;
@@ -186,22 +185,7 @@
       return true;
     }
     
-    window.onload = function() {
-        const startDate = document.getElementById('startingDate');
-        const endDate = document.getElementById('expiringDate');
-        
-        startDate.value = formatDate(startDate.value);
-        endDate.value = formatDate(endDate.value);
-
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('en-GB', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-        }
-    };
+    
 
   </script>
   <%- include("../../views/partials/admin/footer") %>

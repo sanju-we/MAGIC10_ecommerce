@@ -81,14 +81,39 @@ const orderReturn = async (req, res) => {
     const { orderId, action } = req.body
     console.log('product:', action)
     const orderData = await Order.findOne({ _id: orderId })
+    const userId = orderData.userId
+    const prodectId = orderData.product
     if (action === 'approve') {
       orderData.status = 'Returned'
-      const product = await Product.findById(orderData.product)
-      product.stock += orderData.quantity
+      const product = await Product.findOne({ _id: prodectId })
+      if (product) {
+        const variant = product.variants.find(v => v.size === orderData.size && v.color === orderData.color)
+        if (variant) {
+          variant.stock = variant.stock + orderData.quantity
+        }
+        product.stock =  product.stock + orderData.quantity
+        await product.save()
+      }
       await product.save()
-      const wallet = await Wallet.findOne({ userId: orderData.userId })
-      wallet.balance += orderData.finalAmount
-      wallet.transactions.push({ type: 'credit', amount: orderData.finalAmount, description: `Refund of ${orderId}` })
+      const wallet = await Wallet.findOne({ userId: userId })
+      if (!wallet) {
+        wallet = new Wallet({
+          userId,
+          balance: orderData.finalAmount,
+          transactions: [
+            { type: 'credit', amount: orderData.finalAmount, description: `Refund of ${orderId}` },
+          ],
+          date: new Date(),
+        })
+      } else {
+        wallet.balance += orderData.finalAmount
+        wallet.transactions.push({
+          type: 'credit',
+          amount: orderData.finalAmount,
+          description: `Refund of ${orderId}`,
+          date: new Date(),
+        })
+      }
       await wallet.save()
     } else {
       orderData.status = 'Delivered'
@@ -103,7 +128,7 @@ const orderReturn = async (req, res) => {
 
 const loadSalesReport = async (req, res) => {
   try {
-    res.render('salesReport');
+    res.render('salesReport')
   } catch (error) {
     console.error('error occur while loadSalesReport', error)
     return res.redirect('/pageerror')
@@ -112,27 +137,27 @@ const loadSalesReport = async (req, res) => {
 
 const generateSalesReport = async (req, res) => {
   try {
-    const { startDate, endDate } = req.body;
+    const { startDate, endDate } = req.body
 
     const orders = await Order.find({
       createdOn: {
         $gte: new Date(startDate),
         $lte: new Date(endDate),
       },
-    }).populate('product');
+    }).populate('product')
 
     const summary = {
       salesCount: orders.length,
       orderAmount: orders.reduce((sum, order) => sum + order.totalPrice, 0),
       discountAmount: orders.reduce((sum, order) => sum + order.discount, 0),
-    };
+    }
 
-    res.json({ success: true, orders, summary });
+    res.json({ success: true, orders, summary })
   } catch (error) {
-    console.error("Error generating sales report:", error);
-    res.status(500).json({ success: false, message: "Error generating sales report" });
+    console.error("Error generating sales report:", error)
+    res.status(500).json({ success: false, message: "Error generating sales report" })
   }
-};
+}
 
 module.exports = {
   getorderList,

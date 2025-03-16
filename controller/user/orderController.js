@@ -198,7 +198,7 @@ const cancelOrder = async (req, res) => {
     const product = await Product.findById(orderData.product)
     const productCound = product.stock + orderData.quantity
     product.stock = productCound
-    await product.save()
+    await product.save() 
     if (orderData.paymentMethod != 'cod') {
       console.log(orderData.userId)
       const wallet = await Wallet.findOne({ userId: orderData.userId })
