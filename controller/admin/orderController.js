@@ -3,6 +3,7 @@ const User = require('../../models/userSchema')
 const Address = require('../../models/addressSchema')
 const Product = require('../../models/productSchema')
 const Wallet = require('../../models/walletSchema')
+const HttpStatus = require('../../config/httpStatusCode')
 
 const getorderList = async (req, res) => {
   try {
@@ -17,7 +18,7 @@ const getorderList = async (req, res) => {
     })
   } catch (error) {
     console.error('Error fetching orders:', error)
-    res.status(500).send('Internal Server Error')
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Internal Server Error')
   }
 }
 
@@ -155,7 +156,7 @@ const generateSalesReport = async (req, res) => {
     res.json({ success: true, orders, summary })
   } catch (error) {
     console.error("Error generating sales report:", error)
-    res.status(500).json({ success: false, message: "Error generating sales report" })
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Error generating sales report" })
   }
 }
 

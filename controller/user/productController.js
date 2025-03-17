@@ -2,7 +2,7 @@ const Product = require('../../models/productSchema')
 const Category = require('../../models/categorySchema')
 const User = require('../../models/userSchema')
 const mongoose = require('mongoose')
-
+const HttpStatus = require('../../config/httpStatusCode')
 
 const productDetails = async (req, res) => {
   try {
@@ -86,7 +86,7 @@ const shopPage = async (req, res) => {
     res.render('shop', { product: productData, categories });
   } catch (error) {
     console.error('Error in shopPage:', error);
-    res.status(500).send('Server Error');
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send('Server Error');
   }
 };
 

@@ -1,3 +1,4 @@
+const HttpStatus = require('../../config/httpStatusCode')
 const Address = require('../../models/addressSchema')
 const User = require('../../models/userSchema')
 
@@ -30,12 +31,12 @@ const AddAddress = async (req, res) => {
     const userId = req.session.user;
 
     if (!userId) {
-      return res.status(401).json({ message: "Unauthorized: No user session" });
+      return res.status(HttpStatus.UNAUTHORIZED).json({ message: "Unauthorized: No user session" });
     }
 
     const userData = await User.findById(userId);
     if (!userData) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(HttpStatus.NOT_FOUND).json({ message: "User not found" });
     }
 
     const { fullName, phone, street, city, LandMark, PINcode, State, addressType } = req.body;
@@ -130,7 +131,7 @@ const deleteAddress = async (req, res) => {
     const userAddressDoc = await Address.findOne({ userId });
 
     if (!userAddressDoc) {
-      return res.status(404).json({ message: "User address not found" });
+      return res.status(HttpStatus.NOT_FOUND).json({ message: "User address not found" });
     }
 
     const updatedAddresses = userAddressDoc.address.filter(
@@ -138,16 +139,16 @@ const deleteAddress = async (req, res) => {
     );
 
     if (updatedAddresses.length === userAddressDoc.address.length) {
-      return res.status(404).json({ message: "Address not found" });
+      return res.status(HttpStatus.NOT_FOUND).json({ message: "Address not found" });
     }
 
     userAddressDoc.address = updatedAddresses;
     await userAddressDoc.save();
 
-    res.status(200).json({ message: "Address deleted successfully" });
+    res.status(HttpStatus.OK).json({ message: "Address deleted successfully" });
   } catch (error) {
     console.error("Error deleting address:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: "Internal server error" });
   }
 }
 
@@ -166,12 +167,12 @@ const AddAddressCheckout = async (req, res) => {
     const userId = req.session.user;
 console.log('working')
     if (!userId) {
-      return res.status(401).json({ message: "Unauthorized: No user session" });
+      return res.status(HttpStatus.UNAUTHORIZED).json({ message: "Unauthorized: No user session" });
     }
 
     const userData = await User.findById(userId);
     if (!userData) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(HttpStatus.NOT_FOUND).json({ message: "User not found" });
     }
 
     const { fullName, phone, street, city, LandMark, PINcode, State, addressType } = req.body;

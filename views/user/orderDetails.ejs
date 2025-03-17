@@ -66,6 +66,8 @@
     <!-- Item Details Section -->
     <div class="section order-item">
       <h2>Item Details</h2>
+      <h6>Order Id : <%= order.orderId %>
+      </h6>
       <div class="item">
         <img src="<%= Array.isArray(order.product.image) ? order.product.image[0] : order.product.image %>"
           alt="<%= order.product.productName %>">
@@ -85,6 +87,9 @@
             </p>
             <% } %>
               <p><strong>Final Price:</strong> ₹<%= order.finalAmount.toFixed(2) %>
+              </p>
+              <p><strong>Order status:</strong>
+                <%= order.status %>
               </p>
         </div>
       </div>
@@ -122,222 +127,170 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
-    // Debugging to confirm script execution
+    // Debugging logs
     console.log("Order details script loaded");
-
-    // Store order data in JavaScript variables to avoid EJS syntax issues
+  
+    // Store order data
     const orderData = {
-      productName: <% - JSON.stringify(order.product.productName) %>,
+      productName: <%- JSON.stringify(order.product.productName) %>,
       quantity: <%= order.quantity %>,
       price: <%= order.price.toFixed(2) %>,
       totalPrice: <%= order.totalPrice.toFixed(2) %>,
       discount: <%= order.discount || 0 %>,
       finalAmount: <%= order.finalAmount.toFixed(2) %>,
-      imageUrl: <% - JSON.stringify(Array.isArray(order.product.image) ? order.product.image[0] : order.product.image) %>,
+      imageUrl: <%- JSON.stringify(Array.isArray(order.product.image) ? order.product.image[0] : order.product.image) %>,
       address: {
-        fullName: <% - order.address ? JSON.stringify(order.address.fullName) : '""' %>,
-        LandMark: <% - order.address ? JSON.stringify(order.address.LandMark) : '""' %>,
-        city: <% - order.address ? JSON.stringify(order.address.city) : '""' %>,
-        state: <% - order.address ? JSON.stringify(order.address.state) : '""' %>,
-        PINcode: <% - order.address ? JSON.stringify(order.address.PINcode) : '""' %>,
+        fullName: <%- order.address ? JSON.stringify(order.address.fullName) : '""' %>,
+        LandMark: <%- order.address ? JSON.stringify(order.address.LandMark) : '""' %>,
+        city: <%- order.address ? JSON.stringify(order.address.city) : '""' %>,
+        state: <%- order.address ? JSON.stringify(order.address.state) : '""' %>,
+        PINcode: <%- order.address ? JSON.stringify(order.address.PINcode) : '""' %>,
       },
-      orderId: <% - JSON.stringify(order.orderId) %>
-  };
-
+      orderId: <%- JSON.stringify(order.orderId) %>
+    };
+  
     console.log("Order data:", orderData);
-
-    // Define downloadPDF in the global scope
-    // window.downloadPDF = async function () {
-    //   console.log(typeof window.downloadPDF);
-
-    //   // Ensure jsPDF is loaded
-    //   if (!window.jspdf) {
-    //     console.error("jsPDF is not loaded");
-    //     alert("Failed to generate PDF: jsPDF library not loaded.");
-    //     return;
-    //   }
-
-    //   const { jsPDF } = window.jspdf;
-    //   const doc = new jsPDF({
-    //     orientation: "portrait",
-    //     unit: "mm",
-    //     format: "a4",
-    //   });
-
-    //   // Add a header with branding
-    //   doc.setFontSize(20);
-    //   doc.setTextColor(52, 152, 219); /
-    //   doc.setFont("helvetica", "bold");
-    //   doc.text("MAGIC10 - Order Details", 20, 20);
-
-    //   // Add a horizontal line under the header
-    //   doc.setLineWidth(0.5);
-    //   doc.setDrawColor(52, 152, 219);
-    //   doc.line(20, 25, 190, 25); // Line from (20,25) to (190,25)
-
-    //   // Fetch the product image
-    //   const imgUrl = orderData.imageUrl;
-    //   console.log("Image URL:", imgUrl);
-
-    //   let imgLoaded = false;
-    //   let img = null; // Declare img in outer scope
-    //   if (imgUrl) {
-    //     img = new Image();
-    //     img.crossOrigin = "Anonymous";
-    //     img.src = imgUrl;
-
-    //     imgLoaded = await new Promise((resolve) => {
-    //       img.onload = () => {
-    //         console.log("Image loaded successfully");
-    //         resolve(true);
-    //       };
-    //       img.onerror = () => {
-    //         console.error("Failed to load image:", imgUrl);
-    //         resolve(false);
-    //       };
-    //     });
-    //   }
-
-    //   // Add the product image if loaded
-    //   if (imgLoaded && img) {
-    //     try {
-    //       doc.addImage(img, "PNG", 20, 30, 40, 40); // 40mm x 40mm
-    //     } catch (error) {
-    //       console.error("Error adding image to PDF:", error);
-    //     }
-    //   }
-
-    //   // Item Details Section - Use a table
-    //   doc.setFontSize(14);
-    //   doc.setTextColor(0, 0, 0); // Black
-    //   doc.setFont("helvetica", "bold");
-    //   doc.text("Item Details", imgLoaded ? 70 : 20, 40);
-
-    //   // Create a table for item details using jspdf-autotable
-    //   doc.autoTable({
-    //     startY: imgLoaded ? 45 : 45,
-    //     head: [['Description', 'Value']],
-    //     body: [
-    //       ['Product', orderData.productName],
-    //       ['Quantity', orderData.quantity.toString()],
-    //       ['Price', `₹${orderData.price}`],
-    //       ['Total Price', `₹${orderData.totalPrice}`],
-    //       ...(orderData.discount > 0 ? [['Discount', `₹${orderData.discount}`]] : []),
-    //       ['Final Price', `₹${orderData.finalAmount}`],
-    //     ],
-    //     styles: {
-    //       fontSize: 10,
-    //       cellPadding: 2,
-    //       overflow: 'linebreak',
-    //     },
-    //     headStyles: {
-    //       fillColor: [52, 152, 219], // Blue header
-    //       textColor: 255, // White text
-    //       fontStyle: 'bold',
-    //     },
-    //     columnStyles: {
-    //       0: { cellWidth: 40 }, // Reduced width to fit page
-    //       1: { cellWidth: 40 },
-    //     },
-    //     margin: { left: imgLoaded ? 70 : 20, right: 20 }, // Ensure right margin
-    //   });
-
-    //   // Shipping Address Section
-    //   const finalY = doc.lastAutoTable.finalY || 45; // Start after the table
-    //   doc.setFontSize(14);
-    //   doc.setFont("helvetica", "bold");
-    //   doc.text("Shipping Address", 20, finalY + 15);
-
-    //   doc.setFontSize(12);
-    //   doc.setFont("helvetica", "normal");
-    //   if (orderData.address.fullName) {
-    //     doc.text(`Name: ${orderData.address.fullName}`, 20, finalY + 25);
-    //     doc.text(`Landmark: ${orderData.address.LandMark}`, 20, finalY + 35);
-    //     doc.text(`City: ${orderData.address.city}`, 20, finalY + 45);
-    //     doc.text(`State: ${orderData.address.state}`, 20, finalY + 55);
-    //     doc.text(`PIN: ${orderData.address.PINcode}`, 20, finalY + 65);
-    //     doc.text(`Country: India`, 20, finalY + 75);
-    //   } else {
-    //     doc.text("No shipping address provided.", 20, finalY + 25);
-    //   }
-
-    //   // Add a footer
-    //   doc.setFontSize(10);
-    //   doc.setTextColor(150); // Gray
-    //   doc.setFont("helvetica", "italic");
-    //   window.downloadPDF = async function () {
-    //     console.log("downloadPDF function called");
-
-    //     // Ensure jsPDF is loaded
-    //     if (typeof window.jspdf === "undefined") {
-    //       console.error("jsPDF is not loaded.");
-    //       alert("Error: jsPDF library is missing.");
-    //       return;
-    //     }
-
-    //     const { jsPDF } = window.jspdf;
-    //     const doc = new jsPDF();
-
-    //     // Add Header
-    //     doc.setFontSize(20);
-    //     doc.setTextColor(52, 152, 219);
-    //     doc.setFont("helvetica", "bold");
-    //     doc.text("MAGIC10 - Order Details", 20, 20);
-
-    //     // Add Image (Convert to Base64 first)
-    //     const base64Image = await convertImgToBase64(orderData.imageUrl);
-    //     if (base64Image) {
-    //       doc.addImage(base64Image, "PNG", 20, 30, 40, 40);
-    //     }
-
-    //     // Add Item Details
-    //     doc.autoTable({
-    //       startY: base64Image ? 80 : 40, // Adjust based on image
-    //       head: [["Description", "Value"]],
-    //       body: [
-    //         ["Product", orderData.productName],
-    //         ["Quantity", orderData.quantity.toString()],
-    //         ["Price", `₹${orderData.price}`],
-    //         ["Total Price", `₹${orderData.totalPrice}`],
-    //         ...(orderData.discount > 0 ? [["Discount", `₹${orderData.discount}`]] : []),
-    //         ["Final Price", `₹${orderData.finalAmount}`],
-    //       ],
-    //     });
-
-    //     // Save PDF
-    //     doc.save(`Order_${orderData.orderId}.pdf`);
-    //   };
-
-    //   doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 270);
-    //   doc.text("Thank you for shopping with MAGIC10!", 190, 270, { align: "right" });
-
-    //   // Add a border around the content
-    //   doc.setDrawColor(52, 152, 219); // Blue border
-    //   doc.setLineWidth(0.3);
-    //   doc.rect(15, 15, 180, 260, "S"); // Stroke (border only)
-
-    //   // Save the PDF
-    //   doc.save(`Order_${orderData.orderId}.pdf`);
-    // };
-
+  
+    // PDF Download Functionality
     document.addEventListener("DOMContentLoaded", function () {
-            console.log("DOM fully loaded!");
+      console.log("DOM fully loaded!");
+      document.getElementById("downloadBtn").addEventListener("click", function () {
+        console.log("Button clicked!");
+        if (typeof jspdf !== 'undefined' && jspdf.jsPDF) {
+          const { jsPDF } = jspdf;
+          const doc = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+          });
+  
+          const margin = 20;
+          const pageWidth = 210; // A4 width in mm
+          const containerWidth = pageWidth - 2 * margin; // 170mm
+  
+          // Draw the container with white background and light blue border
+          doc.setFillColor(255, 255, 255); // White
+          doc.setDrawColor(211, 224, 234); // Light blue (#D3E0EA)
+          doc.setLineWidth(0.3); // ~1px border
+          doc.roundedRect(margin, margin, containerWidth, 257, 5, 5, 'FD'); // Container with rounded corners
+  
+          // "Item Details" Section
+          let yPos = margin + 10;
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(16);
+          doc.setTextColor(0, 0, 0); // Black
+          doc.text('ITEM DETAILS', margin + 10, yPos);
+          yPos += 5;
+          doc.setDrawColor(211, 224, 234); // Light blue divider
+          doc.line(margin + 10, yPos, margin + 160, yPos); // Divider line
+  
+          // Add product image (if available)
+          yPos += 5;
+          if (orderData.imageUrl) {
+            try {
+              doc.addImage(orderData.imageUrl, 'JPEG', margin + 10, yPos, 80, 80);
+            } catch (error) {
+              console.error("Failed to load image:", error);
+            }
+          }
+  
+          // Add item details text
+          const textX = margin + 100; // Position to the right of the image
+          doc.setFontSize(12);
+          doc.setFont('helvetica', 'bold');
+          doc.text('Product:', textX, yPos + 5);
+          doc.setFont('helvetica', 'normal');
+          doc.text(orderData.productName, textX + 30, yPos + 5);
+  
+          doc.setFont('helvetica', 'bold');
+          doc.text('Quantity:', textX, yPos + 15);
+          doc.setFont('helvetica', 'normal');
+          doc.text(orderData.quantity.toString(), textX + 30, yPos + 15);
+  
+          doc.setFont('helvetica', 'bold');
+          doc.text('Price:', textX, yPos + 25);
+          doc.setFont('helvetica', 'normal');
+          doc.text(`₹${orderData.price}`, textX + 30, yPos + 25);
+  
+          doc.setFont('helvetica', 'bold');
+          doc.text('Total Price:', textX, yPos + 35);
+          doc.setFont('helvetica', 'normal');
+          doc.text(`₹${orderData.totalPrice}`, textX + 30, yPos + 35);
+  
+          if (orderData.discount > 0) {
+            doc.setFont('helvetica', 'bold');
+            doc.text('Discount:', textX, yPos + 45);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`₹${orderData.discount.toFixed(2)}`, textX + 30, yPos + 45);
+            yPos += 10; // Adjust position for extra line
+          }
+  
+          doc.setFont('helvetica', 'bold');
+          doc.text('Final Price:', textX, yPos + 55);
+          doc.setFont('helvetica', 'normal');
+          doc.text(`₹${orderData.finalAmount}`, textX + 30, yPos + 55);
 
-            document.getElementById("downloadBtn").addEventListener("click", function () {
-                console.log("Button clicked!");
-
-                if (!window.jspdf || !window.jspdf.jsPDF) {
-                    console.error("jsPDF is not loaded correctly.");
-                    return;
-                }
-
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-                doc.text("Hello, this is a test PDF!", 10, 10);
-                doc.save("test.pdf");
-            });
-        });
+          doc.setFont('helvetica', 'bold');
+          doc.text('Order status:', textX, yPos + 65);
+          doc.setFont('helvetica', 'normal');
+          doc.text(`₹${orderData.status}`, textX + 30, yPos + 65);
+  
+          // "Shipping Address" Section
+          yPos += 90; // Move down after image and item details
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(16);
+          doc.text('SHIPPING ADDRESS', margin + 10, yPos);
+          yPos += 5;
+          doc.setDrawColor(211, 224, 234); // Light blue divider
+          doc.line(margin + 10, yPos, margin + 160, yPos); // Divider line
+  
+          // Add address details
+          yPos += 10;
+          doc.setFontSize(12);
+          doc.setFont('helvetica', 'bold');
+          doc.text('Name:', margin + 10, yPos);
+          doc.setFont('helvetica', 'normal');
+          doc.text(orderData.address.fullName || 'N/A', margin + 40, yPos);
+  
+          yPos += 10;
+          doc.setFont('helvetica', 'bold');
+          doc.text('Landmark:', margin + 10, yPos);
+          doc.setFont('helvetica', 'normal');
+          doc.text(orderData.address.LandMark || 'N/A', margin + 40, yPos);
+  
+          yPos += 10;
+          doc.setFont('helvetica', 'bold');
+          doc.text('City:', margin + 10, yPos);
+          doc.setFont('helvetica', 'normal');
+          doc.text(orderData.address.city || 'N/A', margin + 40, yPos);
+  
+          yPos += 10;
+          doc.setFont('helvetica', 'bold');
+          doc.text('State:', margin + 10, yPos);
+          doc.setFont('helvetica', 'normal');
+          doc.text(orderData.address.state || 'N/A', margin + 40, yPos);
+  
+          yPos += 10;
+          doc.setFont('helvetica', 'bold');
+          doc.text('PIN:', margin + 10, yPos);
+          doc.setFont('helvetica', 'normal');
+          doc.text(orderData.address.PINcode || 'N/A', margin + 40, yPos);
+  
+          yPos += 10;
+          doc.setFont('helvetica', 'bold');
+          doc.text('Country:', margin + 10, yPos);
+          doc.setFont('helvetica', 'normal');
+          doc.text('INDIA', margin + 40, yPos); 
+  
+          // Save the PDF with order ID in the filename
+          doc.save(`order_${orderData.orderId}.pdf`);
+        } else {
+          console.error("jsPDF is not loaded correctly.");
+        }
+      });
+    });
   </script>
 
   <%- include('../partials/user/footer') %>

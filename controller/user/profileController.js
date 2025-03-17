@@ -4,7 +4,7 @@ const Order = require('../../models/orderSchema')
 const Wallet = require('../../models/walletSchema')
 const nodemailer = require('nodemailer')
 const bcrypt = require('bcrypt')
-
+const HttpStatus = require('../../config/httpStatusCode')
 
 const loadProfilePage = async (req, res) => {
   try {
@@ -145,18 +145,18 @@ const verifyEditEmail = async (req, res) => {
     }
 
     if (!otp) {
-      return res.status(400).json({ success: false, message: "OTP is required!" });
+      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "OTP is required!" });
     }
 
     if (otp === req.session.emailOtp) {
       const id = userData._id
       return res.json({ "success": true, "redirectUrl": `/userProfile/newEmail/${id}` });
     } else {
-      return res.status(400).json({ "success": false, "message": "Invalid OTP, Please try again" });
+      return res.status(HttpStatus.BAD_REQUEST).json({ "success": false, "message": "Invalid OTP, Please try again" });
     }
   } catch (error) {
     console.error("Error verifying OTP:", error);
-    return res.status(500).json({ success: false, message: "An error occurred" });
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "An error occurred" });
   }
 };
 
@@ -235,18 +235,18 @@ const verifyResetPass = async (req, res) => {
     }
 
     if (!otp) {
-      return res.status(400).json({ success: false, message: "OTP is required!" });
+      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "OTP is required!" });
     }
 
     if (otp === req.session.ResetPassOtp) {
       const id = userData._id
       return res.json({ "success": true, "redirectUrl": `/userProfile/newResetPassword/${id}` });
     } else {
-      return res.status(400).json({ "success": false, "message": "Invalid OTP, Please try again" });
+      return res.status(HttpStatus.BAD_REQUEST).json({ "success": false, "message": "Invalid OTP, Please try again" });
     }
   } catch (error) {
     console.error("Error verifying OTP:", error);
-    return res.status(500).json({ success: false, message: "An error occurred" });
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "An error occurred" });
   }
 };
 
@@ -303,7 +303,7 @@ const addProfile =  async (req, res) => {
 
       res.json({ success: true, imagePath });
   } catch (error) {
-      res.status(500).json({ success: false, message: 'Error uploading image' });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Error uploading image' });
   }
 }
 

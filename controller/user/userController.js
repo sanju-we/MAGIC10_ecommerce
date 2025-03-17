@@ -5,7 +5,7 @@ const Wallet = require('../../models/walletSchema')
 const nodemailer = require('nodemailer')
 const env = require('dotenv').config()
 const bcrypt = require('bcrypt')
-
+const HttpStatus = require('../../config/httpStatusCode')
 
 const loadHomepage = async (req, res) => {
   try {
@@ -24,7 +24,7 @@ const loadHomepage = async (req, res) => {
       res.render('home', { products: productData })
     }
   } catch {
-    res.status(404).redirect('/pageNotFound')
+    res.status(HttpStatus.NOT_FOUND).redirect('/pageNotFound')
   }
 }
 
@@ -34,7 +34,7 @@ const pageNotFound = async (req, res) => {
     req.session.notFound = null
     res.render('404', { error })
   } catch (error) {
-    res.status(404).redirect('/pageNotFound')
+    res.status(HttpStatus.NOT_FOUND).redirect('/pageNotFound')
   }
 }
 
@@ -44,7 +44,7 @@ const loadSignup = async (req, res) => {
     req.session.Emessage = null
     res.render('signup', { Emessage })
   } catch (error) {
-    res.status(404).redirect('/pageNotFound')
+    res.status(HttpStatus.NOT_FOUND).redirect('/pageNotFound')
   }
 }
 
@@ -140,7 +140,7 @@ const verifyOtp = async (req, res) => {
     console.log("Session OTP:", req.session.userOtp)
 
     if (!otp) {
-      return res.status(400).json({ success: false, message: "OTP is required!" })
+      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "OTP is required!" })
     }
 
     if (otp === req.session.userOtp) {
@@ -158,11 +158,11 @@ const verifyOtp = async (req, res) => {
 
       return res.json({ "success": true, "redirectUrl": "/" })
     } else {
-      return res.status(400).json({ "success": false, "message": "Invalid OTP, Please try again" })
+      return res.status(HttpStatus.BAD_REQUEST).json({ "success": false, "message": "Invalid OTP, Please try again" })
     }
   } catch (error) {
     console.error("Error verifying OTP:", error)
-    return res.status(500).json({ success: false, message: "An error occurred" })
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "An error occurred" })
   }
 }
 
@@ -170,20 +170,20 @@ const resendOtp = async (req, res) => {
   try {
     const { email } = req.session.userData
     if (!email) {
-      return res.status(400).json({ success: false, message: "Email not found in session" })
+      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Email not found in session" })
     }
     const otp = genarateOtp()
     req.session.userOtp = otp
     const emailSend = await sendVerificationEmail(email, otp)
     if (emailSend) {
       console.log("Resend OTP", otp)
-      res.status(200).json({ success: true, message: "OTP Resend Successfully" })
+      res.status(HttpStatus.OK).json({ success: true, message: "OTP Resend Successfully" })
     } else {
-      res.status(500).json({ success: false, message: "Failed to resend OTP. Please try again" })
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Failed to resend OTP. Please try again" })
     }
   } catch (error) {
     console.error("error resending Otp", error)
-    res.status(500).json({ success: false, message: "Internal Server Error. Please try again" })
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Internal Server Error. Please try again" })
   }
 }
 
@@ -246,7 +246,7 @@ const loadForgetPass = async (req, res) => {
     req.session.Fmessage = null
     res.render('emailVerify', { Fmessage })
   } catch (error) {
-    res.status(404).redirect('/pageNotFound')
+    res.status(HttpStatus.NOT_FOUND).redirect('/pageNotFound')
   }
 }
 
@@ -282,17 +282,17 @@ const verifyEmail = async (req, res) => {
     console.log("Session OTP:", req.session.userEmailOtp)
 
     if (!otp) {
-      return res.status(400).json({ success: false, message: "OTP is required!" })
+      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "OTP is required!" })
     }
 
     if (otp === req.session.userEmailOtp) {
       return res.json({ "success": true, "redirectUrl": "/newPassword" })
     } else {
-      return res.status(400).json({ "success": false, "message": "Invalid OTP, Please try again" })
+      return res.status(HttpStatus.BAD_REQUEST).json({ "success": false, "message": "Invalid OTP, Please try again" })
     }
   } catch (error) {
     console.error("Error verifying OTP:", error)
-    return res.status(500).json({ success: false, message: "An error occurred" })
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "An error occurred" })
   }
 }
 
@@ -304,7 +304,7 @@ const loadnewPassword = async (req, res) => {
     res.render('newPassword', { Nmessage })
   } catch (error) {
     console.error("error on load newpage", error)
-    res.status(404).redirect('/pageNotFound')
+    res.status(HttpStatus.NOT_FOUND).redirect('/pageNotFound')
   }
 }
 

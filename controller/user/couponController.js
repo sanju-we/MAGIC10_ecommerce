@@ -1,5 +1,6 @@
 const Coupon = require('../../models/couponSchema')
 const Cart = require('../../models/cartSchema')
+const HttpStatus = require('../../config/httpStatusCode')
 
 const applyCoupon = async (req, res) => {
   try {
@@ -63,7 +64,7 @@ const applyCoupon = async (req, res) => {
     })
   } catch (error) {
     console.error("Error verifying Apply offer", error)
-    return res.status(500).json({
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: "Server error applying offer",
     })

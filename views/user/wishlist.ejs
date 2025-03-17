@@ -136,12 +136,12 @@
                                 <img src="<%= item.image[0] %>" alt="<%= item.name %>" class="wishlist-image">
                                 <div class="wishlist-details">
                                     <h3 class="product-title">
-                                        <%= item.productName %>
+                                        <%= item.name %>
                                     </h3>
-                                    <p class="product-price">₹<%= item.salePrice %>
+                                    <p class="product-price">₹<%= item.price %>
                                     </p>
-                                    <div class="wishlist-actions">
-                                        <button class="btn-gold move-to-cart" data-id="<%= item._id %>">
+                                    <div class="wishlist-actions"> 
+                                        <button class="btn-gold move-to-cart" data-id="<%= item._id %>" data-size="<%=item.size%>" data-color="<%=item.color%>">
                                             <i class="fas fa-shopping-cart"></i> Move to Cart
                                         </button>
                                         <span class="remove-btn" data-id="<%= item._id %>">
@@ -166,6 +166,8 @@
         document.querySelectorAll('.move-to-cart').forEach(btn => {
             btn.addEventListener('click', function () {
                 const itemId = this.dataset.id;
+                const size = this.dataset.size;
+                const color = this.dataset.color;
 
                 Swal.fire({
                     title: 'Are you sure?',
@@ -180,14 +182,13 @@
                         fetch('/addToCart', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ productId: itemId })
+                            body: JSON.stringify({ productId: itemId , size , color })
                         })
                             .then(response => response.json())
                             .then(data => {
                                 if (data.success) {
                                     Swal.fire('Added!', 'Item has been moved to cart.', 'success')
                                         .then(() => {
-                                            // Reload the page after successful update
                                             location.reload();
                                         });
 

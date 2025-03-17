@@ -7,6 +7,7 @@ const Coupon = require('../../models/couponSchema')
 const Wallet = require('../../models/walletSchema')
 const Razorpay = require('razorpay')
 const crypto = require('crypto')
+const HttpStatus = require('../../config/httpStatusCode')
 
 const razorpayInstance = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -31,7 +32,7 @@ const addOrder = async (req, res) => {
     const cart = await Cart.findOne({ userId }).populate("items.productId")
 
     if (!cart || cart.items.length === 0) {
-      return res.status(400).redirect("/pageNotFound")
+      return res.status(HttpStatus.BAD_REQUEST).redirect("/pageNotFound")
     }
 
     const singleCouponCode = Array.isArray(couponCode) ? couponCode[0] : couponCode
@@ -183,7 +184,7 @@ const getOrderHistory = async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching order history:', error);
-    res.status(500).redirect('/pageNotFound');
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).redirect('/pageNotFound');
   }
 };
 
@@ -267,7 +268,7 @@ const createRazorpay = async (req, res) => {
   try {
     const { totalAmount } = req.body
     if (!totalAmount) {
-      return res.status(400).json({ success: false, message: 'Total amount missing' })
+      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: 'Total amount missing' })
     }
 
     const amountInPaise = totalAmount * 100
@@ -283,7 +284,7 @@ const createRazorpay = async (req, res) => {
     return res.json({ success: true, order })
   } catch (error) {
     console.error("Error creating Razorpay order:", error)
-    return res.status(500).json({ success: false, message: "Server error creating order" })
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Server error creating order" })
   }
 }
 
@@ -299,11 +300,11 @@ const verifyRazorpay = async (req, res) => {
     if (generatedSignature === razorpay_signature) {
       return res.json({ success: true, message: "Payment verified" })
     } else {
-      return res.status(400).json({ success: false, message: "Invalid signature" })
+      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Invalid signature" })
     }
   } catch (error) {
     console.error("Error verifying Razorpay payment:", error)
-    return res.status(500).json({ success: false, message: "Server error verifying payment" })
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Server error verifying payment" })
   }
 }
 
@@ -313,7 +314,7 @@ const loadFailure = async (req, res) => {
     res.render('oderFailure', { orderId: orderId || '', error: error || '' })
   } catch (error) {
     console.error("Error occur while loadFailure:", error)
-    return res.status(500).redirect('/pageNotFound')
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).redirect('/pageNotFound')
   }
 }
 

@@ -3,10 +3,13 @@ const Product = require('../../models/productSchema')
 const Cart = require('../../models/cartSchema')
 const Address = require('../../models/addressSchema')
 const Coupon = require('../../models/couponSchema')
+const Wishlist = require('../../models/wishlistSchema')
+const HttpStatus = require('../../config/httpStatusCode')
 
 const addToCart = async (req, res) => {
   try {
     const { productId, size, color } = req.body;
+    console.log('req.body:',req.body)
     const userId = req.session.user;
 
     if (!userId) {
@@ -63,6 +66,10 @@ const addToCart = async (req, res) => {
     }
 
     await cart.save();
+    await Wishlist.updateOne(
+      { userId },
+      { $pull: { items: { productId } } }
+    );
     res.json({ success: true, message: "Product added to cart." });
   } catch (error) {
     console.error("Error adding to cart:", error);
@@ -121,11 +128,11 @@ const removeCartItem = async (req, res) => {
     const userId = req.session.user
     const { productId } = req.body
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'Unauthorized' })
+      return res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: 'Unauthorized' })
     }
     const cart = await Cart.findOne({ userId })
     if (!cart) {
-      return res.status(404).json({ success: false, message: 'Cart not found' })
+      return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: 'Cart not found' })
     }
     cart.items = cart.items.filter(
       (item) => item.productId.toString() !== productId
@@ -134,7 +141,7 @@ const removeCartItem = async (req, res) => {
     return res.json({ success: true })
   } catch (error) {
     console.error('Error removing item from cart:', error)
-    return res.status(500).json({ success: false, message: 'Failed to remove item' })
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Failed to remove item' })
   }
 }
 
@@ -143,15 +150,15 @@ const updateCartQuantity = async (req, res) => {
     const userId = req.session.user
     const { productId, newQuantity } = req.body
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'Unauthorized' })
+      return res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: 'Unauthorized' })
     }
     const cart = await Cart.findOne({ userId })
     if (!cart) {
-      return res.status(404).json({ success: false, message: 'Cart not found' })
+      return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: 'Cart not found' })
     }
     const item = cart.items.find(i => i.productId.toString() === productId)
     if (!item) {
-      return res.status(404).json({ success: false, message: 'Item not in cart' })
+      return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: 'Item not in cart' })
     }
     const qty = parseInt(newQuantity, 10)
     item.quantity = qty
@@ -160,7 +167,7 @@ const updateCartQuantity = async (req, res) => {
     return res.json({ success: true })
   } catch (error) {
     console.error('Error updating cart quantity:', error)
-    res.status(500).json({ success: false, message: 'Server error' })
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Server error' })
   }
 }
 

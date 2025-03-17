@@ -1,5 +1,6 @@
 const Coupon = require('../../models/couponSchema')
 const moment = require('moment');
+const HttpStatus = require('../../config/httpStatusCode')
 
 const loadCoupon = async (req, res) => {
   try {
@@ -39,12 +40,12 @@ const deletecoupon = async (req, res) => {
   try {
     const couponId = req.query.id
     if (!couponId) {
-      return res.status(400).json({ success: false, message: "Coupon ID is required." });
+      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Coupon ID is required." });
     }
     const deletedCoupon = await Coupon.findByIdAndDelete(couponId);
 
     if (!deletedCoupon) {
-      return res.status(404).json({ success: false, message: "Coupon not found." });
+      return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "Coupon not found." });
     }
     res.json({ success: true, message: "Coupon deleted successfully!" });
   } catch (error) {

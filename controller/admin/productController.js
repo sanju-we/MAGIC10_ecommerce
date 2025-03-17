@@ -5,7 +5,7 @@ const fs = require('fs')
 const path = require('path')
 const sharp = require('sharp')
 const multer = require("multer")
-
+const HttpStatus = require('../../config/httpStatusCode')
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -80,12 +80,12 @@ const postAddProduct = async (req, res) => {
 
     if (!productName || !description || !fullDescription || !brand ||
       !regularPrice || !salePrice || !stock || !category) {
-      return res.status(400).json({ success: false, message: "All fields are required." });
+      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "All fields are required." });
     }
 
     const categoryDoc = await Category.findOne({ name: category });
     if (!categoryDoc || !mongoose.Types.ObjectId.isValid(categoryDoc._id)) {
-      return res.status(400).json({ success: false, message: "Invalid category." });
+      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Invalid category." });
     }
 
     let imagePaths = [];
@@ -128,13 +128,13 @@ const postAddProduct = async (req, res) => {
         parsedVariants = JSON.parse(variants);
         
         if (!Array.isArray(parsedVariants)) {
-          return res.status(400).json({ success: false, message: "Variants must be an array." });
+          return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Variants must be an array." });
         }
 
         for (const variant of parsedVariants) {
           if (!variant.size || !variant.color || 
               variant.price === undefined || variant.stock === undefined) {
-            return res.status(400).json({ 
+            return res.status(HttpStatus.BAD_REQUEST).json({ 
               success: false, 
               message: "Each variant must include size, color, price, and stock." 
             });
@@ -144,14 +144,14 @@ const postAddProduct = async (req, res) => {
           variant.stock = parseInt(variant.stock);
           
           if (isNaN(variant.price) || variant.price < 0) {
-            return res.status(400).json({ 
+            return res.status(HttpStatus.BAD_REQUEST).json({ 
               success: false, 
               message: "Price must be a positive number." 
             });
           }
           
           if (isNaN(variant.stock) || variant.stock < 0) {
-            return res.status(400).json({ 
+            return res.status(HttpStatus.BAD_REQUEST).json({ 
               success: false, 
               message: "Stock cannot be negative." 
             });
@@ -159,7 +159,7 @@ const postAddProduct = async (req, res) => {
         }
       } catch (err) {
         console.error("Error parsing variants:", err);
-        return res.status(400).json({ 
+        return res.status(HttpStatus.BAD_REQUEST).json({ 
           success: false, 
           message: "Invalid variants format. Please check your input." 
         });
@@ -183,7 +183,7 @@ const postAddProduct = async (req, res) => {
     console.log("Product saved successfully!");
 
     if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-      return res.status(200).json({ 
+      return res.status(HttpStatus.OK).json({ 
         success: true, 
         message: "Product added successfully", 
         productId: newProduct._id 
@@ -195,7 +195,7 @@ const postAddProduct = async (req, res) => {
     console.error("Error adding product:", error);
     
     if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-      return res.status(500).json({ 
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ 
         success: false, 
         message: "Internal Server Error", 
         error: error.message 
@@ -262,7 +262,7 @@ const blockProduct = async (req, res) => {
     }
   } catch (error) {
     console.error("Error blocking product:", error)
-    res.status(500).redirect("/pageerror")
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).redirect("/pageerror")
   }
 }
 
@@ -288,7 +288,7 @@ const unblockProduct = async (req, res) => {
     }
   } catch (error) {
     console.error("Error blocking product:", error)
-    res.status(500).redirect("/pageerror")
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).redirect("/pageerror")
   }
 }
 
@@ -299,13 +299,13 @@ const editProduct = async (req, res) => {
     const categories = await Category.find() 
 
     if (!product) {
-      return res.status(404).send("Product not found")
+      return res.status(HttpStatus.NOT_FOUND).send("Product not found")
     }
 
     res.render("product-edit", { product, cat: categories })
   } catch (error) {
     console.error(error)
-    res.status(500).send("Server error")
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).send("Server error")
   }
 }
 
@@ -315,7 +315,7 @@ const deleteSingleImage = async (req, res) => {
 
     const product = await Product.findById(productIdToServer)
     if (!product) {
-      return res.status(404).json({ success: false, message: "Product not found" })
+      return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "Product not found" })
     }
 
     product.image.splice(imageIndex, 1)
@@ -335,7 +335,7 @@ const deleteSingleImage = async (req, res) => {
     res.json({ success: true, message: "Image deleted successfully" })
   } catch (error) {
     console.error(error)
-    res.status(500).json({ success: false, message: "Server error" })
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Server error" })
   }
 }
 
@@ -360,26 +360,26 @@ const postEditProduct = async (req, res) => {
       try {
         parsedVariants = JSON.parse(req.body.variants)
         if (!Array.isArray(parsedVariants)) {
-          return res.status(400).json({ success: false, message: "Variants must be an array." })
+          return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Variants must be an array." })
         }
 
         for (const variant of parsedVariants) {
           if (!variant.size || !variant.color || !variant.price || !variant.stock) {
-            return res.status(400).json({ success: false, message: "Each variant must include size, color, price, and stock." })
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Each variant must include size, color, price, and stock." })
           }
           if (typeof variant.size !== 'string' || typeof variant.color !== 'string' ||
             typeof variant.price !== 'number' || typeof variant.stock !== 'number') {
-            return res.status(400).json({ success: false, message: "Invalid variant data types." })
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Invalid variant data types." })
           }
           if (variant.price <= 0 || variant.stock < 0) {
-            return res.status(400).json({ success: false, message: "Price must be positive and stock cannot be negative." })
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Price must be positive and stock cannot be negative." })
           }
           if (!/^[a-zA-Z0-9]+$/.test(variant.size)) {
-            return res.status(400).json({ success: false, message: "Size must be a string (e.g., S, M, L, or 6, 7, 8)." })
+            return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Size must be a string (e.g., S, M, L, or 6, 7, 8)." })
           }
         }
       } catch (err) {
-        return res.status(400).json({ success: false, message: "Invalid variants format." })
+        return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Invalid variants format." })
       }
     }
     product.variants = parsedVariants
@@ -420,7 +420,7 @@ const addProductOffer = async (req, res) => {
     const product = await Product.findById(productId)
 
     if (!product) {
-      return res.status(404).json({ status: false, message: "Product not found" })
+      return res.status(HttpStatus.NOT_FOUND).json({ status: false, message: "Product not found" })
     }
 
     product.productOffer = parseInt(percentage)
@@ -430,7 +430,7 @@ const addProductOffer = async (req, res) => {
     res.json({ status: true, message: "Offer added successfully" })
   } catch (error) {
     console.error("Error in addProductOffer:", error)
-    res.status(500).json({ status: false, message: "Internal server error" })
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ status: false, message: "Internal server error" })
   }
 }
 
@@ -440,7 +440,7 @@ const removeProductOffer = async (req, res) => {
     const product = await Product.findById(productId)
 
     if (!product) {
-      return res.status(404).json({ status: false, message: "Product not found" })
+      return res.status(HttpStatus.NOT_FOUND).json({ status: false, message: "Product not found" })
     }
 
     product.productOffer = 0
@@ -450,7 +450,7 @@ const removeProductOffer = async (req, res) => {
     res.json({ status: true, message: "Offer removed successfully" })
   } catch (error) {
     console.error("Error in removeProductOffer:", error)
-    res.status(500).json({ status: false, message: "Internal server error" })
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ status: false, message: "Internal server error" })
   }
 }
 
@@ -461,7 +461,7 @@ const getEditProduct = async (req, res) => {
     const categories = await Category.find({ isListed: true })
 
     if (!product) {
-      return res.status(404).send("Product not found")
+      return res.status(HttpStatus.NOT_FOUND).send("Product not found")
     }
 
     res.render("product-edit", {

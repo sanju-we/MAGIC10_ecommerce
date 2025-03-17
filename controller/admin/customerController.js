@@ -2,7 +2,6 @@ const { userAuth } = require('../../middlewares/auth')
 const User = require('../../models/userSchema')
 const mongoose = require('mongoose')
 
-
 const customerInfo = async(req,res)=>{
   try {
     let search = ''
