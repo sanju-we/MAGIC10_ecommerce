@@ -40,7 +40,7 @@ const loadEditProfile = async (req, res) => {
     const { userId } = req.params
     const userData = await User.findById(userId)
     if (!userData) {
-      console.log('user not found');
+      console.log('user not found')
       return res.redirect('/pageNotFound', { userData })
     }
     res.render('editProfile', { userData })
@@ -99,7 +99,7 @@ async function sendVerificationEmail(email, otp) {
     return info.accepted.length > 0
 
   } catch (error) {
-    console.error("Error sending email", error);
+    console.error("Error sending email", error)
     return false
   }
 }
@@ -122,7 +122,7 @@ const changeEmail = async (req, res) => {
     req.session.emailOtp = otp
     const email = userData.email
     req.session.userEmailData = { email }
-    console.log("OTP send :", otp);
+    console.log("OTP send :", otp)
 
     res.render('change-email', { userData })
   } catch (error) {
@@ -133,11 +133,11 @@ const changeEmail = async (req, res) => {
 const verifyEditEmail = async (req, res) => {
   try {
 
-    const { otp } = req.body;
+    const { otp } = req.body
     const userId = req.session.user
     const userData = await User.findById(userId)
-    console.log("Received OTP:", otp);
-    console.log("Session OTP:", req.session.emailOtp);
+    console.log("Received OTP:", otp)
+    console.log("Session OTP:", req.session.emailOtp)
 
     if (!userData) {
       console.log('user not found in verifyEditEmail post method')
@@ -145,20 +145,20 @@ const verifyEditEmail = async (req, res) => {
     }
 
     if (!otp) {
-      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "OTP is required!" });
+      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "OTP is required!" })
     }
 
     if (otp === req.session.emailOtp) {
       const id = userData._id
-      return res.json({ "success": true, "redirectUrl": `/userProfile/newEmail/${id}` });
+      return res.json({ "success": true, "redirectUrl": `/userProfile/newEmail/${id}` })
     } else {
-      return res.status(HttpStatus.BAD_REQUEST).json({ "success": false, "message": "Invalid OTP, Please try again" });
+      return res.status(HttpStatus.BAD_REQUEST).json({ "success": false, "message": "Invalid OTP, Please try again" })
     }
   } catch (error) {
-    console.error("Error verifying OTP:", error);
-    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "An error occurred" });
+    console.error("Error verifying OTP:", error)
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "An error occurred" })
   }
-};
+}
 
 const loadNewEmail = async (req, res) => {
   try {
@@ -213,7 +213,7 @@ const loadOTPResetPass = async(req,res)=>{
       return res.json("email-error")
     }
     req.session.ResetPassOtp = otp
-    console.log("OTP send :", otp);
+    console.log("OTP send :", otp)
     
     res.render('resetPassword', { userData })
   } catch (error) {
@@ -224,31 +224,31 @@ const loadOTPResetPass = async(req,res)=>{
 const verifyResetPass = async (req, res) => {
   try {
 
-    const { otp } = req.body;
+    const { otp } = req.body
     const userId = req.session.user
     const userData = await User.findById(userId)
-    console.log("Received OTP:", otp);
-    console.log("Session OTP:", req.session.ResetPassOtp);
+    console.log("Received OTP:", otp)
+    console.log("Session OTP:", req.session.ResetPassOtp)
 
     if (!userData) {
       return res.redirect('/pageNotFound')
     }
 
     if (!otp) {
-      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "OTP is required!" });
+      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "OTP is required!" })
     }
 
     if (otp === req.session.ResetPassOtp) {
       const id = userData._id
-      return res.json({ "success": true, "redirectUrl": `/userProfile/newResetPassword/${id}` });
+      return res.json({ "success": true, "redirectUrl": `/userProfile/newResetPassword/${id}` })
     } else {
-      return res.status(HttpStatus.BAD_REQUEST).json({ "success": false, "message": "Invalid OTP, Please try again" });
+      return res.status(HttpStatus.BAD_REQUEST).json({ "success": false, "message": "Invalid OTP, Please try again" })
     }
   } catch (error) {
-    console.error("Error verifying OTP:", error);
-    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "An error occurred" });
+    console.error("Error verifying OTP:", error)
+    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "An error occurred" })
   }
-};
+}
 
 const loadResetPass = async(req,res)=>{
   try {
@@ -263,7 +263,7 @@ const securePassword = async (password) => {
     const passwordHash = await bcrypt.hash(password, 10)
     return passwordHash
   } catch (error) {
-    console.error("error on signup page:", error);
+    console.error("error on signup page:", error)
   }
 }
 
@@ -296,14 +296,14 @@ const ResetPassword = async(req,res)=>{
 
 const addProfile =  async (req, res) => {
   try {
-      const userId = req.params.id;
-      const imagePath = `/uploads/${req.file.filename}`;
+      const userId = req.params.id
+      const imagePath = `/uploads/${req.file.filename}`
 
-      await User.findByIdAndUpdate(userId, { image: imagePath });
+      await User.findByIdAndUpdate(userId, { image: imagePath })
 
-      res.json({ success: true, imagePath });
+      res.json({ success: true, imagePath })
   } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Error uploading image' });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Error uploading image' })
   }
 }
 

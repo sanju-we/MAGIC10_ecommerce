@@ -1,156 +1,197 @@
 <%- include('../partials/user/header') %>
-<header>
-    <link rel="stylesheet" href="/css/orderHistory.css">
-    <nav>
-        <a href="/" class="logo">MAGIC10</a>
-        <div class="nav-links">
-            <a href="/">HOME</a>
-            <a href="/shop">SHOP</a>
-            <a href="/about">ABOUT</a>
-            <a href="/contact">CONTACT</a>
-            <div class="header-icons">
-                <a href="/wishlist" class="icon-link">
-                    <i class="fas fa-heart"></i>
-                </a>
-                <a href="/cart" class="icon-link">
-                    <i class="fas fa-shopping-bag"></i>
-                </a>
-            </div>
-            <div class="custom-dropdown">
-                <a href="#" class="sign-in-link">
-                    <%= user.username %>
-                </a>
-                <div class="dropdown-content">
-                    <a href="/userProfile">Profile</a>
-                    <a href="/logout">Logout</a>
+    <header>
+        <link rel="stylesheet" href="/css/orderHistory.css">
+        <nav>
+            <a href="/" class="logo">MAGIC10</a>
+            <div class="nav-links">
+                <a href="/">HOME</a>
+                <a href="/shop">SHOP</a>
+                <a href="/about">ABOUT</a>
+                <a href="/contact">CONTACT</a>
+                <div class="header-icons">
+                    <a href="/wishlist" class="icon-link">
+                        <i class="fas fa-heart"></i>
+                    </a>
+                    <a href="/cart" class="icon-link">
+                        <i class="fas fa-shopping-bag"></i>
+                    </a>
+                </div>
+                <div class="custom-dropdown">
+                    <a href="#" class="sign-in-link">
+                        <%= user.username %>
+                    </a>
+                    <div class="dropdown-content">
+                        <a href="/userProfile">Profile</a>
+                        <a href="/logout">Logout</a>
+                    </div>
                 </div>
             </div>
-        </div>
-    </nav>
-    <nav class="col-md-3 col-lg-2 d-md-block sidebar">
-        <h3 class="mb-4">MAGIC10</h3>
-        <a href="/userProfile">
-            <i class="fas fa-user"></i>
-            Dashboard
-        </a>
-        <a href="#" class="active">
-            <i class="fas fa-history"></i>
-            Order History
-        </a>
-        <a href="/userProfile/address/<%=user._id%>">
-            <i class="fas fa-map-marker-alt"></i>
-            Address Book
-        </a>
-        <a href="/userProfile/edit/<%=user._id%>">
-            <i class="fas fa-cog"></i>
-            Account Settings
-        </a>
-        <a href="/userProfile/wallet/<%=user._id%>">
-            <i class='fas fa-wallet'></i>
-            Wallet
-        </a>
-        <a href="/logout">
-            <i class="fas fa-sign-out-alt"></i>
-            Logout
-        </a>
-    </nav>
-</header>
-<div class="container">
-    <h2>My Order History</h2>
+        </nav>
+        <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+            <h3 class="mb-4">MAGIC10</h3>
+            <a href="/userProfile">
+                <i class="fas fa-user"></i>
+                Dashboard
+            </a>
+            <a href="#" class="active">
+                <i class="fas fa-history"></i>
+                Order History
+            </a>
+            <a href="/userProfile/address/<%=user._id%>">
+                <i class="fas fa-map-marker-alt"></i>
+                Address Book
+            </a>
+            <a href="/userProfile/edit/<%=user._id%>">
+                <i class="fas fa-cog"></i>
+                Account Settings
+            </a>
+            <a href="/userProfile/wallet/<%=user._id%>">
+                <i class='fas fa-wallet'></i>
+                Wallet
+            </a>
+            <a href="/logout">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </a>
+        </nav>
+    </header>
+    <div class="container">
+        <h2>My Order History</h2>
 
-    <% if (orders.length === 0) { %>
-        <p>No orders placed yet.</p>
-    <% } else { %>
+        <% if (orders.length===0) { %>
+            <p>No orders placed yet.</p>
+            <% } else { %>
 
-        <!-- Order list -->
-        <% orders.forEach(order => { %>
-            <div class="order-card">
-                <h3>Order ID: <%= order.orderId %></h3>
-                <p><strong>Date:</strong> <%= new Date(order.createdOn).toLocaleDateString() %></p>
-                <p><strong>Status:</strong> <%= order.status %></p>
-                <p><strong>Total Price:</strong> ₹<%= order.finalAmount %></p>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Product</th>
-                            <th>Quantity</th>
-                            <th>Price</th>
-                            <th>Total</th>
-                            <%if(order.status == 'Cancelled' || order.status == 'Delivered'){%>
-                            <th>Details</th>
-                            <%}%>
-                            <% if (order.status !== 'Cancelled') { %>
-                            <th>Action</th>
+                <!-- Order list -->
+                <% orders.forEach(order=> { %>
+                    <div class="order-card">
+                        <h3>Order ID: <%= order.orderId %>
+                        </h3>
+                        <p><strong>Date:</strong>
+                            <%= new Date(order.createdOn).toLocaleDateString() %>
+                        </p>
+                        <p><strong>Status:</strong>
+                            <%= order.status %>
+                        </p>
+                        <p><strong>Total Price:</strong> ₹<%= order.finalAmount %>
+                        </p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Total</th>
+                                    <%if(order.status=='Cancelled' || order.status=='Delivered' ){%>
+                                        <th>Details</th>
+                                        <%}%>
+                                            <% if (order.status !=='Cancelled' ) { %>
+                                                <th>Action</th>
+                                                <% } %>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <%= order.product.productName %>
+                                    </td>
+                                    <td>
+                                        <%= order.quantity %>
+                                    </td>
+                                    <td>₹<%= order.product.salePrice %>
+                                    </td>
+                                    <td>₹<%= order.finalAmount.toFixed(2) %>
+                                    </td>
+                                    <%if(order.status=='Cancelled' || order.status=='Delivered' ){%>
+                                        <td><a href="/orders/<%= order._id %>" class="btn btn-primary btn-sm">View
+                                                Details</a></td>
+                                        <%}%>
+                                            <% if (order.status !=='Cancelled' && order.status !=='Delivered' ) { %>
+                                                <td><a onclick="cancelOrder('<%= order._id %>')"
+                                                        class="btn btn-danger btn-sm">Cancel</a></td>
+                                                <% } else if (order.status==='Delivered' ) { %>
+                                                    <td><a onclick="returnOrder('<%= order._id %>')"
+                                                            class="btn btn-danger btn-sm">Return</a></td>
+                                                    <% } %>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <% }) %>
+
+                        <!-- Pagination controls -->
+                        <% if (totalPages> 1) { %>
+                            <div class="pagination">
+                                <% if (currentPage> 1) { %>
+                                    <a href="/orderHistory?page=<%= currentPage - 1 %>&limit=<%= limit %>">Previous</a>
+                                    <% } else { %>
+                                        <span>Previous</span>
+                                        <% } %>
+                                            <span>Page <%= currentPage %> of <%= totalPages %></span>
+                                            <% if (currentPage < totalPages) { %>
+                                                <a
+                                                    href="/orderHistory?page=<%= currentPage + 1 %>&limit=<%= limit %>">Next</a>
+                                                <% } else { %>
+                                                    <span>Next</span>
+                                                    <% } %>
+                            </div>
                             <% } %>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><%= order.product.productName %></td>
-                            <td><%= order.quantity %></td>
-                            <td>₹<%= order.product.salePrice %></td>
-                            <td>₹<%= order.finalAmount.toFixed(2) %></td>
-                            <%if(order.status == 'Cancelled' || order.status == 'Delivered'){%>
-                            <td><a href="/orders/<%= order._id %>" class="btn btn-primary btn-sm">View Details</a></td>
-                            <%}%>
-                            <% if (order.status !== 'Cancelled' && order.status !== 'Delivered') { %>
-                                <td><a onclick="cancelOrder('<%= order._id %>')" class="btn btn-danger btn-sm">Cancel</a></td>
-                            <% } else if (order.status === 'Delivered') { %>
-                                <td><a onclick="returnOrder('<%= order._id %>')" class="btn btn-danger btn-sm">Return</a></td>
-                            <% } %>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        <% }) %>
+                                <% } %>
+    </div>
 
-        <!-- Pagination controls -->
-        <% if (totalPages > 1) { %>
-            <div class="pagination">
-                <% if (currentPage > 1) { %>
-                    <a href="/orderHistory?page=<%= currentPage - 1 %>&limit=<%= limit %>">Previous</a>
-                <% } else { %>
-                    <span>Previous</span>
-                <% } %>
-                <span>Page <%= currentPage %> of <%= totalPages %></span>
-                <% if (currentPage < totalPages) { %>
-                    <a href="/orderHistory?page=<%= currentPage + 1 %>&limit=<%= limit %>">Next</a>
-                <% } else { %>
-                    <span>Next</span>
-                <% } %>
-            </div>
-        <% } %>
-    <% } %>
-</div>
+    <script>
+        // Existing cancelOrder and returnOrder functions remain unchanged
+        async function cancelOrder(orderId) {
+            const { value: reason } = await Swal.fire({
+                title: 'Cancel Order',
+                input: 'select',
+                inputOptions: {
+                    'Ordered by mistake': 'Ordered by mistake',
+                    'Found a better price': 'Found a better price',
+                    'Delivery taking too long': 'Delivery taking too long',
+                    'Other': 'Other'
+                },
+                inputPlaceholder: 'Select a reason',
+                showCancelButton: true
+            });
 
-<script>
-    // Existing cancelOrder and returnOrder functions remain unchanged
-    async function cancelOrder(orderId) {
-        const { value: reason } = await Swal.fire({
-            title: 'Cancel Order',
-            input: 'textarea',
-            inputLabel: 'Please provide a reason for cancellation',
-            inputPlaceholder: 'Type your reason here...',
-            showCancelButton: true,
-            inputValidator: (value) => {
-                if (!value) {
-                    return 'You need to provide a reason!';
-                }
+            if (!reason) {
+                return;
             }
-        });
 
-        if (reason) {
+            let finalReason = reason;
+
+            if (reason === 'Other') {
+                const { value: customReason } = await Swal.fire({
+                    title: 'Other Reason',
+                    input: 'textarea',
+                    inputLabel: 'Please specify your reason',
+                    inputPlaceholder: 'Type your reason here...',
+                    showCancelButton: true,
+                    inputValidator: (value) => {
+                        if (!value) {
+                            return 'You need to provide a reason!';
+                        }
+                    }
+                });
+
+                if (!customReason) {
+                    return;
+                }
+                finalReason = customReason;
+            }
+
             try {
                 const response = await fetch('/orders/cancel', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ orderId, reason }),
+                    body: JSON.stringify({ orderId, reason: finalReason }),
                 });
 
                 const data = await response.json();
-                
+
                 if (data.success) {
                     await Swal.fire({
                         icon: 'success',
@@ -171,34 +212,59 @@
                 });
             }
         }
-    }
 
-    async function returnOrder(orderId) {
-        const { value: reason } = await Swal.fire({
-            title: 'Return Order',
-            input: 'textarea',
-            inputLabel: 'Please provide a reason for cancellation',
-            inputPlaceholder: 'Type your reason here...',
-            showCancelButton: true,
-            inputValidator: (value) => {
-                if (!value) {
-                    return 'You need to provide a reason!';
-                }
+
+        async function returnOrder(orderId) {
+            const { value: reason } = await Swal.fire({
+                title: 'Return Order',
+                input: 'select',
+                inputOptions: {
+                    'Color change': 'Color change',
+                    'Size change': 'Size change',
+                    'Changed my mind': 'Changed my mind',
+                    'Other': 'Other'
+                },
+                inputPlaceholder: 'Select a reason',
+                showCancelButton: true
+            });
+
+            if (!reason) {
+                return;
             }
-        });
 
-        if (reason) {
+            let finalReason = reason;
+
+            if (reason === 'Other') {
+                const { value: customReason } = await Swal.fire({
+                    title: 'Other Reason',
+                    input: 'textarea',
+                    inputLabel: 'Please specify your reason',
+                    inputPlaceholder: 'Type your reason here...',
+                    showCancelButton: true,
+                    inputValidator: (value) => {
+                        if (!value) {
+                            return 'You need to provide a reason!';
+                        }
+                    }
+                });
+
+                if (!customReason) {
+                    return;
+                }
+                finalReason = customReason;
+            }
+
             try {
                 const response = await fetch('/orders/retun', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ orderId, reason }),
+                    body: JSON.stringify({ orderId, reason: finalReason }),
                 });
 
                 const data = await response.json();
-                
+
                 if (data.success) {
                     await Swal.fire({
                         icon: 'success',
@@ -215,19 +281,19 @@
                 await Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: error.message || 'Failed to cancel order'
+                    text: error.message || 'Failed to return order'
                 });
             }
         }
-    }
 
-    // Add event listener for the limit select dropdown
-    const limitSelect = document.getElementById('limitSelect');
-    if (limitSelect) {
-        limitSelect.addEventListener('change', function() {
-            const limit = this.value;
-            window.location.href = `/orderHistory?page=1&limit=${limit}`;
-        });
-    }
-</script>
-<%- include('../partials/user/footer') %>
+
+        // Add event listener for the limit select dropdown
+        const limitSelect = document.getElementById('limitSelect');
+        if (limitSelect) {
+            limitSelect.addEventListener('change', function () {
+                const limit = this.value;
+                window.location.href = `/orderHistory?page=1&limit=${limit}`;
+            });
+        }
+    </script>
+    <%- include('../partials/user/footer') %>

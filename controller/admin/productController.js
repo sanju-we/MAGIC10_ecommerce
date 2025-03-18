@@ -60,9 +60,9 @@ const getAddProducts = async (req, res) => {
 
 const postAddProduct = async (req, res) => {
   try {
-    console.log("Request received at /admin/addProducts");
-    console.log("Form Data:", req.body);
-    console.log("Uploaded Files:", req.files);
+    console.log("Request received at /admin/addProducts")
+    console.log("Form Data:", req.body)
+    console.log("Uploaded Files:", req.files)
 
     const {
       productName,
@@ -74,61 +74,61 @@ const postAddProduct = async (req, res) => {
       stock,
       category,
       variants 
-    } = req.body;
+    } = req.body
     
-    console.log('Variants received:', variants);
+    console.log('Variants received:', variants)
 
     if (!productName || !description || !fullDescription || !brand ||
       !regularPrice || !salePrice || !stock || !category) {
-      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "All fields are required." });
+      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "All fields are required." })
     }
 
-    const categoryDoc = await Category.findOne({ name: category });
+    const categoryDoc = await Category.findOne({ name: category })
     if (!categoryDoc || !mongoose.Types.ObjectId.isValid(categoryDoc._id)) {
-      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Invalid category." });
+      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Invalid category." })
     }
 
-    let imagePaths = [];
+    let imagePaths = []
     if (req.files) {
       for (let i = 1; i <= 4; i++) {
-        const fileKey = `image${i}`;
+        const fileKey = `image${i}`
         if (req.files[fileKey] && req.files[fileKey].length > 0) {
-          const file = req.files[fileKey][0];
-          const fileName = `product-${Date.now()}-${i}-${file.originalname.replace(/\s+/g, "-")}`;
-          const outputDir = path.join(__dirname, "../../public/uploads/products");
+          const file = req.files[fileKey][0]
+          const fileName = `product-${Date.now()}-${i}-${file.originalname.replace(/\s+/g, "-")}`
+          const outputDir = path.join(__dirname, "../../public/uploads/products")
 
           if (!fs.existsSync(outputDir)) {
-            fs.mkdirSync(outputDir, { recursive: true });
+            fs.mkdirSync(outputDir, { recursive: true })
           }
 
-          const outputPath = path.join(outputDir, fileName);
+          const outputPath = path.join(outputDir, fileName)
           
           try {
             await sharp(file.path)
               .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
               .toFormat("webp")
-              .toFile(outputPath + '.webp');
+              .toFile(outputPath + '.webp')
               
-            imagePaths.push(`/uploads/products/${fileName}.webp`);
+            imagePaths.push(`/uploads/products/${fileName}.webp`)
             
-            fs.unlinkSync(file.path);
+            fs.unlinkSync(file.path)
           } catch (err) {
-            console.error("Error processing image:", err);
-            fs.copyFileSync(file.path, outputPath);
-            imagePaths.push(`/uploads/products/${fileName}`);
-            fs.unlinkSync(file.path);
+            console.error("Error processing image:", err)
+            fs.copyFileSync(file.path, outputPath)
+            imagePaths.push(`/uploads/products/${fileName}`)
+            fs.unlinkSync(file.path)
           }
         }
       }
     }
 
-    let parsedVariants = [];
+    let parsedVariants = []
     if (variants) {
       try {
-        parsedVariants = JSON.parse(variants);
+        parsedVariants = JSON.parse(variants)
         
         if (!Array.isArray(parsedVariants)) {
-          return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Variants must be an array." });
+          return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Variants must be an array." })
         }
 
         for (const variant of parsedVariants) {
@@ -137,32 +137,32 @@ const postAddProduct = async (req, res) => {
             return res.status(HttpStatus.BAD_REQUEST).json({ 
               success: false, 
               message: "Each variant must include size, color, price, and stock." 
-            });
+            })
           }
           
-          variant.price = parseFloat(variant.price);
-          variant.stock = parseInt(variant.stock);
+          variant.price = parseFloat(variant.price)
+          variant.stock = parseInt(variant.stock)
           
           if (isNaN(variant.price) || variant.price < 0) {
             return res.status(HttpStatus.BAD_REQUEST).json({ 
               success: false, 
               message: "Price must be a positive number." 
-            });
+            })
           }
           
           if (isNaN(variant.stock) || variant.stock < 0) {
             return res.status(HttpStatus.BAD_REQUEST).json({ 
               success: false, 
               message: "Stock cannot be negative." 
-            });
+            })
           }
         }
       } catch (err) {
-        console.error("Error parsing variants:", err);
+        console.error("Error parsing variants:", err)
         return res.status(HttpStatus.BAD_REQUEST).json({ 
           success: false, 
           message: "Invalid variants format. Please check your input." 
-        });
+        })
       }
     }
 
@@ -177,32 +177,31 @@ const postAddProduct = async (req, res) => {
       category: categoryDoc._id,
       image: imagePaths,
       variants: parsedVariants
-    });
+    })
 
-    await newProduct.save();
-    console.log("Product saved successfully!");
+    await newProduct.save()
+    console.log("Product saved successfully!")
 
     if (req.xhr || req.headers.accept.indexOf('json') > -1) {
       return res.status(HttpStatus.OK).json({ 
         success: true, 
         message: "Product added successfully", 
         productId: newProduct._id 
-      });
+      })
     } else {      
-      return res.redirect("/admin/products");
+      return res.redirect("/admin/products")
     }
   } catch (error) {
-    console.error("Error adding product:", error);
+    console.error("Error adding product:", error)
     
     if (req.xhr || req.headers.accept.indexOf('json') > -1) {
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ 
         success: false, 
         message: "Internal Server Error", 
         error: error.message 
-      });
+      })
     } else {
-      
-      return res.redirect("/admin/addProducts");
+      return res.redirect("/admin/addProducts")
     }
   }
 }

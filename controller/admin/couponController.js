@@ -1,5 +1,5 @@
 const Coupon = require('../../models/couponSchema')
-const moment = require('moment');
+const moment = require('moment')
 const HttpStatus = require('../../config/httpStatusCode')
 
 const loadCoupon = async (req, res) => {
@@ -40,14 +40,14 @@ const deletecoupon = async (req, res) => {
   try {
     const couponId = req.query.id
     if (!couponId) {
-      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Coupon ID is required." });
+      return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Coupon ID is required." })
     }
-    const deletedCoupon = await Coupon.findByIdAndDelete(couponId);
+    const deletedCoupon = await Coupon.findByIdAndDelete(couponId)
 
     if (!deletedCoupon) {
-      return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "Coupon not found." });
+      return res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "Coupon not found." })
     }
-    res.json({ success: true, message: "Coupon deleted successfully!" });
+    res.json({ success: true, message: "Coupon deleted successfully!" })
   } catch (error) {
     console.error('eoor occur while loadCoupon')
     return res.redirect('pageerror')
@@ -58,25 +58,25 @@ const deletecoupon = async (req, res) => {
 const editCoupon = async (req, res) => {
   try {
     const { id } = req.params
-    const couponData = await Coupon.findById(id);
+    const couponData = await Coupon.findById(id)
 
     if (!couponData) {
-      console.error('Coupon not found for id:', id);
-      return res.redirect('pageerror');
+      console.error('Coupon not found for id:', id)
+      return res.redirect('pageerror')
     }
 
     const formattedCouponData = {
       ...couponData._doc,
       createdOn: couponData.createdOn ? moment(couponData.createdOn).format('YYYY-MM-DD') : '',
       expireOn: couponData.expireOn ? moment(couponData.expireOn).format('YYYY-MM-DD') : ''
-    };
+    }
 
-    return res.render('coupon-edit', { couponData: formattedCouponData });
+    return res.render('coupon-edit', { couponData: formattedCouponData })
   } catch (error) {
-    console.error('Error occurred while loading coupon:', error);
-    return res.redirect('pageerror');
+    console.error('Error occurred while loading coupon:', error)
+    return res.redirect('pageerror')
   }
-};
+}
 
 const posteditCoupon = async (req, res) => {
   try {

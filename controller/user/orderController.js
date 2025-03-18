@@ -28,7 +28,7 @@ const addOrder = async (req, res) => {
     console.log('addressData:', addressData)
     const user = await User.findById(userId)
     const variants = await Cart.findOne({ userId: userId })
-    console.log('variants:', variants.items.map((x) => x.size));
+    console.log('variants:', variants.items.map((x) => x.size))
     const cart = await Cart.findOne({ userId }).populate("items.productId")
 
     if (!cart || cart.items.length === 0) {
@@ -108,14 +108,14 @@ const addOrder = async (req, res) => {
       await newOrder.save()
       orders.push(newOrder)
 
-      const product = await Product.findOne({ _id: item.productId._id });
+      const product = await Product.findOne({ _id: item.productId._id })
       if (product) {
-        const variant = product.variants.find(v => v.size === item.size && v.color === item.color);
+        const variant = product.variants.find(v => v.size === item.size && v.color === item.color)
         if (variant) {
-          variant.stock = Math.max(0, variant.stock - item.quantity);
+          variant.stock = Math.max(0, variant.stock - item.quantity)
         }
-        product.stock = Math.max(0, product.stock - item.quantity);
-        await product.save();
+        product.stock = Math.max(0, product.stock - item.quantity)
+        await product.save()
       }
     }
 
@@ -154,26 +154,26 @@ const orderSuccess = async (req, res) => {
 
 const getOrderHistory = async (req, res) => {
   try {
-    const userId = req.session.user;
+    const userId = req.session.user
     if (!userId) {
-      return res.redirect('/login');
+      return res.redirect('/login')
     }
 
-    const user = await User.findById(userId);
+    const user = await User.findById(userId)
 
-    let page = parseInt(req.query.page) || 1;
-    let limit = 5;
-    if (page < 1) page = 1;
-    const skip = (page - 1) * limit;
-    const totalOrders = await Order.countDocuments({ userId });
+    let page = parseInt(req.query.page) || 1
+    let limit = 5
+    if (page < 1) page = 1
+    const skip = (page - 1) * limit
+    const totalOrders = await Order.countDocuments({ userId })
 
     const orders = await Order.find({ userId })
       .sort({ createdOn: -1 })
       .skip(skip)
       .limit(limit)
-      .populate('product');
+      .populate('product')
 
-    const totalPages = Math.ceil(totalOrders / limit);
+    const totalPages = Math.ceil(totalOrders / limit)
 
     res.render('orderHistory', {
       orders,
@@ -181,12 +181,12 @@ const getOrderHistory = async (req, res) => {
       currentPage: page,
       totalPages,
       limit
-    });
+    })
   } catch (error) {
-    console.error('Error fetching order history:', error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).redirect('/pageNotFound');
+    console.error('Error fetching order history:', error)
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).redirect('/pageNotFound')
   }
-};
+}
 
 const cancelOrder = async (req, res) => {
   try {
@@ -211,20 +211,21 @@ const cancelOrder = async (req, res) => {
             { type: 'credit', amount: orderData.finalAmount, description: `Refund of ${orderId}` },
           ],
           date: new Date(),
-        });
+        })
       } else {
-        wallet.balance += orderData.finalAmount;
+        wallet.balance += orderData.finalAmount
         wallet.transactions.push({
           type: 'credit',
           amount: orderData.finalAmount,
           description: `Refund of ${orderId}`,
           date: new Date(),
-        });
+        })
       }
 
-      await wallet.save();
+      await wallet.save()
     }
     orderData.status = 'Cancelled'
+    orderData.returnReason  = reason
     await orderData.save()
     return res.json({ success: true })
   } catch (error) {
@@ -250,6 +251,7 @@ const returnOrder = async (req, res) => {
   try {
     const userId = req.session.user
     const { orderId, reason } = req.body
+    console.log('req.body:',req.body)
     const orderData = await Order.findById(orderId)
     if (!orderData) {
       return res.json({ success: false })

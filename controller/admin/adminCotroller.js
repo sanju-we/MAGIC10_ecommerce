@@ -49,13 +49,13 @@ const logout = (req,res)=>{
   try {
     req.session.destroy(err=>{
       if(err){
-        console.log('Error in destroying session',error);
-        return res.redirect('/admin/pageerror');
+        console.log('Error in destroying session',error)
+        return res.redirect('/admin/pageerror')
       }
       res.redirect('/admin/login')
     })
   } catch (error) {
-    console.log('unexpected error during logout',error);
+    console.log('unexpected error during logout',error)
     res.redirect('/pageerror')
   }
 }

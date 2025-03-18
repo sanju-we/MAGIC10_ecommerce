@@ -101,7 +101,7 @@ router.patch('/updateCartQuantity', userAuth, cartController.updateCartQuantity)
 router.get('/checkout',userAuth,cartController.loadCheckOut)
 router.get('/checkout/coupon',userAuth,cartController.loadCheckOutCoupon)
 
-//order managment
+//order managment 
 router.post('/addOrder',userAuth,orderController.addOrder)
 router.get('/orderSuccess/:orderId',userAuth,orderController.orderSuccess)
 router.get('/orderHistory',userAuth,orderController.getOrderHistory)
