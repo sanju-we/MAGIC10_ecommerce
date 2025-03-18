@@ -17,7 +17,8 @@ const loadwallet = async (req, res) => {
     console.log('wallet:', wallet)
     if(!wallet){
       const balance = 0
-      return res.render('wallet', { balance, user, key_id: process.env.RAZORPAY_KEY_ID })
+      const transactions = null
+      return res.render('wallet', { balance, user, key_id: process.env.RAZORPAY_KEY_ID,transactions })
     }else{
       const balance = wallet.balance
       const transactions = wallet.transactions.slice(skip, skip + limit)

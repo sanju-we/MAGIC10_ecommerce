@@ -405,7 +405,7 @@
 
     <div class="transaction-history">
         <h2>Transaction History</h2>
-        <% if (transactions.length > 0) { %>
+        <% if (transactions) { %>
             <% transactions.forEach(transaction => { %>
                 <div class="transaction-item <%= transaction.type === 'credit' ? 'transaction-credit' : 'transaction-debit' %>">
                     <div>
