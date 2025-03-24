@@ -21,9 +21,11 @@ const loadwallet = async (req, res) => {
       return res.render('wallet', { balance, user, key_id: process.env.RAZORPAY_KEY_ID,transactions })
     }else{
       const balance = wallet.balance
-      const transactions = wallet.transactions.slice(skip, skip + limit)
-      const totalPages = Math.ceil(wallet.transactions.length / limit)
-      return res.render('wallet', { balance, user, transactions, currentPage: page, totalPages , key_id: process.env.RAZORPAY_KEY_ID, limit })
+      const transactions = wallet.transactions
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(skip, skip + limit);
+      const totalPages = Math.ceil(wallet.transactions.length / limit);
+      return res.render('wallet', {balance, user, transactions, currentPage: page, totalPages, key_id: process.env.RAZORPAY_KEY_ID, limit});
     }
   } catch (error) {
     console.error('error occur while loadWallet', error)

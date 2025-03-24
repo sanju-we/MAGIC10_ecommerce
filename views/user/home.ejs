@@ -58,9 +58,9 @@
             <% products.forEach(function(product) { %>
               <div class="product">
                 <% if (product.image && product.image.length> 0) { %>
-                  <img src="<%= product.image[0] %>" alt="Product Image">
+                  <img src="<%= product.image[0]%>" alt="Product Image">
                   <% } else { %>
-                    <img src="/path/to/default-image.jpg" alt="No Image Available">
+                    <img src="/uploads/product-1739270964011-235401457.webp" alt="No Image Available">
                     <% } %>
                       <h3>
                         <%= product.productName %>

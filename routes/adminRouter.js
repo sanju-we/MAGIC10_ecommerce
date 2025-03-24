@@ -37,14 +37,9 @@ router.delete('/deleteCategory/:categoryId',categoryController.deleteCategory)
 //product management
 router.get('/addProducts',adminAuth,productController.getAddProducts)
 
-router.post('/addProducts', upload.fields([
-  { name: 'image1', maxCount: 1 },
-  { name: 'image2', maxCount: 1 },
-  { name: 'image3', maxCount: 1 },
-  { name: 'image4', maxCount: 1 }
-]), productController.postAddProduct);
+router.post('/addProducts', upload.any(), productController.postAddProduct);
 
-router.post('/saveImage', productController.saveImage);
+// router.post('/saveImage', upload.single("croppedImage"), productController.saveImage);
 router.get('/products',adminAuth,productController.getAllProducts)
 router.post('/blockProduct',productController.blockProduct)
 router.post('/unblockProduct',productController.unblockProduct)

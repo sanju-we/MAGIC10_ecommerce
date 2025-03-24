@@ -6,47 +6,37 @@ const path = require('path')
 const sharp = require('sharp')
 const multer = require("multer")
 const HttpStatus = require('../../config/httpStatusCode')
+const upload = require('../../config/multer')
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, "../public/uploads/")
+const saveImage = async (req, res) => {
+  if (!req.file) {
+    return res.json({ success: false, message: "No file uploaded" });
+  }
+
+  try {
+    const uploadDir = path.join(__dirname, "../public/uploads/");
     if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true })
+      fs.mkdirSync(uploadDir, { recursive: true });
     }
-    cb(null, uploadDir)
-  },
-  filename: (req, file, cb) => {
-    const uniqueName = `product-${Date.now()}-${Math.round(Math.random() * 1e9)}${path.extname(file.originalname)}`
-    cb(null, uniqueName)
-  }
-})
 
-const upload = multer({
-  storage: storage,
-  fileFilter: (req, file, cb) => {
-    if (!file.mimetype.startsWith("image/")) {
-      return cb(new Error("Only image files are allowed!"), false)
-    }
-    cb(null, true)
-  }
-}).single("image")
+    const fileName = `product-${Date.now()}-${Math.round(Math.random() * 1e9)}.jpg`;
+    const filePath = path.join(uploadDir, fileName);
 
-const saveImage = (req, res) => {
-  upload(req, res, (err) => {
-    if (err) {
-      return res.json({ success: false, message: err.message })
-    }
-    if (!req.file) {
-      return res.json({ success: false, message: "No file uploaded" })
-    }
+    await sharp(req.file.buffer)
+      .resize(500, 500)
+      .jpeg({ quality: 80 })
+      .toFile(filePath);
 
     res.json({
       success: true,
       message: "Image uploaded successfully",
-      filePath: `/uploads/${req.file.filename}`
-    })
-  })
-}
+      filePath: `/uploads/${fileName}`,
+    });
+  } catch (error) {
+    console.error("Error processing image:", error);
+    res.json({ success: false, message: "Error processing image" });
+  }
+};
 
 const getAddProducts = async (req, res) => {
   try {
@@ -73,9 +63,9 @@ const postAddProduct = async (req, res) => {
       salePrice,
       stock,
       category,
-      variants 
+      variants
     } = req.body
-    
+
     console.log('Variants received:', variants)
 
     if (!productName || !description || !fullDescription || !brand ||
@@ -83,85 +73,106 @@ const postAddProduct = async (req, res) => {
       return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "All fields are required." })
     }
 
+    // let hasImage = false;
+    // for (let i = 1; i <= 4; i++) {
+    //   const fileKey = `image${i}`;
+    //   if (req.files && req.files[fileKey] && req.files[fileKey].length > 0) {
+    //     hasImage = true;
+    //     break;
+    //   }
+    // }
+    // if (!hasImage) {
+    //   return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Please upload at least one product image." });
+    // }
+
     const categoryDoc = await Category.findOne({ name: category })
     if (!categoryDoc || !mongoose.Types.ObjectId.isValid(categoryDoc._id)) {
       return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Invalid category." })
     }
 
-    let imagePaths = []
-    if (req.files) {
-      for (let i = 1; i <= 4; i++) {
-        const fileKey = `image${i}`
-        if (req.files[fileKey] && req.files[fileKey].length > 0) {
-          const file = req.files[fileKey][0]
-          const fileName = `product-${Date.now()}-${i}-${file.originalname.replace(/\s+/g, "-")}`
-          const outputDir = path.join(__dirname, "../../public/uploads/products")
+    // let imagePaths = []
+    // if (req.files) {
+    //   for (let i = 1; i <= 4; i++) {
+    //     const fileKey = `image${i}`
+    //     if (req.files[fileKey] && req.files[fileKey].length > 0) {
+    //       const file = req.files[fileKey][0]
+    //       const fileName = `product-${Date.now()}-${i}-${file.originalname.replace(/\s+/g, "-")}`
+    //       const outputDir = path.join(__dirname, "../../public/uploads/products")
 
-          if (!fs.existsSync(outputDir)) {
-            fs.mkdirSync(outputDir, { recursive: true })
-          }
+    //       if (!fs.existsSync(outputDir)) {
+    //         fs.mkdirSync(outputDir, { recursive: true })
+    //       }
 
-          const outputPath = path.join(outputDir, fileName)
-          
-          try {
-            await sharp(file.path)
-              .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
-              .toFormat("webp")
-              .toFile(outputPath + '.webp')
-              
-            imagePaths.push(`/uploads/products/${fileName}.webp`)
-            
-            fs.unlinkSync(file.path)
-          } catch (err) {
-            console.error("Error processing image:", err)
-            fs.copyFileSync(file.path, outputPath)
-            imagePaths.push(`/uploads/products/${fileName}`)
-            fs.unlinkSync(file.path)
-          }
-        }
-      }
-    }
+    //       const outputPath = path.join(outputDir, fileName)
+
+    //       try {
+    //         await sharp(file.path)
+    //           .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
+    //           .toFormat("webp")
+    //           .toFile(outputPath + '.webp')
+
+    //         imagePaths.push(`/uploads/products/${fileName}.webp`)
+
+    //         fs.unlinkSync(file.path)
+    //       } catch (err) {
+    //         console.error("Error processing image:", err)
+    //         fs.copyFileSync(file.path, outputPath)
+    //         imagePaths.push(`/uploads/products/${fileName}`)
+    //         fs.unlinkSync(file.path)
+    //       }
+    //     }
+    //   }
+    // }
+
+    let imagesPaths = req.files.map((file, i) => {
+      let fileName = `product-${Date.now()}-${i}-${file.originalname.replace(/\s+/g, "-")}`;
+      return `/uploads/products/${fileName}`;
+    });
+    
+
+    console.log(imagesPaths);
+    
 
     let parsedVariants = []
     if (variants) {
       try {
         parsedVariants = JSON.parse(variants)
-        
+
         if (!Array.isArray(parsedVariants)) {
           return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Variants must be an array." })
         }
 
         for (const variant of parsedVariants) {
-          if (!variant.size || !variant.color || 
-              variant.price === undefined || variant.stock === undefined) {
-            return res.status(HttpStatus.BAD_REQUEST).json({ 
-              success: false, 
-              message: "Each variant must include size, color, price, and stock." 
+          if (!variant.size || !variant.color ||
+            variant.price === undefined || variant.stock === undefined) {
+            return res.status(HttpStatus.BAD_REQUEST).json({
+              success: false,
+              message: "Each variant must include size, color, price, and stock."
             })
           }
-          
+
           variant.price = parseFloat(variant.price)
           variant.stock = parseInt(variant.stock)
-          
+
           if (isNaN(variant.price) || variant.price < 0) {
-            return res.status(HttpStatus.BAD_REQUEST).json({ 
-              success: false, 
-              message: "Price must be a positive number." 
+            return res.status(HttpStatus.BAD_REQUEST).json({
+              success: false,
+              message: "Price must be a positive number."
             })
           }
-          
+
           if (isNaN(variant.stock) || variant.stock < 0) {
-            return res.status(HttpStatus.BAD_REQUEST).json({ 
-              success: false, 
-              message: "Stock cannot be negative." 
+            return res.status(HttpStatus.BAD_REQUEST).json({
+              success: false,
+              message: "Stock cannot be negative."
             })
           }
         }
       } catch (err) {
         console.error("Error parsing variants:", err)
-        return res.status(HttpStatus.BAD_REQUEST).json({ 
-          success: false, 
-          message: "Invalid variants format. Please check your input." 
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "Invalid variants format. Please check your input."
         })
       }
     }
@@ -175,34 +186,15 @@ const postAddProduct = async (req, res) => {
       salePrice: parseFloat(salePrice),
       stock: parseInt(stock),
       category: categoryDoc._id,
-      image: imagePaths,
+      image: imagesPaths,
       variants: parsedVariants
     })
 
     await newProduct.save()
     console.log("Product saved successfully!")
-
-    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-      return res.status(HttpStatus.OK).json({ 
-        success: true, 
-        message: "Product added successfully", 
-        productId: newProduct._id 
-      })
-    } else {      
-      return res.redirect("/admin/products")
-    }
+    return res.status(HttpStatus.OK).json({success:true,message:'Product added successfully'})
   } catch (error) {
     console.error("Error adding product:", error)
-    
-    if (req.xhr || req.headers.accept.indexOf('json') > -1) {
-      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ 
-        success: false, 
-        message: "Internal Server Error", 
-        error: error.message 
-      })
-    } else {
-      return res.redirect("/admin/addProducts")
-    }
   }
 }
 
@@ -270,7 +262,7 @@ const unblockProduct = async (req, res) => {
     const id = req.body.id
     console.log("Product ID:", id)
 
-    const isProduct = await Product.findOne({ _id: id }) 
+    const isProduct = await Product.findOne({ _id: id })
     console.log("Found Product:", isProduct)
 
     if (!isProduct) {
@@ -295,7 +287,7 @@ const editProduct = async (req, res) => {
   try {
     const id = req.query.id
     const product = await Product.findById(id).populate("category")
-    const categories = await Category.find() 
+    const categories = await Category.find()
 
     if (!product) {
       return res.status(HttpStatus.NOT_FOUND).send("Product not found")
@@ -405,6 +397,7 @@ const postEditProduct = async (req, res) => {
     }
 
     await product.save()
+    return res.json({ success: true, message: 'updated successfully' })
     res.redirect('/admin/products')
 
   } catch (error) {

@@ -104,9 +104,12 @@ const addOrder = async (req, res) => {
         returnReason: "none",
         createdOn: new Date(),
       })
-
       await newOrder.save()
       orders.push(newOrder)
+
+      const couponData = await Coupon.findOne({name:couponCode})
+      couponData.usedBy.push(userId)
+      await couponData.save()
 
       const product = await Product.findOne({ _id: item.productId._id })
       if (product) {

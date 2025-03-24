@@ -51,8 +51,6 @@ const applyCoupon = async (req, res) => {
         discountedPrice: item.totalPrice - itemDiscount,
       }
     })
-
-    couponData.usedBy.push(userId)
     await couponData.save()
 
     return res.json({

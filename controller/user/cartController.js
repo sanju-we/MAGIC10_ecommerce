@@ -205,10 +205,11 @@ const loadCheckOutCoupon = async(req,res)=>{
     const userId = req.session.user
     const user = await User.findById(userId)
     const Coupons = await Coupon.find({ expireOn: { $gte: new Date() } })
-    console.log('Coupons:',Coupons)
+    console.log('Coupons:',Coupons) 
     res.render('showCoupons',{coupons:Coupons, user})
   } catch (error) {
-    
+    console.error('Error occur on loadCheckOutCoupon',error)
+    res.redirect('/pageNotFound')
   }
 }
 

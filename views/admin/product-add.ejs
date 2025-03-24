@@ -176,7 +176,7 @@
         <div class="content-header">
             <h2 class="content-title">Add New Product</h2>
         </div>
-        <form id="productForm" method="POST" action="/admin/addProducts" enctype="multipart/form-data">
+        <form id="productForm">
             <div class="form-container">
                 <!-- Product Details -->
                 <div class="form-group">
@@ -248,14 +248,17 @@
 
             <!-- Image Upload Section -->
             <div class="image-upload-container">
-                <% for (let i=1; i <=4; i++) { %>
+                <% for (let i=0; i < 4; i++) { %>
                     <div class="image-upload-group">
-                        <label for="image<%= i %>">Image <%= i %></label>
+                        <label for="image<%= i %>">Image <%= i+1 %></label>
                         <input type="file" name="image<%= i %>" id="image<%= i %>" class="form-control" accept="image/*"
                             onchange="previewImage(event, <%= i %>)">
                         <img id="preview<%= i %>" src="#" alt="Image preview" class="image-preview"
                             style="display: none;">
+                        <button type="button" class="btn btn-primary mt-2" onclick="cropImage(<%= i %>)">Save Image <%=
+                                i+1 %></button>
                         <div id="image<%= i %>-error" class="error-message"></div>
+                        <div class="croppedPreview<%= i %>"></div>
                     </div>
                     <% } %>
             </div>
@@ -273,16 +276,15 @@
     <script>
         let croppers = {};
         let variantCounter = 0;
-        let variants = []; // Array to store all variants
+        let variants = [];
 
-        // Function to add a new variant entry
         function addVariant() {
             variantCounter++;
             const variantsContainer = document.getElementById('variants-container');
             const variantEntry = document.createElement('div');
             variantEntry.className = 'variant-entry';
             variantEntry.id = `variant-${variantCounter}`;
-            
+
             variantEntry.innerHTML = `
                 <input type="text" placeholder="Size" class="variant-size" required>
                 <input type="text" placeholder="Color" class="variant-color" required>
@@ -290,30 +292,28 @@
                 <input type="number" placeholder="Stock" class="variant-stock" min="0" required>
                 <button type="button" onclick="removeVariant(${variantCounter})">Remove</button>
             `;
-            
+
             variantsContainer.appendChild(variantEntry);
         }
 
-        // Function to remove a variant entry
         function removeVariant(id) {
             const variantEntry = document.getElementById(`variant-${id}`);
             if (variantEntry) {
                 variantEntry.remove();
-                updateVariantsInput(); // Update the hidden input after removal
+                updateVariantsInput();
             }
         }
 
-        // Function to collect variants and update the hidden input
         function updateVariantsInput() {
             const variantEntries = document.querySelectorAll('.variant-entry');
             const variants = [];
-            
+
             variantEntries.forEach(entry => {
                 const size = entry.querySelector('.variant-size').value.trim();
                 const color = entry.querySelector('.variant-color').value.trim();
                 const price = parseFloat(entry.querySelector('.variant-price').value);
                 const stock = parseInt(entry.querySelector('.variant-stock').value);
-                
+
                 if (size && color && !isNaN(price) && !isNaN(stock)) {
                     variants.push({
                         size: size,
@@ -323,13 +323,11 @@
                     })
                 }
             });
-            
-            // Update the hidden input with JSON string of variants
+
             document.getElementById('variants-input').value = JSON.stringify(variants);
             return variants;
         }
 
-        // Function to preview images
         function previewImage(event, index) {
             const input = event.target;
             if (input.files && input.files[0]) {
@@ -387,16 +385,78 @@
             }
         }
 
-        // Form validation and submission
+        function cropImage(index) {
+            if (!croppers[index]) {
+                console.error(`No cropper found for index ${index}`);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Please select an image first.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+                return;
+            }
+
+            try {
+                const canvas = croppers[index].getCroppedCanvas({
+                    width: 300,
+                    height: 300,
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: 'high'
+                });
+
+                if (!canvas) {
+                    throw new Error('Failed to crop the image.');
+                }
+
+                const croppedImageUrl = canvas.toDataURL('image/jpeg');
+
+                const croppedPreviewContainer = document.querySelector(`.croppedPreview${index}`);
+
+                if (!croppedPreviewContainer) {
+                    console.error(`Container .croppedPreview${index} not found`);
+                    return;
+                }
+
+                croppedPreviewContainer.innerHTML = '';
+
+                const croppedPreview = document.createElement('img');
+                croppedPreview.className = 'cropped-preview';
+                croppedPreview.src = croppedImageUrl;
+                croppedPreview.style.display = 'block';
+
+                croppedPreview.setAttribute('data-image-url', croppedImageUrl);
+
+                croppedPreviewContainer.appendChild(croppedPreview);
+
+                console.log(`Image ${index} cropped successfully`);
+
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Image cropped successfully.',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+
+            } catch (error) {
+                console.error(`Error cropping image ${index}:`, error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Failed to crop the image.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        }
+
+
         document.addEventListener("DOMContentLoaded", function () {
             const form = document.getElementById("productForm");
-            
-            // Form Submission
-            form.addEventListener("submit", function (event) {
+
+            form.addEventListener("submit", async function (event) {
                 event.preventDefault();
                 let isValid = true;
 
-                // Basic validation for required fields
                 const productName = document.getElementById("product_name").value.trim();
                 const description = document.getElementById("descriptionid").value.trim();
                 const fullDescription = document.getElementById("fulldescriptionid").value.trim();
@@ -406,58 +466,54 @@
                 const stock = parseInt(document.getElementById("stock").value);
                 const category = document.getElementById("category").value;
 
-                // Clear previous error messages
                 document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
 
-                // Validate product name
                 if (!productName) {
                     document.getElementById("productName-error").textContent = "Product name is required";
                     isValid = false;
                 }
 
-                // Validate description
                 if (!description) {
                     document.getElementById("description-error").textContent = "Description is required";
                     isValid = false;
                 }
 
-                // Validate full description
                 if (!fullDescription) {
                     document.getElementById("fullDescription-error").textContent = "Full description is required";
                     isValid = false;
                 }
 
-                // Validate brand
+                if (salePrice >= regularPrice) {
+                    document.getElementById("salePrice-error").textContent = "Sale price must be lower than the regular price.";
+                    isValid = false;
+                }
+
+
                 if (!brand) {
                     document.getElementById("brand-error").textContent = "Brand is required";
                     isValid = false;
                 }
 
-                // Validate regular price
                 if (isNaN(regularPrice) || regularPrice <= 0) {
                     document.getElementById("regularPrice-error").textContent = "Regular price must be a positive number";
                     isValid = false;
                 }
 
-                // Validate sale price
                 if (isNaN(salePrice) || salePrice <= 0) {
                     document.getElementById("salePrice-error").textContent = "Sale price must be a positive number";
                     isValid = false;
                 }
 
-                // Validate stock
                 if (isNaN(stock) || stock < 0) {
                     document.getElementById("stock-error").textContent = "Stock must be a non-negative number";
                     isValid = false;
                 }
 
-                // Validate category
                 if (!category) {
                     document.getElementById("category-error").textContent = "Please select a category";
                     isValid = false;
                 }
 
-                // Collect and validate variants
                 const variants = updateVariantsInput();
                 if (variants.length === 0) {
                     Swal.fire({
@@ -469,17 +525,80 @@
                     isValid = false;
                 }
 
-                // If validation passes, submit the form
                 if (isValid) {
                     console.log("Form is valid, submitting...");
                     console.log("Variants:", variants);
-                    form.submit();
+
+                    const formData = new FormData();
+
+                    formData.append("productName", productName);
+                    formData.append("description", description);
+                    formData.append("fullDescription", fullDescription);
+                    formData.append("brand", brand);
+                    formData.append("regularPrice", regularPrice);
+                    formData.append("salePrice", salePrice);
+                    formData.append("stock", stock);
+                    formData.append("category", category);
+                    formData.append("variants", JSON.stringify(variants));
+
+                    function dataURLtoBlob(dataURL) {
+                        const parts = dataURL.split(';base64,');
+                        const contentType = parts[0].split(':')[1];
+                        const raw = window.atob(parts[1]);
+                        const rawLength = raw.length;
+                        const uInt8Array = new Uint8Array(rawLength);
+
+                        for (let i = 0; i < rawLength; ++i) {
+                            uInt8Array[i] = raw.charCodeAt(i);
+                        }
+
+                        return new Blob([uInt8Array], { type: contentType });
+                    }
+
+
+                    for (let i = 0; i < 4; i++) {
+                        const container = document.querySelector(`.croppedPreview${i}`);
+                        if (container) {
+                            const img = container.querySelector('img');
+                            if (img && img.getAttribute('data-image-url')) {
+                                const dataURL = img.getAttribute('data-image-url');
+                                const blob = dataURLtoBlob(dataURL);
+                                formData.append(`product${i}`, blob, `image${i}.jpg`);
+                                console.log(`Added image ${i} to form data`);
+                            } else {
+                                console.log(`No cropped image found for index ${i}`);
+                            }
+                        }
+                    }
+                    console.log(Object.fromEntries(formData))
+
+                    try {
+                        const resp = await fetch("/admin/addProducts", {
+                            method: "POST",
+                            body: formData
+                        })
+
+                        if (resp.success) {
+                            const data = await resp.json()
+                            Swal.fire({
+                                title: 'Success!',
+                                text: data.message,
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            })
+                            window.location.reload()
+                            console.log('data:',data)
+                        }
+                    } catch (err) {
+                        console.log(err)
+                    }
+
                 }
             });
 
-            // Add initial variant
             addVariant();
         });
+
     </script>
 
     <%- include("../../views/partials/admin/footer") %>

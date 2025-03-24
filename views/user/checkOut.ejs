@@ -229,7 +229,7 @@
         /* Modal Styling */
         .modal-content {
             background-color: #121212;
-            color:#121212;
+            color: #121212;
         }
 
         .modal-header,
@@ -339,20 +339,22 @@
                         </label>
                     </div> -->
 
+                    <%if(totalAmount<=1000){%>
                     <div class="payment-card" data-method="cod">
                         <label class="payment-method-label">
                             <input type="radio" name="paymentMethod" value="cod">
-                            <div class="payment-method-content">
+                            <div class="payment-method-content" style="display: inline;">
                                 <i class="fas fa-money-bill-wave"></i>
                                 <span>Cash on Delivery</span>
                             </div>
                         </label>
                     </div>
+                    <%}%>
 
                     <div class="payment-card" data-method="razorpay">
                         <label class="payment-method-label">
                             <input type="radio" name="paymentMethod" value="razorpay">
-                            <div class="payment-method-content">
+                            <div class="payment-method-content" style="display: inline;">
                                 <i class="fas fa-wallet"></i>
                                 <span>Razorpay</span>
                             </div>
@@ -367,6 +369,7 @@
                 <div class="coupon-section">
                     <input type="text" id="couponCode" name="couponCode" placeholder="Enter Coupon Code">
                     <button type="button" id="applyCoupon">Apply</button>
+                    <button type="button" id="cancelCoupon" style="display: none;">Cancel Coupon</button>
                 </div>
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#couponModal">
                     View Available Coupons
@@ -457,9 +460,9 @@
                                                 <%= coupon.name %>
                                             </td>
                                             <td>
-                                                <%= coupon.offerPrice %>% Off
+                                                <%= coupon.offerPrice %> Off
                                             </td>
-                                            <td>$<%= coupon.minPrice.toFixed(2) %>
+                                            <td>₹<%= coupon.minPrice.toFixed(2) %>
                                             </td>
                                             <td>
                                                 <%= new Date(coupon.expireOn).toLocaleDateString() %>
@@ -604,8 +607,10 @@
                 if (data.success) {
                     discountInfo.innerText = `✅ Coupon Applied! ${data.discountAmount}`;
                     discountInfo.style.display = "block";
-                    discount.innerText = `${data.discountAmount}`
-                    errorMessage.style.display = "none";
+                    discount.innerText = `${data.discountAmount}`;
+                    totalElement.innerHTML = data.newTotal;
+                    totalAmountInput.value = data.newTotal;
+                    document.getElementById("cancelCoupon").style.display = "inline-block";
 
                     totalElement.innerHTML = data.newTotal;
                     totalAmountInput.value = data.newTotal;
@@ -640,6 +645,37 @@
                 discountInfo.style.display = "none";
             }
         });
+
+        document.getElementById("cancelCoupon").addEventListener("click", () => {
+            document.getElementById("discountInfo").style.display = "none";
+            document.getElementById("errorMessage").style.display = "none";
+            document.getElementById("discount").innerText = "0.00";
+
+            document.getElementById("subtotal").innerText = originalSubtotal.toFixed(2);
+            document.getElementById("shipping").innerText = originalShipping.toFixed(2);
+            document.getElementById("total").innerText = originalTotal.toFixed(2);
+            document.getElementById("totalAmountInput").value = originalTotal;
+
+            document.querySelectorAll(".summary-item").forEach((item) => {
+                const productPriceEl = item.querySelector(".original-price");
+                const discountedPriceEl = item.querySelector(".discounted-price");
+                productPriceEl.style.textDecoration = "none";
+                productPriceEl.style.color = "inherit";
+                discountedPriceEl.style.display = "none";
+            });
+
+            // Hide cancel button
+            document.getElementById("cancelCoupon").style.display = "none";
+
+            let couponInput = document.getElementById("couponCode");
+            couponInput.value = ""; 
+            couponInput.setAttribute("value", "");
+            couponInput.dispatchEvent(new Event("change")); 
+            couponInput.blur();
+
+            console.log("Coupon canceled, input fully cleared!");
+        });
+
 
         document.getElementById("checkoutForm").addEventListener("submit", async function (e) {
             e.preventDefault();
