@@ -1,0 +1,15 @@
+<h3>Transaction Details</h3>
+<p><strong>Transaction ID:</strong> <%= transaction.transactionId %></p>
+<p><strong>User:</strong> <%= transaction.userId.email %></p>
+<p><strong>Amount:</strong> ₹<%= transaction.amount.toFixed(2) %></p>
+<p><strong>Type:</strong> <%= transaction.transactionType %></p>
+<p><strong>Payment Method:</strong> <%= transaction.paymentMethod %></p>
+<p><strong>Purpose:</strong> <%= transaction.purpose %></p>
+<p><strong>Date:</strong> <%= new Date(transaction.createdAt).toLocaleString() %></p>
+
+<% if (transaction.orders.length > 0) { %>
+  <h4>Related Orders</h4>
+  <% transaction.orders.forEach(order => { %>
+    <a href="/admin/orders/<%= order._id %>">Order <%= order._id %></a><br>
+  <% }); %>
+<% } %>
