@@ -214,26 +214,22 @@
                 <div class="mb-4">
                     <label class="form-label">Product Images</label>
                     <div class="row">
-                        <% for(let i=0; i < 4; i++) { %>
+                        <% for(let i = 0; i < 4; i++) { %>
                             <div class="col-md-3 mb-3">
                                 <div class="card">
                                     <% if(product.image[i]) { %>
                                         <img src="<%= product.image[i] %>" class="card-img-top" alt="Product Image">
                                         <div class="card-body">
-                                            <button type="button" class="btn btn-danger btn-sm"
-                                                onclick="deleteSingleImage('<%= product.image[i] %>', '<%= product._id %>', <%= i %>)">
-                                                Delete
-                                            </button>
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="deleteSingleImage('<%= product.image[i] %>', '<%= product._id %>', <%= i %>)">Delete</button>
                                         </div>
                                     <% } else { %>
                                         <div class="card-body">
-                                            <input type="file" name="image<%= i+1 %>" accept="image/*"
-                                                class="form-control image-input" data-index="<%= i %>">
-                                            <div class="preview-container" id="preview<%= i %>"
-                                                style="position: relative;">
-                                                <img src="#" alt="Preview"
-                                                    style="display: none; max-width: 100%; margin-top: 10px;">
-                                                <div class="error-message"></div>
+                                            <div class="image-upload-container">
+                                                <input type="file" name="image<%= i+1 %>" accept="image/*" class="form-control image-input" data-index="<%= i %>" onchange="previewImage(event, <%= i %>)">
+                                                <div class="preview-container" style="margin-top: 10px; display: none;">
+                                                    <img id="preview<%= i %>" src="#" alt="Image preview" style="max-width: 100%; height: auto;">
+                                                </div>
+                                                <input type="hidden" name="croppedImage<%= i+1 %>" id="croppedImage<%= i+1 %>" value="">
                                             </div>
                                         </div>
                                     <% } %>
@@ -256,9 +252,11 @@
 </section>
 
 <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
+<!-- Cropper.js JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
 <script>
-    let croppers = Array(4).fill(null);
+    let croppers = {}
     let variantCounter = <%= product.variants.length %>; // Start counter after existing variants
 
     // Function to add a new variant entry
@@ -421,6 +419,39 @@
             }
         });
     }
+
+    function previewImage(event, index) {
+    const input = event.target;
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const previewContainer = input.parentElement.querySelector('.preview-container');
+            previewContainer.style.display = 'block';
+            
+            const preview = document.getElementById(`preview${index}`);
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+
+            if (croppers[index]) {
+                croppers[index].destroy();
+            }
+
+            croppers[index] = new Cropper(preview, {
+                aspectRatio: 1,
+                viewMode: 1,
+                ready: function() {
+                    this.cropper.crop();
+                }
+            });
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Attach event listeners to image inputs
+document.querySelectorAll('.image-input').forEach((input, index) => {
+    input.addEventListener('change', (event) => handleImageChange(event, index));
+});
 
     // Form validation and submission
     document.addEventListener("DOMContentLoaded", function () {

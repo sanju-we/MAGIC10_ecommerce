@@ -6,6 +6,7 @@ const categoryController = require('../controller/admin/categoryController')
 const productController = require('../controller/admin/productController')
 const orderController = require('../controller/admin/orderController')
 const couponController = require('../controller/admin/couponController')
+const transactionController = require('../controller/admin/transactionController')
 const {userAuth,adminAuth,adminAuthCheck,userAuthCheck} = require('../middlewares/auth')
 const path = require('path')
 const upload = require('../config/multer')
@@ -64,5 +65,8 @@ router.post('/createCoupon',adminAuth,couponController.createCoupon)
 router.get("/deletecoupon",adminAuth,couponController.deletecoupon)
 router.get('/editCoupon/:id',adminAuth,couponController.editCoupon)
 router.post('/editCoupon/:id',adminAuth,couponController.posteditCoupon)
+
+//transaction managment
+router.get('/transaction',adminAuth,transactionController.loadTransaction)
 
 module.exports = router

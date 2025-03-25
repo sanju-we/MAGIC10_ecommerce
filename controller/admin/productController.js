@@ -73,59 +73,24 @@ const postAddProduct = async (req, res) => {
       return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "All fields are required." })
     }
 
-    // let hasImage = false;
-    // for (let i = 1; i <= 4; i++) {
-    //   const fileKey = `image${i}`;
-    //   if (req.files && req.files[fileKey] && req.files[fileKey].length > 0) {
-    //     hasImage = true;
-    //     break;
-    //   }
-    // }
-    // if (!hasImage) {
-    //   return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Please upload at least one product image." });
-    // }
-
     const categoryDoc = await Category.findOne({ name: category })
     if (!categoryDoc || !mongoose.Types.ObjectId.isValid(categoryDoc._id)) {
       return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Invalid category." })
     }
 
-    // let imagePaths = []
-    // if (req.files) {
-    //   for (let i = 1; i <= 4; i++) {
-    //     const fileKey = `image${i}`
-    //     if (req.files[fileKey] && req.files[fileKey].length > 0) {
-    //       const file = req.files[fileKey][0]
-    //       const fileName = `product-${Date.now()}-${i}-${file.originalname.replace(/\s+/g, "-")}`
-    //       const outputDir = path.join(__dirname, "../../public/uploads/products")
-
-    //       if (!fs.existsSync(outputDir)) {
-    //         fs.mkdirSync(outputDir, { recursive: true })
-    //       }
-
-    //       const outputPath = path.join(outputDir, fileName)
-
-    //       try {
-    //         await sharp(file.path)
-    //           .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
-    //           .toFormat("webp")
-    //           .toFile(outputPath + '.webp')
-
-    //         imagePaths.push(`/uploads/products/${fileName}.webp`)
-
-    //         fs.unlinkSync(file.path)
-    //       } catch (err) {
-    //         console.error("Error processing image:", err)
-    //         fs.copyFileSync(file.path, outputPath)
-    //         imagePaths.push(`/uploads/products/${fileName}`)
-    //         fs.unlinkSync(file.path)
-    //       }
-    //     }
-    //   }
-    // }
-
     let imagesPaths = req.files.map((file, i) => {
-      let fileName = `product-${Date.now()}-${i}-${file.originalname.replace(/\s+/g, "-")}`;
+      const fileName = `product-${Date.now()}-${i}-${file.originalname.replace(/\s+/g, "-")}.webp`;
+      const outputPath = path.join(__dirname, "../../public/uploads/products", fileName);
+    
+      try {
+        sharp(file.path)
+          .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
+          .toFormat("webp")
+          .toFile(outputPath);
+      } catch (err) {
+        console.error("Image processing error:", err);
+      }
+    
       return `/uploads/products/${fileName}`;
     });
     
