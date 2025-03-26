@@ -4,6 +4,7 @@ const Cart = require('../../models/cartSchema')
 const Address = require('../../models/addressSchema')
 const Product = require('../../models/productSchema')
 const Coupon = require('../../models/couponSchema')
+const Transaction = require('../../models/transactionSchema')
 const Wallet = require('../../models/walletSchema')
 const Razorpay = require('razorpay')
 const crypto = require('crypto')
@@ -107,9 +108,37 @@ const addOrder = async (req, res) => {
       await newOrder.save()
       orders.push(newOrder)
 
-      const couponData = await Coupon.findOne({name:couponCode})
-      couponData.usedBy.push(userId)
-      await couponData.save()
+      if (paymentMethod === "razorpay") {
+        const { razorpay_payment_id } = req.body;
+        console.log(req.body)
+
+        if (!razorpay_payment_id) {
+          console.error("Missing razorpay_payment_id");
+          return res.redirect("/pageNotFound");
+        }
+
+        await Transaction.create({
+          userId: userId,
+          amount: totalAmount,
+          transactionType: "debit",
+          paymentMethod: "online",
+          paymentGateway: "razorpay",
+          gatewayTransactionId: razorpay_payment_id,
+          status: "completed",
+          purpose: "purchase",
+          description: "Online payment for order",
+          orders: orders.map((order) => ({
+            orderId: order._id,
+            amount: order.finalAmount,
+          })),
+        });
+      }
+      if (couponCode) {
+        const couponData = await Coupon.findOne({ name: couponCode })
+        console.log('couponCode:', couponCode)
+        couponData.usedBy.push(userId)
+        await couponData.save()
+      }
 
       const product = await Product.findOne({ _id: item.productId._id })
       if (product) {
@@ -193,49 +222,77 @@ const getOrderHistory = async (req, res) => {
 
 const cancelOrder = async (req, res) => {
   try {
-    const { orderId, reason } = req.body
-    const userId = req.session.user
-    const orderData = await Order.findById(orderId)
+    const { orderId, reason } = req.body;
+    const userId = req.session.user;
+
+    const orderData = await Order.findById(orderId);
     if (!orderData) {
-      return res.json({ success: false, message: 'Order not found' })
+      return res.json({ success: false, message: "Order not found" });
     }
-    const product = await Product.findById(orderData.product)
-    const productCound = product.stock + orderData.quantity
-    product.stock = productCound
-    await product.save() 
-    if (orderData.paymentMethod != 'cod') {
-      console.log(orderData.userId)
-      const wallet = await Wallet.findOne({ userId: orderData.userId })
+
+    const product = await Product.findById(orderData.product);
+    if (!product) {
+      return res.json({ success: false, message: "Product not found" });
+    }
+
+    const variant = product.variants.find(v => v.size === orderData.size && v.color === orderData.color);
+    if (variant) {
+      variant.stock += orderData.quantity;
+    }
+    product.stock += orderData.quantity;
+    await product.save();
+
+    if (orderData.paymentMethod !== "cod") {
+      let wallet = await Wallet.findOne({ userId });
       if (!wallet) {
         wallet = new Wallet({
           userId,
           balance: orderData.finalAmount,
           transactions: [
-            { type: 'credit', amount: orderData.finalAmount, description: `Refund of ${orderId}` },
+            {
+              type: "credit",
+              amount: orderData.finalAmount,
+              description: `Refund for order ${orderId}`,
+              date: new Date(),
+            },
           ],
-          date: new Date(),
-        })
+        });
       } else {
-        wallet.balance += orderData.finalAmount
+        wallet.balance += orderData.finalAmount;
         wallet.transactions.push({
-          type: 'credit',
+          type: "credit",
           amount: orderData.finalAmount,
-          description: `Refund of ${orderId}`,
+          description: `Refund for order ${orderId}`,
           date: new Date(),
-        })
+        });
       }
+      await wallet.save();
 
-      await wallet.save()
+      await Transaction.create({
+        userId: userId,
+        amount: orderData.finalAmount,
+        transactionType: "credit",
+        paymentMethod: "refund",
+        paymentGateway:"razorpay",
+        status: "completed",
+        purpose: "refund",
+        description: `Payment refund for order ${orderId}`,
+        orders: [{ orderId: orderData._id, amount: orderData.finalAmount }],
+        walletBalanceAfter: wallet.balance
+      });
     }
-    orderData.status = 'Cancelled'
-    orderData.returnReason  = reason
-    await orderData.save()
-    return res.json({ success: true })
+
+    orderData.status = "Cancelled";
+    orderData.returnReason = reason;
+    await orderData.save();
+
+    return res.json({ success: true });
   } catch (error) {
-    console.error('error occur while cancelOrder', error)
-    return res.redirect('/pageNotFound')
+    console.error("Error occurred while canceling order:", error);
+    return res.redirect("/pageNotFound");
   }
-}
+};
+
 
 const getOrderDetails = async (req, res) => {
   try {
@@ -254,7 +311,7 @@ const returnOrder = async (req, res) => {
   try {
     const userId = req.session.user
     const { orderId, reason } = req.body
-    console.log('req.body:',req.body)
+    console.log('req.body:', req.body)
     const orderData = await Order.findById(orderId)
     if (!orderData) {
       return res.json({ success: false })

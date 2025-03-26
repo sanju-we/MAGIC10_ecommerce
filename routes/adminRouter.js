@@ -67,7 +67,9 @@ router.get('/editCoupon/:id',adminAuth,couponController.editCoupon)
 router.post('/editCoupon/:id',adminAuth,couponController.posteditCoupon)
 
 //transaction managment
-router.get('/transaction',adminAuth,transactionController.loadTransaction)
-router.get('/transaction/:id',adminAuth,transactionController.transactionDetails)
+router.get('/transactions',adminAuth,transactionController.getAllTransactions)
+router.get('/transactions/:transactionId',adminAuth,transactionController.getTransactionDetails)
+router.post("/transactions/create", adminAuth, transactionController.createManualTransaction)
+router.get("/transactions/stats", adminAuth, transactionController.getTransactionStats)
 
 module.exports = router

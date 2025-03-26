@@ -116,6 +116,18 @@ const orderReturn = async (req, res) => {
         })
       }
       await wallet.save()
+      await Transaction.create({
+        userId: userId,
+        amount: orderData.finalAmount,
+        transactionType: "credit",
+        paymentMethod: "refund",
+        paymentGateway:"razorpay",
+        status: "completed",
+        purpose: "refund",
+        description: `Payment refund for order ${orderId}`,
+        orders: [{ orderId: orderData._id, amount: orderData.finalAmount }],
+        walletBalanceAfter:wallet.balance
+      });
     } else {
       orderData.status = 'Delivered'
     }

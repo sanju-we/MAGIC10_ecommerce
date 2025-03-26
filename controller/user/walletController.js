@@ -15,17 +15,17 @@ const loadwallet = async (req, res) => {
     const skip = (page - 1) * limit
     const wallet = await Wallet.findOne({ userId: userId })
     console.log('wallet:', wallet)
-    if(!wallet){
+    if (!wallet) {
       const balance = 0
       const transactions = null
-      return res.render('wallet', { balance, user, key_id: process.env.RAZORPAY_KEY_ID,transactions })
-    }else{
+      return res.render('wallet', { balance, user, key_id: process.env.RAZORPAY_KEY_ID, transactions })
+    } else {
       const balance = wallet.balance
       const transactions = wallet.transactions
         .sort((a, b) => new Date(b.date) - new Date(a.date))
         .slice(skip, skip + limit);
       const totalPages = Math.ceil(wallet.transactions.length / limit);
-      return res.render('wallet', {balance, user, transactions, currentPage: page, totalPages, key_id: process.env.RAZORPAY_KEY_ID, limit});
+      return res.render('wallet', { balance, user, transactions, currentPage: page, totalPages, key_id: process.env.RAZORPAY_KEY_ID, limit });
     }
   } catch (error) {
     console.error('error occur while loadWallet', error)
@@ -53,8 +53,20 @@ const addTowallet = async (req, res) => {
       wallet.balance += amount
       wallet.transactions.push({ type: 'credit', amount, description: 'Wallet top-up' })
     }
-
     await wallet.save()
+
+    await Transaction.create({
+      userId: userId,
+      amount: amount,
+      transactionType: "credit",
+      paymentMethod: "online",
+      paymentGateway: "razorpay",
+      status: "completed",
+      purpose: "wallet_add",
+      description: `Fund added to the Wallet`,
+      walletBalanceAfter: wallet.balance
+    });
+
     res.status(HttpStatus.OK).json({ message: 'Money added successfully', wallet })
   } catch (error) {
     console.error('error occur while loadWallet', error)

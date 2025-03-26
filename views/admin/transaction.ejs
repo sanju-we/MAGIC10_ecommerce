@@ -265,44 +265,168 @@
   }
 </style>
 
-<div class="transaction-grid">
-  <% transactions.forEach(transaction => { %>
-    <div class="transaction-card">
-      <h3><%= transaction.transactionId %></h3>
-      <p><strong>User:</strong> <%= transaction.userId.email %></p>
-      <p><strong>Amount:</strong> 
-        <span class="amount <%= transaction.transactionType === 'credit' ? 'credit' : 'debit' %>">
-          <%= transaction.transactionType === 'credit' ? '+' : '-' %>₹<%= transaction.amount.toFixed(2) %>
-        </span>
-      </p>
-      <p><strong>Type:</strong> 
-        <span class="badge <%= transaction.transactionType === 'credit' ? 'bg-success' : 'bg-danger' %>">
-          <%= transaction.transactionType %>
-        </span>
-      </p>
-      <p><strong>Method:</strong> <%= transaction.paymentMethod %></p>
-      <p><strong>Purpose:</strong> <%= transaction.purpose %></p>
-      <p><strong>Date:</strong> <%= new Date(transaction.createdAt).toLocaleString() %></p>
+<div class="container-fluid px-4">
+  <h1 class="mt-4">Transactions</h1>
+  <ol class="breadcrumb mb-4">
+    <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+    <li class="active"> > Transactions</li>
+  </ol>
 
-      <p><strong>Orders:</strong> 
-        <% if (transaction.orders.length > 0) { %>
-          <% transaction.orders.forEach(order => { %>
-            <a href="/admin/orders/<%= order._id %>" class="badge bg-info"><%= order._id %></a>
+  <div class="card mb-4">
+    <div class="card-header">
+      <i class="fas fa-filter me-1"></i>
+      Filter Transactions
+    </div>
+    <div class="card-body">
+      <form id="filterForm" method="GET" action="/admin/transactions">
+        <div class="row">
+          <div class="col-md-3 mb-3">
+            <label for="transactionType" class="form-label">Transaction Type</label>
+            <select class="form-select" id="transactionType" name="transactionType">
+              <option value="">All</option>
+              <option value="credit">Credit</option>
+              <option value="debit">Debit</option>
+            </select>
+          </div>
+          <div class="col-md-3 mb-3">
+            <label for="paymentMethod" class="form-label">Payment Method</label>
+            <select class="form-select" id="paymentMethod" name="paymentMethod">
+              <option value="">All</option>
+              <option value="wallet">Wallet</option>
+              <option value="online">Online</option>
+              <option value="refund">Refund</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="col-md-3 mb-3">
+            <label for="purpose" class="form-label">Purpose</label>
+            <select class="form-select" id="purpose" name="purpose">
+              <option value="">All</option>
+              <option value="purchase">Purchase</option>
+              <option value="refund">Refund</option>
+              <option value="wallet_add">Wallet Add</option>
+              <option value="wallet_withdraw">Wallet Withdraw</option>
+              <option value="cancellation">Cancellation</option>
+              <option value="return">Return</option>
+            </select>
+          </div>
+          <div class="col-md-3 mb-3">
+            <label for="orderId" class="form-label">Order ID</label>
+            <input type="text" class="form-control" id="orderId" name="orderId" placeholder="Enter Order ID">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-3 mb-3">
+            <label for="startDate" class="form-label">Start Date</label>
+            <input type="date" class="form-control" id="startDate" name="startDate">
+          </div>
+          <div class="col-md-3 mb-3">
+            <label for="endDate" class="form-label">End Date</label>
+            <input type="date" class="form-control" id="endDate" name="endDate">
+          </div>
+          <div class="col-md-3 mb-3">
+            <label for="userId" class="form-label">User Email</label>
+            <select class="form-control" id="userId" name="userId">
+              <option value="">Select a user</option>
+              <% users.forEach(user => { %>
+                <option value="<%= user.email %>" <%= query.userId === user.email ? 'selected' : '' %>>
+                  <%= user.email %>
+                </option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="col-md-3 mb-3 d-flex align-items-end gap-2">
+            <button type="submit" class="btn btn-primary me-2">Apply Filters</button>
+            <button type="button" class="btn btn-secondary" onclick="resetFilters()">Reset</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header">
+      <i class="fas fa-table me-1"></i>
+      Transactions List
+    </div>
+    <div class="card-body">
+      <div class="transaction-grid">
+        <% if (transactions && transactions.length > 0) { %>
+          <% transactions.forEach(transaction => { %>
+            <div class="transaction-card">
+              <h3><%= transaction.transactionId %></h3>
+              <p><strong>User:</strong> 
+                <% if (transaction.userId) { %>
+                  <%= transaction.userId.name %> (<%= transaction.userId.email %>)
+                <% } else { %>
+                  Unknown User
+                <% } %>
+              </p>
+              <p><strong>Amount:</strong> 
+                <span class="amount <%= transaction.transactionType === 'credit' ? 'credit' : 'debit' %>">
+                  <%= transaction.transactionType === 'credit' ? '+' : '-' %>₹<%= transaction.amount.toFixed(2) %>
+                </span>
+              </p>
+              <p><strong>Type:</strong> 
+                <span class="badge <%= transaction.transactionType === 'credit' ? 'bg-success' : 'bg-danger' %>">
+                  <%= transaction.transactionType %>
+                </span>
+              </p>
+              <p><strong>Method:</strong> <%= transaction.paymentMethod %></p>
+              <p><strong>Purpose:</strong> <%= transaction.purpose %></p>
+              <p><strong>Date:</strong> <%= new Date(transaction.createdAt).toLocaleString() %></p>
+              <p><strong>Orders:</strong> 
+                <span class="orders">
+                  <% if (transaction.orders && transaction.orders.length > 0) { %>
+                    <% transaction.orders.forEach(order => { %>
+                      <% if (order.orderDetails) { %>
+                        <a href="/admin/orders/<%= order.orderDetails._id %>" class="badge bg-info">
+                          <%= order.orderId %>
+                        </a>
+                      <% } else { %>
+                        <span class="badge bg-secondary"><%= order.orderId %></span>
+                      <% } %>
+                    <% }); %>
+                  <% } else { %>
+                    N/A
+                  <% } %>
+                </span>
+              </p>
+              <div class="actions">
+                <a href="/admin/transactions/<%= transaction.transactionId %>" class="btn btn-sm btn-primary">
+                  <i class="fas fa-eye"></i> View
+                </a>
+              </div>
+            </div>
           <% }); %>
         <% } else { %>
-          N/A
+          <div class="transaction-card text-center">
+            <p>No transactions found</p>
+          </div>
         <% } %>
-      </p>
-
-      <div class="actions">
-        <a href="/admin/transactions/<%= transaction._id %>" class="btn btn-sm btn-primary">
-          <i class="fas fa-eye"></i> View
-        </a>
       </div>
-    </div>
-  <% }); %>
-</div>
 
+      <!-- Pagination -->
+      <% if (totalPages > 1) { %>
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center">
+            <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+              <a class="page-link" href="?page=<%= currentPage - 1 %>" tabindex="-1">Previous</a>
+            </li>
+            <% for(let i = 1; i <= totalPages; i++) { %>
+              <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+              </li>
+            <% } %>
+            <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+              <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+            </li>
+          </ul>
+        </nav>
+      <% } %>
+    </div>
+  </div>
+</div>
 
 <script>
   function resetFilters() {
