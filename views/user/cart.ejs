@@ -230,7 +230,6 @@
 
 
   <script>
-    // remove item 
     document.querySelectorAll('.remove-item').forEach(el => {
       el.addEventListener('click', function () {
         const productId = this.dataset.id;
@@ -267,7 +266,6 @@
       });
     });
 
-    // increment and decrement
     document.querySelectorAll('.stock-btn').forEach(btn => {
       btn.addEventListener('click', function () {
         const input = this.parentElement.querySelector('.stock-input');
@@ -307,7 +305,6 @@
     });
 
 
-    // update quantity in the server side
     function updateServerQuantity(productId, newQuantity) {
       fetch('/updateCartQuantity', {
         method: 'PATCH',
@@ -326,7 +323,6 @@
         });
     }
 
-    // apply promocode
     let currentPromoCode = null;
     document.querySelector('.apply-promo-button')?.addEventListener('click', function () {
       const promoInput = document.querySelector('.promo-input').value.trim();

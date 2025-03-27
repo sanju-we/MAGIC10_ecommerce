@@ -176,16 +176,16 @@
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
-    document.getElementById('resendBtn').disabled = true; // Disable initially
-    let timeLeft = 30; // Initial countdown time
+    document.getElementById('resendBtn').disabled = true; 
+    let timeLeft = 30; 
     const countdownElement = document.getElementById('countdown');
     const resendBtn = document.getElementById('resendBtn');
     let timerInterval;
 
     function startTimer() {
-      resendBtn.disabled = true; // Disable resend button
-      clearInterval(timerInterval); // Prevent multiple timers
-      countdownElement.innerText = timeLeft; // Set initial countdown text
+      resendBtn.disabled = true; 
+      clearInterval(timerInterval); 
+      countdownElement.innerText = timeLeft;
 
       timerInterval = setInterval(() => {
         if (timeLeft > 0) {
@@ -194,12 +194,12 @@
         } else {
           clearInterval(timerInterval);
           document.getElementById('timer').innerText = 'You can now request a new OTP.';
-          resendBtn.disabled = false; // Enable the resend button
+          resendBtn.disabled = false;
         }
       }, 1000);
     }
 
-    startTimer(); // Start countdown
+    startTimer();  
 
     $("#otpForm").submit(function (event) {
       event.preventDefault();
@@ -256,9 +256,8 @@
       timeLeft = 30;
       countdownElement.innerText = timeLeft;
       document.getElementById('otp').disabled = false;
-      resendBtn.disabled = true; // Disable resend button again
-      startTimer(); // Restart countdown
-
+      resendBtn.disabled = true; 
+      startTimer();
       $.ajax({
         type: "POST",
         url: "/resend-otp",

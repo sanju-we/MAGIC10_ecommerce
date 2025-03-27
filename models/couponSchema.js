@@ -4,8 +4,7 @@ const {Schema} = mongoose
 const couponSchema = new Schema({
   name:{
     type:String,
-    required:true,
-    // unique:true
+    required:true
   },
   createdOn:{
     type: Date,

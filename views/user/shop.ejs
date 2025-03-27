@@ -329,7 +329,6 @@
 </div>
 
 <script>
-    // Debounce function to delay the search
     function debounce(func, delay) {
         let timeoutId;
         return function (...args) {
@@ -338,7 +337,6 @@
         };
     }
 
-    // Handle keypress for Enter key
     function handleKeyPress(event) {
         if (event.key === 'Enter') {
             event.preventDefault();
@@ -346,7 +344,6 @@
         }
     }
 
-    // Main filter function
     function filterProducts() {
         const loadingIndicator = document.getElementById('loadingIndicator');
         loadingIndicator.classList.add('active');
@@ -362,7 +359,6 @@
         window.location.href = `/shop?${queryParams.toString()}`;
     }
 
-    // Debounce the search input (optional, if you want to keep oninput search)
     const debouncedFilterProducts = debounce(filterProducts, 300);
 </script>
 

@@ -43,16 +43,18 @@ const loadDashboard = async (req, res) => {
       const userCount = await User.countDocuments({ isAdmin: false })
       const orderCount = await Order.countDocuments()
 
-      const orders = await Order.find({ status: "delivered" })
+      const orders = await Order.find({ status: "Delivered" })
       const totalRevenue = orders.reduce((total, order) => total + order.finalAmount, 0)
 
       const topProducts = await getTopSellingProducts()
+      console.log('topProducts:',topProducts)
 
       const recentOrders = await getRecentOrders()
 
       const salesData = await getSalesDataHelper("monthly")
-
+      console.log(salesData)
       const orderStatusCounts = await getOrderStatusCounts()
+      console.log('totalRevenue:',totalRevenue)
 
       const dashboardData = {
         productCount,
@@ -80,54 +82,65 @@ const loadDashboard = async (req, res) => {
 const getTopSellingProducts = async (limit = 5) => {
   try {
     const topProducts = await Order.aggregate([
-      { $match: { status: "delivered" } },
-      { $unwind: "$orderedItems" },
+      { $match: { status: "Delivered" } },
       {
         $group: {
-          _id: "$orderedItems.product",
-          name: { $first: "$orderedItems.productName" },
-          soldCount: { $sum: "$orderedItems.quantity" },
-          totalSales: { $sum: { $multiply: ["$orderedItems.price", "$orderedItems.quantity"] } },
+          _id: "$product",
+          soldCount: { $sum: "$quantity" },
+          totalSales: { $sum: "$finalAmount" },
         },
       },
       { $sort: { soldCount: -1 } },
       { $limit: limit },
-    ])
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "_id",
+          as: "productDetails",
+        },
+      },
+      { $unwind: "$productDetails" },
+      {
+        $lookup: {
+          from: "categories",
+          localField: "productDetails.category",
+          foreignField: "_id",
+          as: "categoryDetails",
+        },
+      },
+      { $unwind: { path: "$categoryDetails", preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          _id: 1,
+          name: "$productDetails.productName",
+          category: "$categoryDetails.name",
+          price: "$productDetails.salePrice",
+          image: { $arrayElemAt: ["$productDetails.image", 0] },
+          soldCount: 1,
+          totalSales: 1,
+        },
+      },
+    ]);
 
- 
-    const enrichedProducts = await Promise.all(
-      topProducts.map(async (product) => {
-        const productDetails = await Product.findById(product._id).populate("category")
-        return {
-          _id: product._id,
-          name: product.name,
-          category: productDetails?.category?.name || "Uncategorized",
-          price: productDetails?.salePrice || 0,
-          image: productDetails?.productImage?.[0] || null,
-          soldCount: product.soldCount,
-        }
-      }),
-    )
-
-    return enrichedProducts
+    return topProducts;
   } catch (error) {
-    console.error("Error getting top products:", error)
-    return []
+    console.error("Error getting top products:", error);
+    return [];
   }
-}
+};
+
 
 
 const getRecentOrders = async (limit = 5) => {
   try {
     const recentOrders = await Order.find().sort({ createdOn: -1 }).limit(limit)
-
-    
     const ordersWithCustomers = await Promise.all(
       recentOrders.map(async (order) => {
         const customer = await User.findById(order.userId)
         return {
           ...order.toObject(),
-          customerName: customer ? `${customer.name} ${customer.email}` : "Unknown",
+          customerName: customer ? `${customer.username} ${customer.email}` : "Unknown",
         }
       }),
     )
@@ -157,7 +170,7 @@ const getSalesDataHelper = async (period = "yearly") => {
 
         const dayOrders = await Order.find({
           createdOn: { $gte: dayStart, $lte: dayEnd },
-          status: "delivered",
+          status: "Delivered",
         })
 
         const daySales = dayOrders.reduce((total, order) => total + order.finalAmount, 0)
@@ -176,7 +189,7 @@ const getSalesDataHelper = async (period = "yearly") => {
 
         const monthOrders = await Order.find({
           createdOn: { $gte: monthStart, $lte: monthEnd },
-          status: "delivered",
+          status: "Delivered",
         })
 
         const monthSales = monthOrders.reduce((total, order) => total + order.finalAmount, 0)
@@ -194,7 +207,7 @@ const getSalesDataHelper = async (period = "yearly") => {
 
         const yearOrders = await Order.find({
           createdOn: { $gte: yearStart, $lte: yearEnd },
-          status: "delivered",
+          status: "Delivered",
         })
 
         const yearSales = yearOrders.reduce((total, order) => total + order.finalAmount, 0)
@@ -225,11 +238,11 @@ const getOrderStatusCounts = async () => {
     const orders = await Order.find()
 
     orders.forEach((order) => {
-      if (order.status === "delivered") statusCounts["Delivered"]++
-      else if (order.status === "pending") statusCounts["Pending"]++
-      else if (order.status === "shipped") statusCounts["Shipped"]++
-      else if (order.status === "cancelled") statusCounts["Cancelled"]++
-      else if (order.status.includes("return")) statusCounts["Returned"]++
+      if (order.status === "Delivered") statusCounts["Delivered"]++
+      else if (order.status === "Pending") statusCounts["Pending"]++
+      else if (order.status === "Shipped") statusCounts["Shipped"]++
+      else if (order.status === "Cancelled") statusCounts["Cancelled"]++
+      else if (order.status.includes("Return")) statusCounts["Returned"]++
     })
 
     return statusCounts
@@ -254,14 +267,124 @@ const logout = (req,res)=>{
   }
 }
 
+const getTopSelling = async (req, res) => {
+  try {
+    const { type } = req.query;
+
+    if (type === "categories") {
+      const topCategories = await Order.aggregate([
+        { $match: { status: "Delivered" } },
+        {
+          $lookup: {
+            from: "products",
+            localField: "product",
+            foreignField: "_id",
+            as: "productDetails",
+          },
+        },
+        { $unwind: "$productDetails" },
+        {
+          $lookup: {
+            from: "categories",
+            localField: "productDetails.category",
+            foreignField: "_id",
+            as: "categoryDetails",
+          },
+        },
+        { $unwind: "$categoryDetails" },
+        {
+          $group: {
+            _id: "$categoryDetails._id",
+            name: { $first: "$categoryDetails.name" },
+            productCount: { $addToSet: "$productDetails._id" },
+            soldCount: { $sum: "$quantity" },
+            totalSales: { $sum: { $multiply: ["$price", "$quantity"] } },
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            productCount: { $size: "$productCount" },
+            soldCount: 1,
+            totalSales: 1,
+          },
+        },
+        { $sort: { soldCount: -1 } },
+        { $limit: 10 },
+      ]);
+
+      res.json({ categories: topCategories });
+    } else {
+      const topProducts = await Order.aggregate([
+        { $match: { status: "Delivered" } },
+        {
+          $group: {
+            _id: "$product",
+            soldCount: { $sum: "$quantity" },
+            totalSales: { $sum: { $multiply: ["$price", "$quantity"] } },
+          },
+        },
+        { $sort: { soldCount: -1 } },
+        { $limit: 10 },
+        {
+          $lookup: {
+            from: "products",
+            localField: "_id",
+            foreignField: "_id",
+            as: "productDetails",
+          },
+        },
+        { $unwind: "$productDetails" },
+        {
+          $lookup: {
+            from: "categories",
+            localField: "productDetails.category",
+            foreignField: "_id",
+            as: "categoryDetails",
+          },
+        },
+        { $unwind: "$categoryDetails" },
+        {
+          $project: {
+            _id: 1,
+            name: "$productDetails.productName",
+            category: "$categoryDetails.name",
+            price: "$productDetails.salePrice",
+            image: { $arrayElemAt: ["$productDetails.image", 0] },
+            soldCount: 1,
+            totalSales: 1,
+          },
+        },
+      ]);
+
+      res.json({ products: topProducts });
+    }
+  } catch (error) {
+    console.error("Error in getTopSelling API:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
 
+const getSalesData = async (req, res) => {
+  try {
+    const { period = "monthly" } = req.query
+
+    const salesData = await getSalesDataHelper(period)
+    res.json(salesData)
+  } catch (error) {
+    console.error("Error in getSalesData API:", error)
+    res.status(500).json({ error: "Internal server error" })
+  }
+}
 
 module.exports = {
   pageerror,
   loadLogin,
   Login,
   loadDashboard,
-  loadDashboard,
-  logout
+  logout,
+  getTopSelling,
+  getSalesData
 }

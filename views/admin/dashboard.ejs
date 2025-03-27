@@ -227,7 +227,7 @@ button:active {
                                 <% dashboardData.topProducts.forEach(product => { %>
                                     <tr>
                                         <td class="d-flex align-items-center">
-                                            <img src="<%= product.image || 'https://via.placeholder.com/40' %>" alt="<%= product.name %>" class="mr-2" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
+                                            <img src="<%= product.image || 'https://via.placeholder.com/40' %>" alt="<%= product.productName %>" class="mr-2" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
                                             <span><%= product.name %></span>
                                         </td>
                                         <td><%= product.category %></td>
@@ -285,7 +285,7 @@ button:active {
                     </table>
                 </div>
                 <div class="text-right mt-3">
-                    <a href="/admin/orders" class="btn btn-sm btn-outline-primary">View All Orders</a>
+                    <a href="/admin/orderList" class="btn btn-sm btn-outline-primary">View All Orders</a>
                 </div>
             </div>
         </div>
@@ -404,7 +404,7 @@ button:active {
             salesChart.update();
         })
         .catch(error => {
-            console.error('Error fetching sales data:', error);
+            console.log('Error fetching sales data:', error);
             alert('Failed to update chart. Please try again.');
         });
 }

@@ -526,7 +526,6 @@
             });
         });
 
-        // Coupon Pagination
         const couponsPerPage = 5;
         let currentPage = 1;
         const couponRows = document.querySelectorAll('#couponTable tbody tr');
@@ -582,7 +581,6 @@
             const discount = document.getElementById("discount")
             const totalAmountInput = document.getElementById("totalAmountInput");
 
-            // Reset both messages before proceeding
             errorMessage.style.display = "none";
             discountInfo.style.display = "none";
 
@@ -664,7 +662,6 @@
                 discountedPriceEl.style.display = "none";
             });
 
-            // Hide cancel button
             document.getElementById("cancelCoupon").style.display = "none";
 
             let couponInput = document.getElementById("couponCode");
@@ -688,7 +685,6 @@
             const totalAmount = parseFloat(document.getElementById("totalAmountInput").value);
             const couponCode = document.getElementById("couponCode").value.trim();
 
-            // Remove any existing couponCode and address inputs to avoid duplicates
             const existingCouponInputs = this.querySelectorAll('input[name="couponCode"]');
             const existingAddressInputs = this.querySelectorAll('input[name="address"]');
             existingCouponInputs.forEach((input) => input.remove());

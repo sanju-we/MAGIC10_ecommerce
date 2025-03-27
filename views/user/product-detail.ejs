@@ -476,22 +476,18 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-// Store the variants data from the server
 const variants = <%- JSON.stringify(product.variants) %>;
 let selectedSize = null;
 let selectedColor = null;
 
-// Function to change the main image when clicking a thumbnail
 function changeImage(newSrc) {
     const mainImg = document.getElementById('main-img');
     mainImg.src = newSrc;
 
-    // Remove active class from all thumbnails and add to the selected one
     document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
     event.target.parentElement.classList.add('active');
 }
 
-// Zoom effect on main image
 document.getElementById('main-img').addEventListener('mousemove', function (event) {
     const img = event.target;
     const { left, top, width, height } = img.getBoundingClientRect();
@@ -500,7 +496,6 @@ document.getElementById('main-img').addEventListener('mousemove', function (even
     img.style.transformOrigin = `${x}% ${y}%`;
 });
 
-// Thumbnail interaction
 document.querySelectorAll('.thumbnail img').forEach(thumb => {
     thumb.addEventListener('click', () => {
         const mainImg = document.querySelector('.main-image img');
@@ -510,18 +505,15 @@ document.querySelectorAll('.thumbnail img').forEach(thumb => {
     });
 });
 
-// Function to select a size and update color options
 function selectSize(size) {
     selectedSize = size;
     document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('selected'));
     document.querySelector(`.size-btn[data-size="${size}"]`).classList.add('selected');
 
-    // Filter available colors for the selected size
     const availableColors = [...new Set(variants
         .filter(v => v.size === size)
         .map(v => v.color))];
     
-    // Update color options
     const colorOptions = document.getElementById('colorOptions');
     colorOptions.innerHTML = '';
     availableColors.forEach(color => {
@@ -534,12 +526,10 @@ function selectSize(size) {
         colorOptions.appendChild(btn);
     });
 
-    // Reset selected color
     selectedColor = null;
     updateVariantDetails();
 }
 
-// Function to select a color and update details
 function selectColor(color) {
     selectedColor = color;
     document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('selected'));
@@ -547,7 +537,6 @@ function selectColor(color) {
     updateVariantDetails();
 }
 
-// Function to update stock, price, and button states based on selected variant
 function updateVariantDetails() {
     const regularPrice = document.getElementById('regularPrice');
     const salePrice = document.getElementById('salePrice');
@@ -566,7 +555,6 @@ function updateVariantDetails() {
         return;
     }
 
-    // Find the selected variant
     const selectedVariant = variants.find(v => v.size === selectedSize && v.color === selectedColor);
     if (!selectedVariant) {
         stockStatus.innerHTML = '<span class="out-of-stock">Not Available</span>';
@@ -575,9 +563,8 @@ function updateVariantDetails() {
         return;
     }
 
-    // Update price and stock details
-    regularPrice.textContent = '$' + <%= product.regularPrice %>; // Base regular price
-    salePrice.textContent = '$' + selectedVariant.price.toFixed(2); // Variant-specific price
+    regularPrice.textContent = '$' + <%= product.regularPrice %>; 
+    salePrice.textContent = '$' + selectedVariant.price.toFixed(2);  
     offer.textContent = Math.round((<%= product.regularPrice %> - selectedVariant.price) / <%= product.regularPrice %> * 100);
     if (selectedVariant.stock > 0) {
         stockStatus.innerHTML = `<span class="in-stock">In Stock</span> (Only ${selectedVariant.stock} left!)`;
@@ -590,7 +577,6 @@ function updateVariantDetails() {
     }
 }
 
-// Function to add a product to the cart
 function addToCart(productId) {
     if (!selectedSize || !selectedColor) {
         Swal.fire({
@@ -654,7 +640,6 @@ function addToCart(productId) {
     });
 }
 
-// Function to add a product to the wishlist
 function addToWishlist(productId) {
     if (!selectedSize || !selectedColor) {
         Swal.fire({
@@ -705,9 +690,8 @@ function addToWishlist(productId) {
         });
 }
 
-// Initialize the page
 document.addEventListener('DOMContentLoaded', function () {
-    updateVariantDetails(); // Initialize stock and price on page load
+    updateVariantDetails();
 });
 </script>
 

@@ -6,6 +6,7 @@ const categoryController = require('../controller/admin/categoryController')
 const productController = require('../controller/admin/productController')
 const orderController = require('../controller/admin/orderController')
 const couponController = require('../controller/admin/couponController')
+const salesController = require('../controller/admin/salesController')
 const transactionController = require('../controller/admin/transactionController')
 const {userAuth,adminAuth,adminAuthCheck,userAuthCheck} = require('../middlewares/auth')
 const path = require('path')
@@ -71,5 +72,11 @@ router.get('/transactions',adminAuth,transactionController.getAllTransactions)
 router.get('/transactions/:transactionId',adminAuth,transactionController.getTransactionDetails)
 router.post("/transactions/create", adminAuth, transactionController.createManualTransaction)
 router.get("/transactions/stats", adminAuth, transactionController.getTransactionStats)
+
+// Sales Management
+router.get('/sales', adminAuth, salesController.loadSalesPage);
+router.get('/sales/report', adminAuth, salesController.loadSalesPage);
+router.get("/api/sales-data", adminAuth, adminController.getSalesData)
+router.get("/api/top-selling", adminAuth, adminController.getTopSelling)
 
 module.exports = router

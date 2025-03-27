@@ -211,11 +211,11 @@
       if (dateRange === "daily") {
         startDate = new Date(today);
         startDate.setDate(today.getDate() - 1);
-        startDate.setHours(23, 59, 59, 999); // Yesterday 11:59 PM
+        startDate.setHours(23, 59, 59, 999);
 
         endDate = new Date(today);
         endDate.setDate(today.getDate() + 1);
-        endDate.setHours(0, 0, 0, 0); // Tomorrow 12:00 AM
+        endDate.setHours(0, 0, 0, 0);
       } else if (dateRange === "weekly") {
         startDate = new Date(today);
         startDate.setDate(today.getDate() - 6);
@@ -258,7 +258,6 @@
       const tableBody = document.getElementById("reportTableBody");
       tableBody.innerHTML = "";
 
-      // Populate table
       orders.forEach(order => {
         const row = document.createElement("tr");
         row.innerHTML = `
@@ -274,12 +273,10 @@
         tableBody.appendChild(row);
       });
 
-      // Populate summary
       document.getElementById("salesCount").textContent = summary.salesCount;
       document.getElementById("orderAmount").textContent = summary.orderAmount.toFixed(2);
       document.getElementById("discountAmount").textContent = summary.discountAmount.toFixed(2);
 
-      // Show table, summary, and download buttons
       document.getElementById("salesReportTable").style.display = "table";
       document.getElementById("reportSummary").style.display = "block";
       document.getElementById("downloadButtons").style.display = "flex";
@@ -298,7 +295,6 @@
         format: "a4",
       });
 
-      // Header
       doc.setFontSize(20);
       doc.setTextColor(52, 152, 219);
       doc.setFont('Roboto', 'sans-serif');
@@ -308,7 +304,6 @@
       doc.setDrawColor(52, 152, 219);
       doc.line(20, 25, 190, 25);
 
-      // Table
       doc.autoTable({
         startY: 30,
         head: [['Order ID', 'Date', 'Product', 'Quantity', 'Total Price', 'Discount', 'Final Amount', 'Coupon']],
@@ -320,7 +315,6 @@
         margin: { left: 20, right: 20 },
       });
 
-      // Summary
       const finalY = doc.lastAutoTable.finalY || 30;
       doc.setFontSize(14);
       doc.setTextColor(0, 0, 0);
@@ -333,7 +327,6 @@
       doc.text(`Overall Order Amount: ${document.getElementById("orderAmount").textContent}`, 20, finalY + 35);
       doc.text(`Overall Discount: ${document.getElementById("discountAmount").textContent}`, 20, finalY + 45);
 
-      // Footer
       doc.setFontSize(10);
       doc.setTextColor(150);
       doc.setFont('Roboto', 'sans-serif');
@@ -348,10 +341,8 @@
       const summary = document.getElementById("reportSummary");
       const wb = XLSX.utils.book_new();
 
-      // Table data
       const tableData = XLSX.utils.table_to_sheet(table);
 
-      // Summary data
       const summaryData = [
         ["Summary", ""],
         ["Overall Sales Count", document.getElementById("salesCount").textContent],
@@ -360,11 +351,9 @@
       ];
       const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
 
-      // Append both sheets to the workbook
       XLSX.utils.book_append_sheet(wb, tableData, "Sales Report");
       XLSX.utils.book_append_sheet(wb, summarySheet, "Summary");
 
-      // Download the Excel file
       XLSX.writeFile(wb, "Sales_Report.xlsx");
     }
   </script>

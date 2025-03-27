@@ -204,13 +204,11 @@
     <script>
         function sendOTP() {
             const email = document.getElementById('emailInput').value;
-            // Add API call to send OTP
             document.getElementById('otpSection').style.display = 'block';
             Swal.fire('OTP Sent!', 'Check your email for verification code', 'success');
         }
 
         function verifyOTP() {
-            // Add OTP verification logic
             Swal.fire('Success!', 'Email verified successfully', 'success');
             document.getElementById('otpSection').style.display = 'none';
         }
@@ -226,20 +224,10 @@
                 confirmButtonText: 'Yes, delete it!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Add account deletion logic
                     Swal.fire('Deleted!', 'Your account has been deleted', 'success');
                 }
             });
         }
-
-        // Image Preview Handler
-        // document.getElementById('profileImage').addEventListener('change', function(e) {
-        //     const reader = new FileReader();
-        //     reader.onload = function() {
-        //         document.querySelector('.profile-picture').src = reader.result;
-        //     }
-        //     reader.readAsDataURL(e.target.files[0]);
-        // });
 
         document.getElementById('profileImage').addEventListener('change', function (e) {
             const file = e.target.files[0];

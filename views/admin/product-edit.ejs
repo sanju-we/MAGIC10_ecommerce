@@ -257,9 +257,8 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
 <script>
     let croppers = {}
-    let variantCounter = <%= product.variants.length %>; // Start counter after existing variants
+    let variantCounter = <%= product.variants.length %>; 
 
-    // Function to add a new variant entry
     function addVariant() {
         const variantsContainer = document.getElementById('variants-container');
         const variantEntry = document.createElement('div');
@@ -276,7 +275,6 @@
         variantCounter++;
     }
 
-    // Function to remove a variant entry
     function removeVariant(id) {
         const variantEntry = document.getElementById(`variant-${id}`);
         if (variantEntry) {
@@ -284,7 +282,6 @@
         }
     }
 
-    // Function to collect and validate variants
     function collectVariants() {
         const variantEntries = document.querySelectorAll('.variant-entry');
         const variants = [];
@@ -335,7 +332,6 @@
         return { isValid, variants };
     }
 
-    // Image preview handling
     document.querySelectorAll('.image-input').forEach((input, index) => {
         input.addEventListener('change', function (e) {
             const file = e.target.files[0];
@@ -365,7 +361,6 @@
         });
     });
 
-    // Function to delete a single image
     async function deleteSingleImage(imageName, productId, index) {
         Swal.fire({
             title: 'Are you sure?',
@@ -399,7 +394,6 @@
                             showConfirmButton: false
                         });
 
-                        // Reload after deletion
                         setTimeout(() => { location.reload(); }, 1600);
                     } else {
                         Swal.fire({
@@ -448,12 +442,10 @@
     }
 }
 
-// Attach event listeners to image inputs
 document.querySelectorAll('.image-input').forEach((input, index) => {
     input.addEventListener('change', (event) => handleImageChange(event, index));
 });
 
-    // Form validation and submission
     document.addEventListener("DOMContentLoaded", function () {
         const form = document.getElementById('editProductForm');
 
@@ -528,7 +520,6 @@ document.querySelectorAll('.image-input').forEach((input, index) => {
             return true;
         }
 
-        // Apply validation when typing or changing selection
         document.querySelectorAll("input, textarea").forEach((input) => {
             input.addEventListener("input", function () {
                 validateInput(input);
@@ -541,19 +532,16 @@ document.querySelectorAll('.image-input').forEach((input, index) => {
             });
         });
 
-        // Validate form before submission
         form.addEventListener("submit", async function (event) {
             event.preventDefault();
             let isValid = true;
 
-            // Validate basic fields
             document.querySelectorAll("input, textarea, select").forEach((input) => {
                 if (!validateInput(input)) {
                     isValid = false;
                 }
             });
 
-            // Collect and validate variants
             const { isValid: variantsValid, variants } = collectVariants();
             if (!variantsValid) {
                 isValid = false;
@@ -564,11 +552,9 @@ document.querySelectorAll('.image-input').forEach((input, index) => {
                     confirmButtonText: 'OK'
                 });
             } else {
-                // Set the variants as JSON string in the hidden input
                 document.getElementById('variants-input').value = JSON.stringify(variants);
             }
 
-            // Check if all image inputs have files or existing images
             let allImagesProvided = true;
             document.querySelectorAll(".image-input").forEach((input) => {
                 if (!input.files.length && !input.closest('.card').querySelector('img')) {
@@ -583,7 +569,6 @@ document.querySelectorAll('.image-input').forEach((input, index) => {
                 return;
             }
 
-            // Submit the form with cropped images
             const formData = new FormData(this);
             for (let i = 0; i < 4; i++) {
                 if (croppers[i] && croppers[i].getCroppedCanvas()) {

@@ -129,10 +129,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
-    // Debugging logs
     console.log("Order details script loaded");
   
-    // Store order data
     const orderData = {
       productName: <%- JSON.stringify(order.product.productName) %>,
       quantity: <%= order.quantity %>,
@@ -154,7 +152,6 @@
   
     console.log("Order data:", orderData);
   
-    // PDF Download Functionality
     document.addEventListener("DOMContentLoaded", function () {
       console.log("DOM fully loaded!");
       document.getElementById("downloadBtn").addEventListener("click", function () {
@@ -168,26 +165,23 @@
           });
   
           const margin = 20;
-          const pageWidth = 210; // A4 width in mm
-          const containerWidth = pageWidth - 2 * margin; // 170mm
+          const pageWidth = 210; 
+          const containerWidth = pageWidth - 2 * margin;
   
-          // Draw the container with white background and light blue border
-          doc.setFillColor(255, 255, 255); // White
-          doc.setDrawColor(211, 224, 234); // Light blue (#D3E0EA)
-          doc.setLineWidth(0.3); // ~1px border
-          doc.roundedRect(margin, margin, containerWidth, 257, 5, 5, 'FD'); // Container with rounded corners
+          doc.setFillColor(255, 255, 255);
+          doc.setDrawColor(211, 224, 234); 
+          doc.setLineWidth(0.3);
+          doc.roundedRect(margin, margin, containerWidth, 257, 5, 5, 'FD');
   
-          // "Item Details" Section
           let yPos = margin + 10;
           doc.setFont('helvetica', 'bold');
           doc.setFontSize(16);
-          doc.setTextColor(0, 0, 0); // Black
+          doc.setTextColor(0, 0, 0); 
           doc.text('ITEM DETAILS', margin + 10, yPos);
           yPos += 5;
-          doc.setDrawColor(211, 224, 234); // Light blue divider
-          doc.line(margin + 10, yPos, margin + 160, yPos); // Divider line
+          doc.setDrawColor(211, 224, 234); 
+          doc.line(margin + 10, yPos, margin + 160, yPos);
   
-          // Add product image (if available)
           yPos += 5;
           if (orderData.imageUrl) {
             try {
@@ -197,8 +191,7 @@
             }
           }
   
-          // Add item details text
-          const textX = margin + 100; // Position to the right of the image
+          const textX = margin + 100;
           doc.setFontSize(12);
           doc.setFont('helvetica', 'bold');
           doc.text('Product:', textX, yPos + 5);
@@ -225,7 +218,7 @@
             doc.text('Discount:', textX, yPos + 45);
             doc.setFont('helvetica', 'normal');
             doc.text(`Rs.${orderData.discount.toFixed(2)}`, textX + 30, yPos + 45);
-            yPos += 10; // Adjust position for extra line
+            yPos += 10;
           }
   
           doc.setFont('helvetica', 'bold');
@@ -238,16 +231,14 @@
           doc.setFont('helvetica', 'normal');
           doc.text(`${orderData.status}`, textX + 30, yPos + 65);
   
-          // "Shipping Address" Section
-          yPos += 90; // Move down after image and item details
+          yPos += 90; 
           doc.setFont('helvetica', 'bold');
           doc.setFontSize(16);
           doc.text('SHIPPING ADDRESS', margin + 10, yPos);
           yPos += 5;
-          doc.setDrawColor(211, 224, 234); // Light blue divider
-          doc.line(margin + 10, yPos, margin + 160, yPos); // Divider line
+          doc.setDrawColor(211, 224, 234); 
+          doc.line(margin + 10, yPos, margin + 160, yPos); 
   
-          // Add address details
           yPos += 10;
           doc.setFontSize(12);
           doc.setFont('helvetica', 'bold');
@@ -285,7 +276,6 @@
           doc.setFont('helvetica', 'normal');
           doc.text('INDIA', margin + 40, yPos); 
   
-          // Save the PDF with order ID in the filename
           doc.save(`order_${orderData.orderId}.pdf`);
         } else {
           console.error("jsPDF is not loaded correctly.");

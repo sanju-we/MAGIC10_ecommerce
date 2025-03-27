@@ -216,7 +216,6 @@
         function validatePinCode() {
             const pinCode = document.getElementById('pinCode');
             const errorElement = document.getElementById('pinCodeError');
-            // Remove non-digit characters
             pinCode.value = pinCode.value.replace(/\D/g, '');
             if (!/^\d{6}$/.test(pinCode.value)) {
                 errorElement.innerText = 'Must be 6 digits';
@@ -248,7 +247,6 @@
             return true;
         }
 
-        // Add event listeners for live validation
         document.getElementById('fullName').addEventListener('input', validateFullName);
         document.getElementById('phone').addEventListener('input', validatePhone);
         document.getElementById('street').addEventListener('input', validateStreet);
@@ -257,16 +255,13 @@
         document.getElementById('pinCode').addEventListener('input', validatePinCode);
         document.getElementById('state').addEventListener('change', validateState);
 
-        // For radio buttons
         document.querySelectorAll('input[name="addressType"]').forEach(radio => {
             radio.addEventListener('change', validateAddressType);
         });
 
-        // Existing submit handler
         document.getElementById('addAddressForm').addEventListener('submit', function (e) {
-            e.preventDefault(); // Prevent default submission
+            e.preventDefault();
 
-            // Run all validations
             const validations = [
                 validateFullName(),
                 validatePhone(),
@@ -278,7 +273,6 @@
                 validateAddressType()
             ];
 
-            // If any validation fails, do not submit the form
             if (validations.includes(false)) {
                 console.log('Validation failed, form not submitted.');
                 return;

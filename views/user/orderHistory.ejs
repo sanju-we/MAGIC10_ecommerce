@@ -140,7 +140,6 @@
     </div>
 
     <script>
-        // Existing cancelOrder and returnOrder functions remain unchanged
         async function cancelOrder(orderId) {
             const { value: reason } = await Swal.fire({
                 title: 'Cancel Order',
@@ -287,7 +286,6 @@
         }
 
 
-        // Add event listener for the limit select dropdown
         const limitSelect = document.getElementById('limitSelect');
         if (limitSelect) {
             limitSelect.addEventListener('change', function () {

@@ -270,7 +270,6 @@
         </form>
     </section>
 
-    <!-- <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
     <script>
@@ -578,7 +577,6 @@
                             body: formData
                         });
 
-                        // Parse JSON response
                         const data = await resp.json();
 
                         if (data.success) {
@@ -589,7 +587,6 @@
                                 confirmButtonText: 'OK'
                             });
 
-                            // Reload AFTER user clicks "OK"
                             window.location.reload();
                         } else {
                             Swal.fire({

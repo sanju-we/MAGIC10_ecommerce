@@ -228,7 +228,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
     <script>
-      // Add Category Form Submission
       document.getElementById('addCategoryForm').addEventListener('submit', function (e) {
         e.preventDefault();
         const formData = new FormData(this);
@@ -246,7 +245,7 @@
               Swal.fire({
                 title: 'Success!',
                 text: data.message,
-                icon: 'success', // Success icon
+                icon: 'success',
               }).then(() => {
                 location.reload();
               });
@@ -254,7 +253,7 @@
               Swal.fire({
                 title: 'Error!',
                 text: data.error,
-                icon: 'error', // Error icon
+                icon: 'error',
               });
             }
           })
@@ -269,10 +268,8 @@
       });
 
 
-      // Ensure form submission is handled
       document.getElementById("formId").addEventListener("submit", handleFormSubmit);
 
-      // Edit Category Function
       function editCategory(id, name, description) {
         Swal.fire({
           title: 'Edit Category',
@@ -313,7 +310,6 @@
         });
       }
 
-      // Unlist Category Function
       function unlistCategory(id) {
         Swal.fire({
           title: 'Are you sure?',
@@ -326,7 +322,7 @@
         }).then((result) => {
           if (result.isConfirmed) {
             fetch(`/admin/unlistCategory?id=${id}`, {
-              method: 'POST' // Use POST for actions that modify data
+              method: 'POST'
             })
               .then(response => response.json())
               .then(data => {
@@ -346,7 +342,6 @@
         });
       }
 
-      // List Category Function
       function listCategory(id) {
         Swal.fire({
           title: 'Are you sure?',
@@ -379,7 +374,6 @@
         });
       }
 
-      // addoffer
       function addOffer(categoryId) {
         Swal.fire({
           title: 'Add Offer',

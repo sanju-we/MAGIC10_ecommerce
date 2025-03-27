@@ -146,7 +146,6 @@
         const emailVal = emailInput.value.trim();
         const confirmEmailVal = confirmEmailInput.value.trim();
   
-        // Email format validation
         if (!validateEmail(emailVal)) {
           errorEmail.style.display = "block";
           errorEmail.innerText = "Enter a valid email address";
@@ -156,7 +155,6 @@
           emailInput.classList.remove('error');
         }
   
-        // Confirm email validation
         if (confirmEmailVal !== "" && emailVal !== confirmEmailVal) {
           errorConfirmEmail.style.display = "block";
           errorConfirmEmail.innerText = "Emails do not match";
@@ -167,7 +165,6 @@
         }
       }
   
-      // Live validation on input
       emailInput.addEventListener('input', checkValidation);
       confirmEmailInput.addEventListener('input', checkValidation);
   
@@ -175,7 +172,7 @@
         checkValidation();
   
         if (errorEmail.style.display === "block" || errorConfirmEmail.style.display === "block") {
-          e.preventDefault(); // Prevent submission if errors exist
+          e.preventDefault();  
         }
       });
     });

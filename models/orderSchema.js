@@ -80,7 +80,7 @@ const orderSchema = new Schema({
     default: "none",
   },
   paymentMethod: {
-    typr: String,
+    type: String,
   },
   createdOn: {
     type: Date,
