@@ -14,6 +14,18 @@
     </div>
   </div>
 </footer>
+<script>
+  // Mobile menu toggle
+  const mobileMenuButton = document.getElementById('mobileMenuButton');
+  const mobileMenu = document.getElementById('mobileMenu');
+
+  mobileMenuButton.addEventListener('click', () => {
+      mobileMenu.classList.toggle('open');
+      mobileMenuButton.innerHTML = mobileMenu.classList.contains('open') ? 
+          '<i class="fas fa-times text-2xl"></i>' : 
+          '<i class="fas fa-bars text-2xl"></i>';
+  });
+</script>
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
   integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"

@@ -121,4 +121,7 @@ router.post('/add-money',userAuth,walletController.addTowallet)
 router.post("/wallet/create-order",userAuth,walletController.createRazorpayOrder)
 router.post("/wallet/payment-success",userAuth,walletController.razorpayPaymentSuccess)
 
+//contact
+router.get('/contact',userAuth,userController.loadContact)
+
 module.exports = router

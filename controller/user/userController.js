@@ -328,7 +328,14 @@ const newPassword = async (req, res) => {
   }
 }
 
-
+const loadContact = async(req,res)=>{
+  try {
+    res.render('contact')
+  } catch (error) {
+    console.error("password updating page error", error)
+    res.redirect('/pageNotFound')
+  }
+}
 
 
 module.exports = {
@@ -345,5 +352,6 @@ module.exports = {
   forgetPass,
   verifyEmail,
   newPassword,
-  loadnewPassword
+  loadnewPassword,
+  loadContact
 }

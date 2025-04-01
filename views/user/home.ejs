@@ -1,43 +1,291 @@
 <%- include('../partials/user/header') %>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f4f4f4;
+      /* Light background for contrast */
+      color: #333;
+      /* Dark text color */
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      background-color: #121212;
+      /* Dark background for header */
+      padding: 10px 0;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      color: #C4A277;
+      /* Logo color */
+      font-size: 24px;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: #C4A277;
+      /* Link color */
+      text-decoration: none;
+      margin: 0 15px;
+    }
+
+    .header-icons {
+      display: flex;
+      align-items: center;
+    }
+
+    .icon-link {
+      color: #C4A277;
+      /* Icon color */
+      margin: 0 10px;
+    }
+
+    .custom-dropdown {
+      position: relative;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #fff;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+    }
+
+    .custom-dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .hero-content {
+      margin-bottom: 20px;
+    }
+
+    .hero-image img {
+      width: 100%;
+      max-width: 400px;
+      /* Limit max width for larger screens */
+      border-radius: 200px;
+    }
+
+    .bestsellers {
+      margin-top: 40px;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .product {
+      background-color: #000000;
+      color: #fff;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .product img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 10px 15px;
+      background-color: #004d56;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+
+    .button:hover {
+      background-color: #003d46;
+      /* Darker shade on hover */
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .nav-links {
+        flex-direction: column;
+        /* Stack links vertically on small screens */
+        align-items: flex-start;
+        /* Align to the left */
+      }
+
+      .nav-links a {
+        margin: 10px 0;
+        /* Add margin for spacing */
+      }
+
+      .hero-content h1 {
+        font-size: 24px;
+        /* Adjust font size for smaller screens */
+      }
+
+      .hero-content p {
+        font-size: 14px;
+        /* Adjust font size for smaller screens */
+      }
+
+      .hero-image img {
+        max-width: 100%;
+        /* Full width on smaller screens */
+      }
+    }
+
+    @media (max-width: 480px) {
+      .logo {
+        font-size: 20px;
+        /* Smaller logo size */
+      }
+
+      .button {
+        padding: 8px 12px;
+        /* Smaller button padding */
+      }
+    }
+
+    /* header css */
+    /* Custom styles for better mobile experience */
+    .navbar-brand {
+      margin-right: auto;
+      /* Pushes everything else to the right */
+      padding-left: 1rem;
+      /* Space after toggle button */
+    }
+
+    .navbar-nav {
+      gap: 0.5rem;
+      /* Consistent spacing between items */
+    }
+
+    @media (max-width: 992px) {
+      .navbar-collapse {
+        padding-top: 1rem;
+      }
+
+      .navbar-nav {
+        align-items: flex-end !important;
+      }
+
+      .nav-item {
+        padding: 0.5rem 0;
+      }
+
+      .dropdown-menu {
+        text-align: right;
+      }
+    }
+  </style>
 
   <body>
     <div class="container">
       <header>
-        <nav>
-            <a href="/" class="logo">MAGIC10</a>
-            <div class="nav-links">
-                <a href="/">HOME</a>
-                <a href="/shop">SHOP</a>
-                <a href="/about">ABOUT</a>
-                <a href="/contact">CONTACT</a>
-                
-                <!-- Wishlist and Cart Buttons -->
-                <div class="header-icons">
-                    <a href="/wishlist" class="icon-link">
-                        <i class="fas fa-heart"></i>
-                    </a>
-                    <a href="/cart" class="icon-link">
-                        <i class="fas fa-shopping-bag"></i>
-                    </a>
-                </div>
-    
+        <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #000000;">
+          <div class="container-fluid">
+            <!-- Mobile Toggle Button (now on left side) -->
+            <button class="navbar-toggler me-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+              aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Brand Logo (moved after toggle button) -->
+            <B><a class="navbar-brand" href="/" style="color: #C4A277;">MAGIC10</a></B>
+
+            <!-- Navbar Content - All right-aligned -->
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+              <ul class="navbar-nav align-items-center">
+                <li class="nav-item">
+                  <a class="nav-link" href="/" style="color: #fff;">HOME</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/shop" style="color: #fff;">SHOP</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/about" style="color: #fff;">ABOUT</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/contact" style="color: #fff;">CONTACT</a>
+                </li>
+
+                <!-- Wishlist and Cart Icons -->
+                <li class="nav-item">
+                  <a href="/wishlist" class="nav-link" style="color: #fff;">
+                    <i class="fas fa-heart"></i>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="/cart" class="nav-link" style="color: #fff;">
+                    <i class="fas fa-shopping-bag"></i>
+                  </a>
+                </li>
+
+                <!-- User Dropdown or Auth Links -->
                 <% if (locals.user) { %>
-                    <div class="custom-dropdown">
-                        <a href="#" class="sign-in-link">
-                            <%= locals.user.username %>
-                        </a>
-                        <div class="dropdown-content">
-                            <a href="/userProfile">Profile</a>
-                            <a href="/logout">Logout</a>
-                        </div>
-                    </div>
-                <% } else { %>
-                    <a href="/signup">SIGNUP</a>
-                    <a href="/login">LOGIN</a>
-                <% } %>
+                  <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                      data-bs-toggle="dropdown" aria-expanded="false" style="color: #fff;">
+                      <%= locals.user.username %>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                      <li><a class="dropdown-item" href="/userProfile"><i class="fas fa-user me-2"
+                            style="color: #fff;"></i>Profile</a></li>
+                      <li>
+                        <hr class="dropdown-divider">
+                      </li>
+                      <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"
+                            style="color: #fff;"></i>Logout</a></li>
+                    </ul>
+                  </li>
+                  <% } else { %>
+                    <li class="nav-item">
+                      <a class="nav-link" href="/signup">SIGNUP</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="/login">LOGIN</a>
+                    </li>
+                    <% } %>
+              </ul>
             </div>
+          </div>
         </nav>
-    </header>
+      </header>
+
 
       <section class="hero">
         <div class="hero-content">

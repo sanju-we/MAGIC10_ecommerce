@@ -1,493 +1,522 @@
 <%- include('../partials/user/header') %>
 
     <style>
-        /* Enhanced Checkout Styles */
+        /* Enhanced Responsive Checkout Styles */
         * {
             color: #fff;
+            box-sizing: border-box;
         }
-
+    
+        body {
+            background-color: #121212;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+    
         .checkout-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 2rem;
+            padding: 1rem;
+            min-height: calc(100vh - 120px);
         }
-
+    
         .checkout-form {
             width: 100%;
             max-width: 800px;
             margin: 0 auto;
         }
-
-        .form-title {
-            color: var(--accent-gold);
-            font-size: 1.4rem;
-            letter-spacing: 0.5px;
+    
+        /* Header Styles */
+        .navbar {
+            background-color: #000 !important;
+            padding: 0.75rem 1rem;
+        }
+    
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: #C4A277 !important;
+        }
+    
+        .nav-link {
+            color: #fff !important;
+            padding: 0.5rem 1rem !important;
+        }
+    
+        /* Form Sections */
+        .form-section {
             margin-bottom: 1.5rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 2px solid rgba(196, 162, 119, 0.2);
-            position: relative;
-        }
-
-        .form-title::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 60px;
-            height: 2px;
-            background: var(--accent-gold);
-        }
-
-        .coupon-section {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 1.5rem;
-        }
-
-        .coupon-section input {
-            flex: 1;
-            padding: 0.75rem;
-            border-radius: 8px;
-            border: 1px solid rgba(196, 162, 119, 0.3);
-            background: var(--dark-bg);
-            color: var(--text-primary);
-        }
-
-        .coupon-section button {
-            background: var(--accent-gold);
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .coupon-section button:hover {
-            background: #b89e6b;
-        }
-
-        .discount-info {
-            color: var(--accent-gold);
-            font-size: 1rem;
-            margin-top: 0.5rem;
-        }
-
-        .error-message {
-            color: red;
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-        }
-
-        .custom-select-wrapper {
-            position: relative;
-            margin-bottom: 1.5rem;
-        }
-
-        .custom-select-wrapper select {
-            background: var(--dark-bg);
-            border: 1px solid rgba(196, 162, 119, 0.3);
-            color: var(--text-primary);
-            padding: 1rem;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-        }
-
-        .custom-select-wrapper select:focus {
-            border-color: var(--accent-gold);
-            box-shadow: 0 0 0 3px rgba(196, 162, 119, 0.15);
-        }
-
-        .address-preview {
-            background: var(--dark-bg);
-            padding: 1rem;
-            border-radius: 8px;
-            margin-top: 1rem;
-            border: 1px solid rgba(196, 162, 119, 0.1);
-            display: none;
-        }
-
-        .address-preview.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .payment-card {
-            background: var(--dark-bg);
+            background: #1e1e1e;
             padding: 1.25rem;
             border-radius: 8px;
-            border: 1px solid rgba(196, 162, 119, 0.2);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-
+    
+        .form-title {
+            color: #C4A277;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(196, 162, 119, 0.3);
+        }
+    
+        /* Address Section */
+        .custom-select-wrapper {
+            margin-bottom: 1rem;
+        }
+    
+        .custom-select-wrapper select {
+            width: 100%;
+            padding: 0.75rem;
+            background: #2c2c2c;
+            border: 1px solid rgba(196, 162, 119, 0.3);
+            color: #fff;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+    
+        .address-preview {
+            background: #2c2c2c;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            display: none;
+        }
+    
+        .address-preview.active {
+            display: block;
+        }
+    
+        /* Payment Methods */
+        .payment-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+    
+        .payment-card {
+            background: #2c2c2c;
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid rgba(196, 162, 119, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+    
         .payment-card.active {
-            border-color: var(--accent-gold);
+            border-color: #C4A277;
             background: rgba(196, 162, 119, 0.05);
         }
-
-        .payment-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(196, 162, 119, 0.05), transparent);
-            transform: rotate(45deg);
-            transition: all 0.5s ease;
-            opacity: 0;
+    
+        /* Coupon Section */
+        .coupon-section {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
         }
-
-        .payment-card:hover::before {
-            opacity: 1;
+    
+        .coupon-section input {
+            width: 100%;
+            padding: 0.75rem;
+            background: #2c2c2c;
+            border: 1px solid rgba(196, 162, 119, 0.3);
+            color: #fff;
+            border-radius: 6px;
         }
-
+    
+        .coupon-section button {
+            width: 100%;
+            padding: 0.75rem;
+            background: #C4A277;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    
+        /* Order Summary */
         .order-summary {
-            background: var(--dark-bg);
-            border-radius: 12px;
-            padding: 2rem;
-            border: 1px solid rgba(196, 162, 119, 0.1);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            background: #2c2c2c;
+            padding: 1.25rem;
+            border-radius: 8px;
         }
-
+    
         .summary-item {
             padding: 0.75rem 0;
-            border-bottom: 1px solid rgba(196, 162, 119, 0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            font-size: 0.95rem;
         }
-
-        .summary-item:last-child {
-            border-bottom: none;
-        }
-
+    
         .total {
-            font-size: 1.3rem;
             font-weight: 600;
-            color: var(--accent-gold);
+            color: #C4A277;
+            font-size: 1.1rem;
         }
-
+    
+        /* Buttons */
         .btn-gold {
-            background: var(--accent-gold);
-            color: var(--dark-bg);
-            padding: 1rem 2rem;
-            border-radius: 8px;
+            width: 100%;
+            padding: 1rem;
+            background: #C4A277;
+            color: #000;
+            border: none;
+            border-radius: 6px;
             font-weight: 600;
-            letter-spacing: 0.5px;
+            margin-top: 1rem;
+            cursor: pointer;
             transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
         }
-
-        .btn-gold:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(196, 162, 119, 0.3);
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(5px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .checkout-container {
-                grid-template-columns: 1fr;
-                padding: 1.5rem;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .checkout-container {
-                padding: 1rem;
-                min-height: auto;
-            }
-
-            .checkout-form {
-                max-width: 100%;
-            }
-        }
-
-        /* Modal Styling */
+    
+        /* Modal Styles */
         .modal-content {
-            background-color: #121212;
-            color: #121212;
+            background: #2c2c2c;
+            color: #fff;
         }
-
-        .modal-header,
+    
+        .modal-header {
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+    
         .modal-footer {
-            border-color: var(--border-light);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            flex-wrap: wrap;
+            justify-content: center;
         }
-
-        .btn-close {
-            filter: invert(1);
-            /* Makes the close button visible on dark background */
-        }
-
-        /* Coupon Table Styling */
+    
+        /* Table Styles */
         #couponTable {
             width: 100%;
-            border-collapse: collapse;
+            color: #fff;
+            font-size: 0.9rem;
         }
-
+    
         #couponTable th {
-            background-color: var(--dark-bg);
-            color: var(--accent-gold);
+            background: #1e1e1e;
+            color: #C4A277;
+            padding: 0.75rem;
+            font-size: 0.95rem;
         }
-
-        #couponTable td {
-            color: var(--text-primary);
-        }
-
-        #couponTable th,
+    
         #couponTable td {
             padding: 0.75rem;
-            border-bottom: 1px solid var(--border-light);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            word-break: break-word;
         }
-
-        #couponTable .btn-primary {
-            background-color: var(--accent-gold);
-            border: none;
-            color: var(--dark-bg);
+    
+        /* Responsive Adjustments */
+        @media (min-width: 576px) {
+            .coupon-section {
+                flex-direction: row;
+            }
+            
+            .coupon-section input {
+                flex: 1;
+            }
+            
+            .coupon-section button {
+                width: auto;
+            }
+            
+            .payment-methods {
+                flex-direction: row;
+            }
+            
+            .payment-card {
+                flex: 1;
+            }
         }
-
-        #couponTable .btn-primary:hover {
-            background-color: #b89e6b;
+    
+        @media (min-width: 768px) {
+            .checkout-container {
+                padding: 2rem;
+            }
+            
+            .form-section {
+                padding: 1.5rem;
+            }
+            
+            .form-title {
+                font-size: 1.3rem;
+            }
+            
+            .summary-item {
+                font-size: 1rem;
+            }
+        }
+    
+        @media (max-width: 767px) {
+            #couponTable thead {
+                display: none;
+            }
+            
+            #couponTable tr {
+                display: block;
+                margin-bottom: 1rem;
+                border-bottom: 2px solid rgba(196, 162, 119, 0.3);
+            }
+            
+            #couponTable td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.5rem 0.75rem;
+                border-bottom: 1px solid rgba(255,255,255,0.05);
+            }
+            
+            #couponTable td::before {
+                content: attr(data-label);
+                font-weight: bold;
+                color: #C4A277;
+                margin-right: 1rem;
+                flex: 1;
+            }
+            
+            #couponTable td:last-child {
+                border-bottom: none;
+            }
+            
+            .modal-footer button {
+                width: 100%;
+                margin: 0.25rem 0;
+            }
         }
     </style>
     <header>
-        <nav>
-            <a href="/" class="logo">MAGIC10</a>
-            <div class="nav-links">
-                <a href="/">HOME</a>
-                <a href="/shop">SHOP</a>
-                <a href="/about">ABOUT</a>
-                <a href="/contact">CONTACT</a>
-
-                <!-- Wishlist and Cart Buttons -->
-                <div class="header-icons">
-                    <a href="/wishlist" class="icon-link">
-                        <i class="fas fa-heart"></i>
-                    </a>
-                    <a href="/cart" class="icon-link">
-                        <i class="fas fa-shopping-bag"></i>
-                    </a>
-                </div>
-                <div class="custom-dropdown">
-                    <a href="#" class="sign-in-link">
-                        <%= user.username %>
-                    </a>
-                    <div class="dropdown-content">
-                        <a href="/userProfile">Profile</a>
-                        <a href="/logout">Logout</a>
-                    </div>
+        <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #000000;">
+            <div class="container-fluid">
+                <!-- Mobile Toggle Button (now on left side) -->
+                <button class="navbar-toggler me-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+    
+                <!-- Brand Logo (moved after toggle button) -->
+                <B><a class="navbar-brand" href="/" style="color: #C4A277;">MAGIC10</a></B>
+    
+                <!-- Navbar Content - All right-aligned -->
+                <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                    <ul class="navbar-nav align-items-center">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/" style="color: #fff;">HOME</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/shop" style="color: #fff;">SHOP</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/about" style="color: #fff;">ABOUT</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/contact" style="color: #fff;">CONTACT</a>
+                        </li>
+    
+                        <!-- Wishlist and Cart Icons -->
+                        <li class="nav-item">
+                            <a href="/wishlist" class="nav-link" style="color: #fff;">
+                                <i class="fas fa-heart"></i>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/cart" class="nav-link" style="color: #fff;">
+                                <i class="fas fa-shopping-bag"></i>
+                            </a>
+                        </li>
+    
+                        <!-- User Dropdown or Auth Links -->
+                        <% if (locals.user) { %>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown"
+                                    role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fff;">
+                                    <%= locals.user.username %>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <li><a class="dropdown-item" href="/userProfile"><i class="fas fa-user me-2" style="color: #fff;"></i>Profile</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2" style="color: #fff;"></i>Logout</a></li>
+                                </ul>
+                            </li>
+                        <% } else { %>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/signup">SIGNUP</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/login">LOGIN</a>
+                            </li>
+                        <% } %>
+                    </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="checkout-container">
-        <!-- Checkout Form -->
-        <form class="checkout-form" method="post" action="/addOrder" id="checkoutForm">
-            <!-- Shipping Address Section -->
-            <div class="form-section">
-                <h3 class="form-title">Select Address</h3>
-                <div class="custom-select-wrapper">
-                    <select name="address" id="address" class="form-control" required>
-                        <option value="" disabled selected style="color: black;">Choose Delivery Address</option>
-                        <% add.forEach(address=> { %>
-                            <option value="<%= address._id %>" style="color: black;"
-                                data-full-address="<%= `${address.LandMark}, ${address.city}, ${address.State} - ${address.PINcode}` %>">
-                                📌 <%= address.fullName %> - <%= address.city %>
-                            </option>
-                            <% }) %>
-                    </select>
-                    <div class="select-arrow"></div>
-                </div>
-                <div class="address-preview" id="addressPreview"></div>
-                <a href="/addAddress">Add Address</a>
+    <!-- Checkout Form -->
+<div class="checkout-container">
+    <form class="checkout-form" method="post" action="/addOrder" id="checkoutForm">
+        <!-- Shipping Address Section -->
+        <div class="form-section">
+            <h3 class="form-title">Select Address</h3>
+            <div class="custom-select-wrapper">
+                <select name="address" id="address" class="form-control" required>
+                    <option value="" disabled selected style="color: #000;">Choose Delivery Address</option>
+                    <% add.forEach(address=> { %>
+                        <option value="<%= address._id %>" style="color: #000;"
+                            data-full-address="<%= `${address.LandMark}, ${address.city}, ${address.State} - ${address.PINcode}` %>">
+                            📌 <%= address.fullName %> - <%= address.city %>
+                        </option>
+                    <% }) %>
+                </select>
             </div>
+            <div class="address-preview" id="addressPreview"></div>
+            <a href="/addAddress" style="color: #C4A277; display: inline-block; margin-top: 0.5rem;">Add Address</a>
+        </div>
 
-            <!-- Payment Section -->
-            <div class="form-section">
-                <h3 class="form-title">Payment Method</h3>
-                <div class="payment-methods">
-                    <!-- <div class="payment-card" data-method="credit-card">
-                        <label class="payment-method-label">
-                            <input type="radio" name="paymentMethod" value="credit-card" required>
-                            <div class="payment-method-content">
-                                <i class="fas fa-credit-card"></i>
-                                <span>Credit/Debit Card</span>
-                            </div>
-                        </label>
-                    </div> -->
-
-                    <%if(totalAmount<=1000){%>
+        <!-- Payment Section -->
+        <div class="form-section">
+            <h3 class="form-title">Payment Method</h3>
+            <div class="payment-methods">
+                <%if(totalAmount<=1000){%>
                     <div class="payment-card" data-method="cod">
-                        <label class="payment-method-label">
-                            <input type="radio" name="paymentMethod" value="cod">
-                            <div class="payment-method-content" style="display: inline;">
-                                <i class="fas fa-money-bill-wave"></i>
-                                <span>Cash on Delivery</span>
-                            </div>
+                        <label class="payment-method-label" style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+                            <input type="radio" name="paymentMethod" value="cod" style="cursor: pointer;">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <span>Cash on Delivery</span>
                         </label>
                     </div>
-                    <%}%>
+                <%}%>
 
-                    <div class="payment-card" data-method="razorpay">
-                        <label class="payment-method-label">
-                            <input type="radio" name="paymentMethod" value="razorpay">
-                            <div class="payment-method-content" style="display: inline;">
-                                <i class="fas fa-wallet"></i>
-                                <span>Razorpay</span>
-                            </div>
-                        </label>
-                    </div>
+                <div class="payment-card" data-method="razorpay">
+                    <label class="payment-method-label" style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+                        <input type="radio" name="paymentMethod" value="razorpay" style="cursor: pointer;">
+                        <i class="fas fa-wallet"></i>
+                        <span>Razorpay</span>
+                    </label>
                 </div>
             </div>
+        </div>
 
-            <!-- Coupon Code Section -->
-            <div class="form-section">
-                <h3 class="form-title">Apply Coupon <br></h3>
-                <div class="coupon-section">
-                    <input type="text" id="couponCode" name="couponCode" placeholder="Enter Coupon Code">
-                    <button type="button" id="applyCoupon">Apply</button>
-                    <button type="button" id="cancelCoupon" style="display: none;">Cancel Coupon</button>
-                </div>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#couponModal">
-                    View Available Coupons
-                </button>
-                <p class="discount-info" id="discountInfo" style="display: none;"></p>
-                <p class="error-message" id="errorMessage" style="display: none;"></p>
+        <!-- Coupon Code Section -->
+        <div class="form-section">
+            <h3 class="form-title">Apply Coupon</h3>
+            <div class="coupon-section">
+                <input type="text" id="couponCode" name="couponCode" placeholder="Enter Coupon Code">
+                <button type="button" id="applyCoupon">Apply</button>
+                <button type="button" id="cancelCoupon" style="display: none;">Cancel Coupon</button>
             </div>
-
-            <!-- Order Summary Section -->
-            <div class="form-section"><br>
-                <h3 class="form-title">Order Summary</h3>
-                <div class="order-summary">
-                    <% cartItems.forEach(item=> { %>
-                        <div class="summary-item">
-                            <span class="product-name">
-                                <%= item.productId.productName %> × <%= item.quantity %>
-                            </span>
-                            <span class="product-price">
-                                ₹<span class="original-price" data-price="<%= item.totalPrice %>">
-                                    <%= item.totalPrice.toFixed(2) %>
-                                </span>
-                                <span class="discounted-price" style="display: none;"></span>
-                            </span>
-                        </div>
-                        <% }) %>
-
-                            <div class="summary-item">
-                                <span>Subtotal:</span>
-                                <span>₹<span id="subtotal" name="subTotal">
-                                        <%= subTotal %>.00
-                                    </span></span>
-                            </div>
-
-                            <div class="summary-item">
-                                <span>Shipping:</span>
-                                <span>₹<span id="shipping" name="shipping">
-                                        <%= shipping %>.00
-                                    </span></span>
-                            </div>
-
-                            <div class="summary-item">
-                                <span>Discount:</span>
-                                <span>-₹<span id="discount" name="discount">
-                                        0.00
-                                    </span></span>
-                            </div>
-
-                            <div class="summary-item">
-                                <span>Total Amount:</span>
-                                <span>₹<span id="total" name="shipping">
-                                        <%= totalAmount %>.00
-                                    </span></span>
-                                <input type="hidden" id="totalAmountInput" name="totalAmount"
-                                    value="<%= totalAmount %>">
-                            </div>
-                </div>
-            </div>
-            <!-- Submit Button -->
-            <button type="submit" class="btn-gold">
-                <i class="fas fa-lock"></i>
-                Confirm Order
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#couponModal" 
+                    style="background: #C4A277; border: none; color: #000; padding: 0.75rem; border-radius: 6px; margin-top: 0.5rem; width: 100%;">
+                View Available Coupons
             </button>
-        </form>
-        <!-- Coupon Modal -->
-        <div class="modal fade" id="couponModal" tabindex="-1" aria-labelledby="couponModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="couponModalLabel">Available Coupons</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <p class="discount-info" id="discountInfo" style="display: none;"></p>
+            <p class="error-message" id="errorMessage" style="display: none;"></p>
+        </div>
+
+        <!-- Order Summary Section -->
+        <div class="form-section">
+            <h3 class="form-title">Order Summary</h3>
+            <div class="order-summary">
+                <% cartItems.forEach(item=> { %>
+                    <div class="summary-item">
+                        <span class="product-name">
+                            <%= item.productId.productName %> × <%= item.quantity %>
+                        </span>
+                        <span class="product-price">
+                            ₹<span class="original-price" data-price="<%= item.totalPrice %>">
+                                <%= item.totalPrice.toFixed(2) %>
+                            </span>
+                            <span class="discounted-price" style="display: none;"></span>
+                        </span>
                     </div>
-                    <div class="modal-body">
-                        <% if (coupons.length> 0) { %>
-                            <table id="couponTable" class="table table-bordered">
+                <% }) %>
+
+                <div class="summary-item">
+                    <span>Subtotal:</span>
+                    <span>₹<span id="subtotal" name="subTotal">
+                            <%= subTotal %>.00
+                        </span></span>
+                </div>
+
+                <div class="summary-item">
+                    <span>Shipping:</span>
+                    <span>₹<span id="shipping" name="shipping">
+                            <%= shipping %>.00
+                        </span></span>
+                </div>
+
+                <div class="summary-item">
+                    <span>Discount:</span>
+                    <span>-₹<span id="discount" name="discount">
+                            0.00
+                        </span></span>
+                </div>
+
+                <div class="summary-item total">
+                    <span>Total Amount:</span>
+                    <span>₹<span id="total" name="shipping">
+                            <%= totalAmount %>.00
+                        </span></span>
+                    <input type="hidden" id="totalAmountInput" name="totalAmount" value="<%= totalAmount %>">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Submit Button -->
+        <button type="submit" class="btn-gold">
+            <i class="fas fa-lock"></i>
+            Confirm Order
+        </button>
+    </form>
+
+    <!-- Coupon Modal -->
+    <div class="modal fade" id="couponModal" tabindex="-1" aria-labelledby="couponModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="couponModalLabel">Available Coupons</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <% if (coupons.length> 0) { %>
+                        <div class="table-responsive">
+                            <table id="couponTable" class="table">
                                 <thead>
                                     <tr>
                                         <th>Coupon Code</th>
                                         <th>Discount</th>
                                         <th>Min Purchase</th>
-                                        <th>Expiration Date</th>
+                                        <th>Expires</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <% coupons.forEach(coupon=> { %>
                                         <tr>
-                                            <td class="coupon-code">
-                                                <%= coupon.name %>
-                                            </td>
-                                            <td>
-                                                <%= coupon.offerPrice %> Off
-                                            </td>
-                                            <td>₹<%= coupon.minPrice.toFixed(2) %>
-                                            </td>
-                                            <td>
-                                                <%= new Date(coupon.expireOn).toLocaleDateString() %>
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-primary"
-                                                    onclick="copyCoupon('<%= coupon.name %>')">Copy Code</button>
+                                            <td data-label="Code"><%= coupon.name %></td>
+                                            <td data-label="Discount"><%= coupon.offerPrice %> Off</td>
+                                            <td data-label="Min Purchase">₹<%= coupon.minPrice.toFixed(2) %></td>
+                                            <td data-label="Expires"><%= new Date(coupon.expireOn).toLocaleDateString() %></td>
+                                            <td data-label="Action">
+                                                <button class="btn btn-sm" 
+                                                        style="background: #C4A277; color: #000; border: none;"
+                                                        onclick="copyCoupon('<%= coupon.name %>')">
+                                                    Copy
+                                                </button>
                                             </td>
                                         </tr>
-                                        <% }) %>
+                                    <% }) %>
                                 </tbody>
                             </table>
-                            <% } else { %>
-                                <div class="alert alert-warning text-center">No available coupons at the moment.</div>
-                                <% } %>
-                    </div>
-                    <div class="modal-footer">
-                        <button id="prevPage" class="btn btn-secondary">Previous</button>
-                        <span id="pageInfo"></span>
-                        <button id="nextPage" class="btn btn-secondary">Next</button>
-                    </div>
+                        </div>
+                    <% } else { %>
+                        <div class="alert alert-warning text-center">No available coupons at the moment.</div>
+                    <% } %>
+                </div>
+                <div class="modal-footer">
+                    <button id="prevPage" class="btn btn-secondary">Previous</button>
+                    <span id="pageInfo" class="mx-2">Page 1 of <%= Math.ceil(coupons.length/5) %></span>
+                    <button id="nextPage" class="btn btn-secondary">Next</button>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
@@ -783,6 +812,10 @@
                 this.submit();
             }
         });
+
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+        document.querySelector('.navbar').classList.toggle('active');
+    });
     </script>
 
     <%- include('../partials/user/footer') %>

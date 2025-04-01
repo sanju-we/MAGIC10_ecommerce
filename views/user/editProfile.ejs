@@ -1,53 +1,4 @@
 <%- include('../partials/user/header') %>
-    <header>
-        <nav>
-            <a href="/" class="logo">MAGIC10</a>
-            <div class="nav-links">
-                <a href="/">HOME</a>
-                <a href="/shop">SHOP</a>
-                <a href="/about">ABOUT</a>
-                <a href="/contatc">CONTACT</a>
-                <% if (locals.user) { %>
-                    <div class="custom-dropdown">
-                        <a href="#" class="sign-in-link">
-                            <%= locals.userData.username %>
-                        </a>
-                        <div class="dropdown-content">
-                            <a href="/userProfile">Profile</a>
-                            <a href="/logout">Logout</a>
-                        </div>
-                    </div>
-                    <% } %>
-            </div>
-        </nav>
-        <nav class="col-md-3 col-lg-2 d-md-block sidebar">
-            <h3 class="mb-4">MAGIC10</h3>
-            <a href="/userProfile">
-                <i class="fas fa-user"></i>
-                Dashboard
-            </a>
-            <a href="/orderHistory">
-                <i class="fas fa-history"></i>
-                Order History
-            </a>
-            <a href="/userProfile/address/<%=userData._id%>">
-                <i class="fas fa-map-marker-alt"></i>
-                Address Book
-            </a>
-            <a href="#" class="active">
-                <i class="fas fa-cog"></i>
-                Account Settings
-            </a>
-            <a href="/userProfile/wallet/<%=userData._id%>">
-                <i class='fas fa-wallet'></i>
-                Wallet
-            </a>
-            <a href="/logout">
-                <i class="fas fa-sign-out-alt"></i>
-                Logout
-            </a>
-        </nav>
-    </header>
     <style>
         :root {
             --dark-bg: #121212;
@@ -129,77 +80,205 @@
             margin-top: 3rem;
         }
     </style>
-
-    <div class="edit-profile-container">
-        <h2 class="text-center mb-4">Edit Profile</h2>
-
-        <!-- Profile Picture Section -->
-        <div class="profile-picture-section">
-            <img src="<%= userData.image ? userData.image : 'images/Messi signup.jpg' %>" class="profile-picture"
-                alt="Profile">
-            <form id="profilePicForm" enctype="multipart/form-data">
-                <input type="file" id="profileImage" accept="image/*" hidden>
-                <button type="button" onclick="document.getElementById('profileImage').click()" class="btn-gold">
-                    <i class="fas fa-camera"></i> Change Photo
-                </button>
-            </form>
+<nav class="bg-dark shadow-lg">
+    <div class="container mx-auto px-4">
+        <!-- Top Level Navigation -->
+        <div class="flex justify-between items-center py-4">
+            <!-- Logo -->
+            <a href="/" class="text-2xl font-bold text-gold-600">MAGIC10</a>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden lg:flex items-center space-x-8">
+                <!-- Main Links -->
+                <div class="flex space-x-6">
+                    <a href="/" class="hover:text-purple-600 transition">HOME</a>
+                    <a href="/shop" class="hover:text-purple-600 transition">SHOP</a>
+                    <a href="/about" class="hover:text-purple-600 transition">ABOUT</a>
+                    <a href="/contact" class="hover:text-purple-600 transition">CONTACT</a>
+                </div>
+                
+                <!-- Icons -->
+                <div class="flex items-center space-x-5 ml-6">
+                    <a href="/wishlist" class="text-gray-600 hover:text-purple-600 transition">
+                        <i class="fas fa-heart text-xl"></i>
+                    </a>
+                    <a href="/cart" class="text-gray-600 hover:text-purple-600 transition">
+                        <i class="fas fa-shopping-bag text-xl"></i>
+                    </a>
+                    
+                    <!-- User Dropdown -->
+                    <div class="relative dropdown">
+                        <button class="flex items-center space-x-2 focus:outline-none">
+                            <span class="font-medium"><%= userData.username %></span>
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                        <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 hidden">
+                            <a href="#" class="block px-4 py-2 hover:bg-purple-50">
+                                <i class="fas fa-user mr-2"></i>Dashboard
+                            </a>
+                            <a href="/orderHistory" class="block px-4 py-2 hover:bg-purple-50">
+                                <i class="fas fa-history mr-2"></i>Order History
+                            </a>
+                            <a href="/userProfile/address/<%=userData._id%>" class="block px-4 py-2 hover:bg-purple-50">
+                                <i class="fas fa-map-marker-alt mr-2"></i>Address Book
+                            </a>
+                            <a href="/userProfile/edit/<%=userData._id%>" class="block px-4 py-2 hover:bg-purple-50">
+                                <i class="fas fa-cog mr-2"></i>Settings
+                            </a>
+                            <a href="/userProfile/wallet/<%=userData._id%>" class="block px-4 py-2 hover:bg-purple-50">
+                                <i class="fas fa-wallet mr-2"></i>Wallet
+                            </a>
+                            <div class="border-t my-1"></div>
+                            <a href="/logout" class="block px-4 py-2 text-red-500 hover:bg-red-50">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mobile Menu Button -->
+            <button id="mobileMenuButton" class="lg:hidden text-gray-600 focus:outline-none">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
         </div>
-
-
-
-        <!-- Personal Information Form -->
-        <form id="editProfileForm" action="/userProfile/edit/<%=userData._id%>" method="post">
-            <div class="form-group">
-                <label class="form-label">Full Name</label>
-                <input type="text" class="form-control" name="username" value="<%= userData.username %>" required>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Phone Number</label>
-                <input type="tel" class="form-control" name="phone" value="<%= userData.phone %>">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Gender</label>
-                <div class="radio-group">
-                    <label>
-                        <input type="radio" name="gender" value="Male" <%=userData.gender==='Male' ? 'checked' : '' %>>
-                        Male
-                    </label><br>
-                    <label>
-                        <input type="radio" name="gender" value="Female" <%=userData.gender==='Female' ? 'checked' : ''
-                            %>> Female
-                    </label><br>
-                    <label>
-                        <input type="radio" name="gender" value="Other" <%=userData.gender==='Other' ? 'checked' : ''
-                            %>> Other
-                    </label>
+        
+        <!-- Mobile Menu (Collapsible) -->
+        <div id="mobileMenu" class="mobile-menu lg:hidden">
+            <div class="pb-4 space-y-2">
+                <a href="/" class="block py-2 px-4 hover:bg-purple-50 rounded" style="color: #fff;">HOME</a>
+                <a href="/shop" class="block py-2 px-4 hover:bg-purple-50 rounded" style="color: #fff;">SHOP</a>
+                <a href="/about" class="block py-2 px-4 hover:bg-purple-50 rounded" style="color: #fff;">ABOUT</a>
+                <a href="/contact" class="block py-2 px-4 hover:bg-purple-50 rounded" style="color: #fff;">CONTACT</a>
+                
+                <div class="pt-2 border-t">
+                    <a href="/wishlist" class="block py-2 px-4 hover:bg-purple-50 rounded">
+                        <i class="fas fa-heart mr-3"></i>Wishlist
+                    </a>
+                    <a href="/cart" class="block py-2 px-4 hover:bg-purple-50 rounded">
+                        <i class="fas fa-shopping-bag mr-3"></i>Cart
+                    </a>
+                </div>
+                
+                <div class="pt-2 border-t">
+                    <a href="#" class="block py-2 px-4 hover:bg-purple-50 rounded">
+                        <i class="fas fa-user mr-3"></i>Dashboard
+                    </a>
+                    <a href="/orderHistory" class="block py-2 px-4 hover:bg-purple-50 rounded">
+                        <i class="fas fa-history mr-3"></i>Order History
+                    </a>
+                    <a href="/userProfile/address/<%=userData._id%>" class="block py-2 px-4 hover:bg-purple-50 rounded">
+                        <i class="fas fa-map-marker-alt mr-3"></i>Address Book
+                    </a>
+                    <a href="/userProfile/edit/<%=userData._id%>" class="block py-2 px-4 hover:bg-purple-50 rounded">
+                        <i class="fas fa-cog mr-3"></i>Settings
+                    </a>
+                    <a href="/userProfile/wallet/<%=userData._id%>" class="block py-2 px-4 hover:bg-purple-50 rounded">
+                        <i class="fas fa-wallet mr-3"></i>Wallet
+                    </a>
+                    <a href="/logout" class="block py-2 px-4 text-red-500 hover:bg-red-50 rounded">
+                        <i class="fas fa-sign-out-alt mr-3"></i>Logout
+                    </a>
                 </div>
             </div>
+        </div>
+    </div>
+</nav>
+    <div class="container mx-auto px-4 py-8 max-w-2xl bg-gray-900 text-gray-100">
+    <h2 class="text-2xl font-bold text-center text-amber-500 mb-6">Edit Profile</h2>
 
-            <!-- Email Update with OTP Verification -->
-            <div class="form-group">
-                <label class="form-label">Email Address</label>
-                <div class="input-group">
-                    <input type="email" class="form-control" value="<%= userData.email %>" name="email" id="emailInput"
-                        required>
-                    <a href="/userProfile/change-email/<%=userData._id%>"><button class="btn-gold" type="button">Change
-                            Email</button></a>
-                </div>
-                <div class="otp-section" id="otpSection">
-                    <input type="text" class="form-control mt-2" placeholder="Enter OTP">
-                    <button class="btn-gold mt-2" type="button" onclick="verifyOTP()">Submit OTP</button>
-                </div>
-            </div>
-
-            <div class="text-center">
-                <button type="submit" class="btn-gold px-5">Save Changes</button><br>
-                <%if(userData.password){%>
-                    <a href="/userProfile/Reset-password/<%=userData._id%>">Change Password</a>
-                    <%}%>
-            </div>
+    <!-- Profile Picture Section -->
+    <div class="flex flex-col items-center mb-8">
+        <img src="<%= userData.image ? userData.image : 'images/Messi signup.jpg' %>" 
+             class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-amber-500 object-cover mb-4"
+             alt="Profile">
+        <form id="profilePicForm" enctype="multipart/form-data" class="text-center">
+            <input type="file" id="profileImage" accept="image/*" class="hidden" onchange="handleImageUpload()">
+            <button type="button" onclick="document.getElementById('profileImage').click()" 
+                    class="bg-blue-200 hover:bg-blue-500 text-gray-900 font-medium py-2 px-4 rounded-lg transition">
+                <i class="fas fa-camera mr-2"></i>Change Photo
+            </button>
         </form>
     </div>
+
+    <!-- Personal Information Form -->
+    <form id="editProfileForm" action="/userProfile/edit/<%=userData._id%>" method="post" class="space-y-6">
+        <!-- Full Name -->
+        <div class="space-y-2">
+            <label class="block text-gray-400">Full Name</label>
+            <input type="text" name="username" value="<%= userData.username %>" 
+                   class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:border-amber-500 focus:ring-amber-500" 
+                   required>
+        </div>
+
+        <!-- Phone Number -->
+        <div class="space-y-2">
+            <label class="block text-gray-400">Phone Number</label>
+            <input type="tel" name="phone" value="<%= userData.phone %>" 
+                   class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:border-amber-500 focus:ring-amber-500">
+        </div>
+
+        <!-- Gender -->
+        <div class="space-y-2">
+            <label class="block text-gray-400">Gender</label>
+            <div class="space-y-2">
+                <label class="flex items-center space-x-3">
+                    <input type="radio" name="gender" value="Male" <%=userData.gender==='Male' ? 'checked' : '' %>
+                           class="h-4 w-4 text-amber-500 border-gray-600 focus:ring-amber-500 bg-gray-700">
+                    <span>Male</span>
+                </label>
+                <label class="flex items-center space-x-3">
+                    <input type="radio" name="gender" value="Female" <%=userData.gender==='Female' ? 'checked' : '' %>
+                           class="h-4 w-4 text-amber-500 border-gray-600 focus:ring-amber-500 bg-gray-700">
+                    <span>Female</span>
+                </label>
+                <label class="flex items-center space-x-3">
+                    <input type="radio" name="gender" value="Other" <%=userData.gender==='Other' ? 'checked' : '' %>
+                           class="h-4 w-4 text-amber-500 border-gray-600 focus:ring-amber-500 bg-gray-700">
+                    <span>Other</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Email Update with OTP Verification -->
+        <div class="space-y-2">
+            <label class="block text-gray-400">Email Address</label>
+            <div class="flex flex-col sm:flex-row gap-3">
+                <input type="email" value="<%= userData.email %>" name="email" id="emailInput"
+                       class="flex-grow bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:border-amber-500 focus:ring-amber-500" 
+                       required>
+                <a href="/userProfile/change-email/<%=userData._id%>" 
+                   class="bg-blue-200 hover:bg-blue-500 text-gray-900 font-medium py-2 px-4 rounded-lg text-center transition whitespace-nowrap">
+                    Change Email
+                </a>
+            </div>
+            <div class="hidden" id="otpSection">
+                <input type="text" placeholder="Enter OTP"
+                       class="w-full mt-2 bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 focus:border-amber-500 focus:ring-amber-500">
+                <button type="button" onclick="verifyOTP()"
+                        class="mt-2 bg-amber-500 hover:bg-amber-600 text-gray-900 font-medium py-2 px-4 rounded-lg w-full transition">
+                    Submit OTP
+                </button>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="text-center space-y-4 pt-4">
+            <button type="submit" 
+                    class="bg-blue-200 hover:bg-blue-500 text-gray-900 font-medium py-2 px-6 rounded-lg transition">
+                Save Changes
+            </button>
+            <%if(userData.password){%>
+                <div>
+                    <a href="/userProfile/Reset-password/<%=userData._id%>" 
+                       class="text-amber-400 hover:text-amber-300 transition">
+                        Change Password
+                    </a>
+                </div>
+            <%}%>
+        </div>
+    </form>
+</div>
 
     <script>
         function sendOTP() {
