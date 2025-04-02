@@ -3,7 +3,7 @@ const Address = require('../../models/addressSchema')
 const Order = require('../../models/orderSchema')
 const Wallet = require('../../models/walletSchema')
 const nodemailer = require('nodemailer')
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 const HttpStatus = require('../../config/httpStatusCode')
 
 const loadProfilePage = async (req, res) => {

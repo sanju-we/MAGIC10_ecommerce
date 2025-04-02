@@ -228,7 +228,7 @@
             <B><a class="navbar-brand" href="/" style="color: #C4A277;">MAGIC10</a></B>
 
             <!-- Navbar Content - All right-aligned -->
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            <div class="navbar-collapse justify-content-end" id="navbarNav">
               <ul class="navbar-nav align-items-center">
                 <li class="nav-item">
                   <a class="nav-link" href="/" style="color: #fff;">HOME</a>
@@ -325,5 +325,9 @@
       </section><br><br>
 
     </div>
-
+<script>
+  document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+        document.querySelector('.nav-links').classList.toggle('active');
+    });
+</script>
     <%- include('../partials/user/footer') %>

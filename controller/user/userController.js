@@ -4,7 +4,7 @@ const Product = require('../../models/productSchema')
 const Wallet = require('../../models/walletSchema')
 const nodemailer = require('nodemailer')
 const env = require('dotenv').config()
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 const HttpStatus = require('../../config/httpStatusCode')
 
 const loadHomepage = async (req, res) => {

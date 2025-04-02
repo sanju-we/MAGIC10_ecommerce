@@ -49,7 +49,7 @@ const deletecoupon = async (req, res) => {
     }
     res.json({ success: true, message: "Coupon deleted successfully!" })
   } catch (error) {
-    console.error('eoor occur while loadCoupon')
+    console.error('error occur while loadCoupon')
     return res.redirect('pageerror')
   }
 }
